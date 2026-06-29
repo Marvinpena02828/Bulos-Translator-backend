@@ -1,0 +1,7 @@
+# This file ensures the models directory is tracked by git
+# DeepSpeech and translation models will be stored here
+# 
+# Expected model files:
+# - deepspeech-0.9.3-models.pbmm
+# - deepspeech-0.9.3-models.scorer
+# - translation/*.h5 (LSTM translation models)

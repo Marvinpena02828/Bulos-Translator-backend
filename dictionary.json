@@ -1,0 +1,4920 @@
+{
+  "title": "I Surot a Ugnay a Pegemit",
+  "columns": [
+    "BULOS",
+    "FILIPINO",
+    "ENGLISH"
+  ],
+  "categories": [
+    {
+      "category": "BAHAGI NI LAWES (Parts of the Body)",
+      "entries": [
+        {
+          "BULOS": "ulù",
+          "FILIPINO": "ulo",
+          "ENGLISH": "head"
+        },
+        {
+          "BULOS": "samoy",
+          "FILIPINO": "buhok",
+          "ENGLISH": "hair"
+        },
+        {
+          "BULOS": "ibù",
+          "FILIPINO": "noo",
+          "ENGLISH": "forehead"
+        },
+        {
+          "BULOS": "mala",
+          "FILIPINO": "mata",
+          "ENGLISH": "eye"
+        },
+        {
+          "BULOS": "koròp",
+          "FILIPINO": "kilay",
+          "ENGLISH": "eyebrow"
+        },
+        {
+          "BULOS": "pilik-mata",
+          "FILIPINO": "pilik-mata",
+          "ENGLISH": "eyelashes"
+        },
+        {
+          "BULOS": "talokap ni mata",
+          "FILIPINO": "talukap ng mata",
+          "ENGLISH": "eyelid"
+        },
+        {
+          "BULOS": "sangù",
+          "FILIPINO": "ilong",
+          "ENGLISH": "nose"
+        },
+        {
+          "BULOS": "ibìt",
+          "FILIPINO": "labi",
+          "ENGLISH": "lips"
+        },
+        {
+          "BULOS": "pasingil",
+          "FILIPINO": "pisngi",
+          "ENGLISH": "cheeks"
+        },
+        {
+          "BULOS": "mukha",
+          "FILIPINO": "mukha",
+          "ENGLISH": "face"
+        },
+        {
+          "BULOS": "talingà",
+          "FILIPINO": "tenga",
+          "ENGLISH": "ear"
+        },
+        {
+          "BULOS": "bong",
+          "FILIPINO": "leeg",
+          "ENGLISH": "neck"
+        },
+        {
+          "BULOS": "tingdùn",
+          "FILIPINO": "batok",
+          "ENGLISH": "nape"
+        },
+        {
+          "BULOS": "ngipon",
+          "FILIPINO": "ngipin",
+          "ENGLISH": "teeth"
+        },
+        {
+          "BULOS": "dila/diwal",
+          "FILIPINO": "dila",
+          "ENGLISH": "tongue"
+        },
+        {
+          "BULOS": "ngusù",
+          "FILIPINO": "bibig",
+          "ENGLISH": "mouth"
+        },
+        {
+          "BULOS": "ngalos",
+          "FILIPINO": "gilagid",
+          "ENGLISH": "gums"
+        },
+        {
+          "BULOS": "lalamunan",
+          "FILIPINO": "lalamunan",
+          "ENGLISH": "throat"
+        },
+        {
+          "BULOS": "ngaral",
+          "FILIPINO": "ngalangala",
+          "ENGLISH": "palate"
+        },
+        {
+          "BULOS": "abè",
+          "FILIPINO": "balikat",
+          "ENGLISH": "shoulder"
+        },
+        {
+          "BULOS": "idòg",
+          "FILIPINO": "likod",
+          "ENGLISH": "back"
+        },
+        {
+          "BULOS": "yokyok",
+          "FILIPINO": "kilikili",
+          "ENGLISH": "armpit"
+        },
+        {
+          "BULOS": "sikù",
+          "FILIPINO": "siko",
+          "ENGLISH": "elbow"
+        },
+        {
+          "BULOS": "botkon",
+          "FILIPINO": "braso",
+          "ENGLISH": "arm"
+        },
+        {
+          "BULOS": "botkon",
+          "FILIPINO": "bisig",
+          "ENGLISH": "forearm"
+        },
+        {
+          "BULOS": "botkon",
+          "FILIPINO": "braso",
+          "ENGLISH": "upper arm"
+        },
+        {
+          "BULOS": "komot",
+          "FILIPINO": "kamay",
+          "ENGLISH": "hand"
+        },
+        {
+          "BULOS": "palad",
+          "FILIPINO": "palad",
+          "ENGLISH": "palm"
+        },
+        {
+          "BULOS": "pungu",
+          "FILIPINO": "kamao",
+          "ENGLISH": "fist"
+        },
+        {
+          "BULOS": "guramut",
+          "FILIPINO": "daliri",
+          "ENGLISH": "fingers"
+        },
+        {
+          "BULOS": "kuko",
+          "FILIPINO": "kuko",
+          "ENGLISH": "fingernails, toenails"
+        },
+        {
+          "BULOS": "—",
+          "FILIPINO": "hinlalato",
+          "ENGLISH": "middle finger"
+        },
+        {
+          "BULOS": "palasingsengan",
+          "FILIPINO": "palasingsingan",
+          "ENGLISH": "ring finger"
+        },
+        {
+          "BULOS": "tanggegis",
+          "FILIPINO": "kalingkingan",
+          "ENGLISH": "small finger"
+        },
+        {
+          "BULOS": "alalang",
+          "FILIPINO": "dibdib",
+          "ENGLISH": "chest"
+        },
+        {
+          "BULOS": "susù",
+          "FILIPINO": "suso",
+          "ENGLISH": "breast"
+        },
+        {
+          "BULOS": "pusid",
+          "FILIPINO": "pusod",
+          "ENGLISH": "navel"
+        },
+        {
+          "BULOS": "bitukà",
+          "FILIPINO": "tiyan",
+          "ENGLISH": "stomach"
+        },
+        {
+          "BULOS": "lina-pas",
+          "FILIPINO": "puwit",
+          "ENGLISH": "buttocks"
+        },
+        {
+          "BULOS": "kawos",
+          "FILIPINO": "baywang",
+          "ENGLISH": "waist"
+        },
+        {
+          "BULOS": "belawang",
+          "FILIPINO": "balakang",
+          "ENGLISH": "hip"
+        },
+        {
+          "BULOS": "pa",
+          "FILIPINO": "hita",
+          "ENGLISH": "thigh"
+        },
+        {
+          "BULOS": "tud",
+          "FILIPINO": "tuhod",
+          "ENGLISH": "knee"
+        },
+        {
+          "BULOS": "bitis",
+          "FILIPINO": "binti",
+          "ENGLISH": "calf"
+        },
+        {
+          "BULOS": "singit",
+          "FILIPINO": "paa",
+          "ENGLISH": "leg"
+        },
+        {
+          "BULOS": "rong-ngad",
+          "FILIPINO": "alak-alakan",
+          "ENGLISH": "back of knee"
+        },
+        {
+          "BULOS": "palad ni singit",
+          "FILIPINO": "talampakan",
+          "ENGLISH": "foot"
+        },
+        {
+          "BULOS": "palad",
+          "FILIPINO": "talampakan",
+          "ENGLISH": "sole"
+        },
+        {
+          "BULOS": "boku-boku",
+          "FILIPINO": "sakong",
+          "ENGLISH": "heel"
+        },
+        {
+          "BULOS": "boku-boku",
+          "FILIPINO": "bukong-bukong",
+          "ENGLISH": "ankle bone"
+        }
+      ]
+    },
+    {
+      "category": "MANGAYUN NI MITTANAK (Members of the Family)",
+      "entries": [
+        {
+          "BULOS": "awung laki",
+          "FILIPINO": "lolo",
+          "ENGLISH": "grandfather"
+        },
+        {
+          "BULOS": "awung gupad",
+          "FILIPINO": "lola",
+          "ENGLISH": "grandmother"
+        },
+        {
+          "BULOS": "itoy",
+          "FILIPINO": "tatay",
+          "ENGLISH": "father"
+        },
+        {
+          "BULOS": "inoy",
+          "FILIPINO": "nanay",
+          "ENGLISH": "mother"
+        },
+        {
+          "BULOS": "yayang",
+          "FILIPINO": "kuya",
+          "ENGLISH": "older brother"
+        },
+        {
+          "BULOS": "atti",
+          "FILIPINO": "ate",
+          "ENGLISH": "older sister"
+        },
+        {
+          "BULOS": "bungso",
+          "FILIPINO": "bunso",
+          "ENGLISH": "younger sibling"
+        },
+        {
+          "BULOS": "killasaan",
+          "FILIPINO": "sanggol",
+          "ENGLISH": "baby, infant"
+        },
+        {
+          "BULOS": "ayun a patud",
+          "FILIPINO": "asawang lalaki",
+          "ENGLISH": "husband"
+        },
+        {
+          "BULOS": "ayun a mahuna",
+          "FILIPINO": "asawang babae",
+          "ENGLISH": "wife"
+        },
+        {
+          "BULOS": "anak a patud",
+          "FILIPINO": "anak na lalaki",
+          "ENGLISH": "son"
+        },
+        {
+          "BULOS": "anak a mahuna",
+          "FILIPINO": "anak na babae",
+          "ENGLISH": "daughter"
+        },
+        {
+          "BULOS": "mama/wawa",
+          "FILIPINO": "tiyo",
+          "ENGLISH": "uncle"
+        },
+        {
+          "BULOS": "teti/nangnang",
+          "FILIPINO": "tiya",
+          "ENGLISH": "aunt"
+        },
+        {
+          "BULOS": "pinsan",
+          "FILIPINO": "pinsan",
+          "ENGLISH": "cousin"
+        },
+        {
+          "BULOS": "manakon",
+          "FILIPINO": "pamangkin",
+          "ENGLISH": "nephew or niece"
+        },
+        {
+          "BULOS": "beyaw o hepag",
+          "FILIPINO": "bayaw o hipag",
+          "ENGLISH": "brother-in-law or sister-in-law"
+        },
+        {
+          "BULOS": "umaged",
+          "FILIPINO": "manugang",
+          "ENGLISH": "son-in-law or daughter-in-law"
+        },
+        {
+          "BULOS": "bilas",
+          "FILIPINO": "bilas",
+          "ENGLISH": "wife of brother-in-law or husband of sister-in-law"
+        },
+        {
+          "BULOS": "panuwangan",
+          "FILIPINO": "biyenan",
+          "ENGLISH": "father-in-law or mother-in-law"
+        },
+        {
+          "BULOS": "mangayun",
+          "FILIPINO": "kamag-anak",
+          "ENGLISH": "relatives"
+        },
+        {
+          "BULOS": "apung",
+          "FILIPINO": "ninuno",
+          "ENGLISH": "ancestor"
+        }
+      ]
+    },
+    {
+      "category": "UN MAGYEYEDI DE PAMAYENAN (Community Workers)",
+      "entries": [
+        {
+          "BULOS": "magtitinde",
+          "FILIPINO": "tindero o tindera",
+          "ENGLISH": "vendor, seller"
+        },
+        {
+          "BULOS": "magtatanom",
+          "FILIPINO": "magsasaka",
+          "ENGLISH": "farmer"
+        },
+        {
+          "BULOS": "magyeyedi ni beloy",
+          "FILIPINO": "karpintero",
+          "ENGLISH": "carpenter"
+        },
+        {
+          "BULOS": "mangingekan / magsasalad",
+          "FILIPINO": "mangingisda",
+          "ENGLISH": "fisherman"
+        },
+        {
+          "BULOS": "tubiro",
+          "FILIPINO": "tubero",
+          "ENGLISH": "plumber"
+        },
+        {
+          "BULOS": "magppalong ni nagkosonog",
+          "FILIPINO": "bumbero",
+          "ENGLISH": "fire fighter"
+        },
+        {
+          "BULOS": "pulis",
+          "FILIPINO": "pulis",
+          "ENGLISH": "police"
+        },
+        {
+          "BULOS": "gesapot ni te urom",
+          "FILIPINO": "nars",
+          "ENGLISH": "nurse"
+        },
+        {
+          "BULOS": "magbubulong",
+          "FILIPINO": "doktor",
+          "ENGLISH": "doctor"
+        },
+        {
+          "BULOS": "magtotodu",
+          "FILIPINO": "guro",
+          "ENGLISH": "teacher"
+        },
+        {
+          "BULOS": "magbubulong ni ngipon",
+          "FILIPINO": "dentista",
+          "ENGLISH": "dentist"
+        },
+        {
+          "BULOS": "dereber",
+          "FILIPINO": "tsuper, drayber",
+          "ENGLISH": "driver"
+        },
+        {
+          "BULOS": "arkitektu",
+          "FILIPINO": "arkitekto",
+          "ENGLISH": "architect"
+        },
+        {
+          "BULOS": "abugadu",
+          "FILIPINO": "abogado",
+          "ENGLISH": "lawyer"
+        },
+        {
+          "BULOS": "panadiro",
+          "FILIPINO": "panadero",
+          "ENGLISH": "baker"
+        },
+        {
+          "BULOS": "besurero",
+          "FILIPINO": "basurero",
+          "ENGLISH": "garbage collector"
+        },
+        {
+          "BULOS": "Kargedur/mag-aaddè",
+          "FILIPINO": "kargador",
+          "ENGLISH": "porter"
+        }
+      ]
+    },
+    {
+      "category": "PANGKARANEWEN A BEGEY (Common Objects)",
+      "entries": [
+        {
+          "BULOS": "palansa",
+          "FILIPINO": "plantsa",
+          "ENGLISH": "iron"
+        },
+        {
+          "BULOS": "palansahan",
+          "FILIPINO": "plantsahan",
+          "ENGLISH": "ironing board"
+        },
+        {
+          "BULOS": "timbe",
+          "FILIPINO": "timba",
+          "ENGLISH": "pail"
+        },
+        {
+          "BULOS": "beriles",
+          "FILIPINO": "bariles",
+          "ENGLISH": "barrel"
+        },
+        {
+          "BULOS": "lamesa",
+          "FILIPINO": "mesa",
+          "ENGLISH": "table"
+        },
+        {
+          "BULOS": "lepan",
+          "FILIPINO": "upuan",
+          "ENGLISH": "chair"
+        },
+        {
+          "BULOS": "kurtena",
+          "FILIPINO": "kurtina",
+          "ENGLISH": "curtain"
+        },
+        {
+          "BULOS": "welis",
+          "FILIPINO": "walis",
+          "ENGLISH": "broom"
+        },
+        {
+          "BULOS": "pandèkut/pang-akbut",
+          "FILIPINO": "pandakot",
+          "ENGLISH": "dust pan"
+        },
+        {
+          "BULOS": "edēan",
+          "FILIPINO": "papag",
+          "ENGLISH": "wooden bed"
+        },
+        {
+          "BULOS": "pinggen",
+          "FILIPINO": "pinggan",
+          "ENGLISH": "plate"
+        },
+        {
+          "BULOS": "tinidor",
+          "FILIPINO": "tinidor",
+          "ENGLISH": "fork"
+        },
+        {
+          "BULOS": "kutsara",
+          "FILIPINO": "kutsara",
+          "ENGLISH": "spoon"
+        },
+        {
+          "BULOS": "kutsareta",
+          "FILIPINO": "kutsarita",
+          "ENGLISH": "teaspoon"
+        },
+        {
+          "BULOS": "paray",
+          "FILIPINO": "palay",
+          "ENGLISH": "rice"
+        },
+        {
+          "BULOS": "asin",
+          "FILIPINO": "asin",
+          "ENGLISH": "salt"
+        },
+        {
+          "BULOS": "papangan",
+          "FILIPINO": "pagkain",
+          "ENGLISH": "food"
+        },
+        {
+          "BULOS": "bentilador",
+          "FILIPINO": "bentilador",
+          "ENGLISH": "electric fan"
+        },
+        {
+          "BULOS": "palanggena",
+          "FILIPINO": "palanggana",
+          "ENGLISH": "basin"
+        },
+        {
+          "BULOS": "betya",
+          "FILIPINO": "batya",
+          "ENGLISH": "big basin"
+        },
+        {
+          "BULOS": "tabu/tabotabo",
+          "FILIPINO": "tabo",
+          "ENGLISH": "dipper"
+        },
+        {
+          "BULOS": "hagden/hagdēnan",
+          "FILIPINO": "hagdan, hagdanan",
+          "ENGLISH": "stairs"
+        },
+        {
+          "BULOS": "salamin",
+          "FILIPINO": "salamin",
+          "ENGLISH": "mirror"
+        },
+        {
+          "BULOS": "tasa",
+          "FILIPINO": "tasa",
+          "ENGLISH": "cup"
+        },
+        {
+          "BULOS": "lopas ni lubi",
+          "FILIPINO": "bunot",
+          "ENGLISH": "coconut husk"
+        },
+        {
+          "BULOS": "basahan",
+          "FILIPINO": "basahan",
+          "ENGLISH": "rag"
+        },
+        {
+          "BULOS": "pamunasan ni singit",
+          "FILIPINO": "basahan",
+          "ENGLISH": "doormat"
+        },
+        {
+          "BULOS": "komut",
+          "FILIPINO": "kumot",
+          "ENGLISH": "blanket"
+        },
+        {
+          "BULOS": "olunan",
+          "FILIPINO": "unan",
+          "ENGLISH": "pillow"
+        },
+        {
+          "BULOS": "benga",
+          "FILIPINO": "banga",
+          "ENGLISH": "jar"
+        },
+        {
+          "BULOS": "pasù",
+          "FILIPINO": "paso",
+          "ENGLISH": "pot"
+        },
+        {
+          "BULOS": "alit a moslad",
+          "FILIPINO": "tela",
+          "ENGLISH": "cloth"
+        },
+        {
+          "BULOS": "alit/bēdu/demil",
+          "FILIPINO": "damit",
+          "ENGLISH": "clothes"
+        },
+        {
+          "BULOS": "pooyen ni alit",
+          "FILIPINO": "aparador",
+          "ENGLISH": "closet"
+        },
+        {
+          "BULOS": "beul",
+          "FILIPINO": "baul",
+          "ENGLISH": "wooden chest"
+        },
+        {
+          "BULOS": "saku",
+          "FILIPINO": "sako",
+          "ENGLISH": "sack"
+        },
+        {
+          "BULOS": "untik a pala",
+          "FILIPINO": "pala",
+          "ENGLISH": "shovel"
+        },
+        {
+          "BULOS": "pangsungkar ni putok",
+          "FILIPINO": "pala",
+          "ENGLISH": "spade"
+        },
+        {
+          "BULOS": "kalaykay, kalahig",
+          "FILIPINO": "kalaykay",
+          "ENGLISH": "rake"
+        },
+        {
+          "BULOS": "pangsipak",
+          "FILIPINO": "palakol",
+          "ENGLISH": "axe"
+        },
+        {
+          "BULOS": "lagere",
+          "FILIPINO": "lagare",
+          "ENGLISH": "saw"
+        },
+        {
+          "BULOS": "martilyu",
+          "FILIPINO": "martilyo",
+          "ENGLISH": "hammer"
+        },
+        {
+          "BULOS": "karatilya",
+          "FILIPINO": "karitilya",
+          "ENGLISH": "wheelbarrow"
+        },
+        {
+          "BULOS": "asarol",
+          "FILIPINO": "asarol",
+          "ENGLISH": "garden hoe"
+        },
+        {
+          "BULOS": "panggipot",
+          "FILIPINO": "lubid",
+          "ENGLISH": "rope"
+        },
+        {
+          "BULOS": "sabun",
+          "FILIPINO": "sabon",
+          "ENGLISH": "soap"
+        },
+        {
+          "BULOS": "sapatus",
+          "FILIPINO": "sapatos",
+          "ENGLISH": "shoes"
+        },
+        {
+          "BULOS": "midyes",
+          "FILIPINO": "medyas",
+          "ENGLISH": "socks"
+        },
+        {
+          "BULOS": "istepin",
+          "FILIPINO": "tsinelas",
+          "ENGLISH": "slippers"
+        },
+        {
+          "BULOS": "nīlu",
+          "FILIPINO": "relo",
+          "ENGLISH": "watch"
+        },
+        {
+          "BULOS": "tebī",
+          "FILIPINO": "telebisyon",
+          "ENGLISH": "television"
+        },
+        {
+          "BULOS": "gewesan/memī",
+          "FILIPINO": "laruan",
+          "ENGLISH": "toys"
+        },
+        {
+          "BULOS": "maneka",
+          "FILIPINO": "manika",
+          "ENGLISH": "doll"
+        }
+      ]
+    },
+    {
+      "category": "PANGKARANEWEN A HAYUP (Common Animals)",
+      "entries": [
+        {
+          "BULOS": "manūk",
+          "FILIPINO": "manok",
+          "ENGLISH": "hen"
+        },
+        {
+          "BULOS": "asū",
+          "FILIPINO": "aso",
+          "ENGLISH": "dog"
+        },
+        {
+          "BULOS": "posa",
+          "FILIPINO": "pusa",
+          "ENGLISH": "cat"
+        },
+        {
+          "BULOS": "bibi",
+          "FILIPINO": "bibe",
+          "ENGLISH": "duck"
+        },
+        {
+          "BULOS": "bebuy",
+          "FILIPINO": "baboy",
+          "ENGLISH": "pig"
+        },
+        {
+          "BULOS": "demulag",
+          "FILIPINO": "kalabaw",
+          "ENGLISH": "carabao"
+        },
+        {
+          "BULOS": "kambing",
+          "FILIPINO": "kambing",
+          "ENGLISH": "goat"
+        },
+        {
+          "BULOS": "beka",
+          "FILIPINO": "baka",
+          "ENGLISH": "cow"
+        },
+        {
+          "BULOS": "bebek",
+          "FILIPINO": "ahas",
+          "ENGLISH": "snake"
+        },
+        {
+          "BULOS": "pag-ung",
+          "FILIPINO": "pagong",
+          "ENGLISH": "turtle"
+        },
+        {
+          "BULOS": "paka",
+          "FILIPINO": "palaka",
+          "ENGLISH": "frog"
+        },
+        {
+          "BULOS": "gensa",
+          "FILIPINO": "gansa",
+          "ENGLISH": "goose"
+        },
+        {
+          "BULOS": "adew",
+          "FILIPINO": "matsing",
+          "ENGLISH": "monkey"
+        },
+        {
+          "BULOS": "manuk",
+          "FILIPINO": "ibon",
+          "ENGLISH": "bird"
+        },
+        {
+          "BULOS": "kalapati",
+          "FILIPINO": "kalapati",
+          "ENGLISH": "dove"
+        },
+        {
+          "BULOS": "langgem",
+          "FILIPINO": "langgam",
+          "ENGLISH": "ant"
+        },
+        {
+          "BULOS": "taktak",
+          "FILIPINO": "butiki",
+          "ENGLISH": "lizard"
+        },
+        {
+          "BULOS": "dogo",
+          "FILIPINO": "daga",
+          "ENGLISH": "rat"
+        },
+        {
+          "BULOS": "epas",
+          "FILIPINO": "ipis",
+          "ENGLISH": "cockroach"
+        },
+        {
+          "BULOS": "salibengbeng",
+          "FILIPINO": "paruparo",
+          "ENGLISH": "butterfly"
+        },
+        {
+          "BULOS": "namok",
+          "FILIPINO": "lamok",
+          "ENGLISH": "mosquito"
+        },
+        {
+          "BULOS": "langow",
+          "FILIPINO": "langaw",
+          "ENGLISH": "fly"
+        },
+        {
+          "BULOS": "tarakokang",
+          "FILIPINO": "uwang",
+          "ENGLISH": "beetle"
+        },
+        {
+          "BULOS": "gunting-gunting",
+          "FILIPINO": "balang",
+          "ENGLISH": "locust"
+        },
+        {
+          "BULOS": "anlalawa",
+          "FILIPINO": "gagamba",
+          "ENGLISH": "spider"
+        },
+        {
+          "BULOS": "gok",
+          "FILIPINO": "uod",
+          "ENGLISH": "worm, caterpillar"
+        },
+        {
+          "BULOS": "kabeyu",
+          "FILIPINO": "kabayo",
+          "ENGLISH": "horse"
+        },
+        {
+          "BULOS": "kunehu",
+          "FILIPINO": "kuneho",
+          "ENGLISH": "rabbit"
+        },
+        {
+          "BULOS": "mangarasous",
+          "FILIPINO": "putakti",
+          "ENGLISH": "wasp"
+        },
+        {
+          "BULOS": "atibengow",
+          "FILIPINO": "bangaw",
+          "ENGLISH": "botfly"
+        },
+        {
+          "BULOS": "kulamay",
+          "FILIPINO": "alupihan",
+          "ENGLISH": "centipede"
+        },
+        {
+          "BULOS": "laki-laki",
+          "FILIPINO": "kobung-kobung",
+          "ENGLISH": "ant lion"
+        },
+        {
+          "BULOS": "sangopsangop",
+          "FILIPINO": "alitaptap",
+          "ENGLISH": "firefly"
+        },
+        {
+          "BULOS": "besikut",
+          "FILIPINO": "bayawak",
+          "ENGLISH": "dragon lizard"
+        },
+        {
+          "BULOS": "mangato",
+          "FILIPINO": "buwaya",
+          "ENGLISH": "crocodile"
+        },
+        {
+          "BULOS": "tagek",
+          "FILIPINO": "tagak",
+          "ENGLISH": "heron"
+        },
+        {
+          "BULOS": "ikan",
+          "FILIPINO": "isda",
+          "ENGLISH": "fish"
+        },
+        {
+          "BULOS": "manuk",
+          "FILIPINO": "manok",
+          "ENGLISH": "chicken"
+        },
+        {
+          "BULOS": "hayup de bukod",
+          "FILIPINO": "hayop sa gubat",
+          "ENGLISH": "wild animals"
+        },
+        {
+          "BULOS": "alage a hayup",
+          "FILIPINO": "alagang hayop",
+          "ENGLISH": "domesticated animals"
+        }
+      ]
+    },
+    {
+      "category": "PANGKARANEWEN A HALAMAN (Common Plants)",
+      "entries": [
+        {
+          "BULOS": "santul",
+          "FILIPINO": "santol",
+          "ENGLISH": "santol"
+        },
+        {
+          "BULOS": "beyabes",
+          "FILIPINO": "bayabas",
+          "ENGLISH": "guava"
+        },
+        {
+          "BULOS": "lukben",
+          "FILIPINO": "suha",
+          "ENGLISH": "pomelo"
+        },
+        {
+          "BULOS": "kaynetu",
+          "FILIPINO": "kaymito",
+          "ENGLISH": "star apple"
+        },
+        {
+          "BULOS": "mangge",
+          "FILIPINO": "mangga",
+          "ENGLISH": "mango"
+        },
+        {
+          "BULOS": "betag",
+          "FILIPINO": "saging",
+          "ENGLISH": "banana"
+        },
+        {
+          "BULOS": "—",
+          "FILIPINO": "tsiko",
+          "ENGLISH": "chico"
+        },
+        {
+          "BULOS": "duhat",
+          "FILIPINO": "duhat",
+          "ENGLISH": "black plum"
+        },
+        {
+          "BULOS": "mora – niyog na mura pagengu – magulanglubi – puno ng buko",
+          "FILIPINO": "buko",
+          "ENGLISH": "coconut"
+        },
+        {
+          "BULOS": "sampalok",
+          "FILIPINO": "sampalok",
+          "ENGLISH": "tamarind"
+        },
+        {
+          "BULOS": "makopa",
+          "FILIPINO": "makopa",
+          "ENGLISH": "wax apple"
+        },
+        {
+          "BULOS": "latiris",
+          "FILIPINO": "aratiles",
+          "ENGLISH": "aratiles"
+        },
+        {
+          "BULOS": "—",
+          "FILIPINO": "mansanitas",
+          "ENGLISH": "jujube plum"
+        },
+        {
+          "BULOS": "kapaya",
+          "FILIPINO": "papaya",
+          "ENGLISH": "papaya"
+        },
+        {
+          "BULOS": "kamatsili",
+          "FILIPINO": "kamatsile",
+          "ENGLISH": "guamachili"
+        },
+        {
+          "BULOS": "piniya",
+          "FILIPINO": "pinya",
+          "ENGLISH": "pineapple"
+        },
+        {
+          "BULOS": "pakwen",
+          "FILIPINO": "pakwan",
+          "ENGLISH": "watermelon"
+        },
+        {
+          "BULOS": "milun",
+          "FILIPINO": "melon",
+          "ENGLISH": "melon"
+        },
+        {
+          "BULOS": "kamyes",
+          "FILIPINO": "kamias",
+          "ENGLISH": "camias"
+        },
+        {
+          "BULOS": "delangheta",
+          "FILIPINO": "dalanghita",
+          "ENGLISH": "orange"
+        },
+        {
+          "BULOS": "mabulo",
+          "FILIPINO": "mabolo",
+          "ENGLISH": "mabolo"
+        },
+        {
+          "BULOS": "nangka",
+          "FILIPINO": "langka",
+          "ENGLISH": "jackfruit"
+        },
+        {
+          "BULOS": "sampagita",
+          "FILIPINO": "sampagita",
+          "ENGLISH": "sampaguita"
+        },
+        {
+          "BULOS": "rosas",
+          "FILIPINO": "rosas",
+          "ENGLISH": "rose"
+        },
+        {
+          "BULOS": "santan",
+          "FILIPINO": "santan",
+          "ENGLISH": "santan"
+        },
+        {
+          "BULOS": "abukadu",
+          "FILIPINO": "abokado",
+          "ENGLISH": "avocado"
+        },
+        {
+          "BULOS": "—",
+          "FILIPINO": "camia",
+          "ENGLISH": "camia"
+        },
+        {
+          "BULOS": "ilang-elang",
+          "FILIPINO": "ilang-ilang",
+          "ENGLISH": "ilang-ilang"
+        },
+        {
+          "BULOS": "kidya",
+          "FILIPINO": "kalamansi",
+          "ENGLISH": "calamansi"
+        },
+        {
+          "BULOS": "kamatis",
+          "FILIPINO": "kamatis",
+          "ENGLISH": "tomato"
+        },
+        {
+          "BULOS": "lansonis",
+          "FILIPINO": "lansones",
+          "ENGLISH": "lanzones"
+        },
+        {
+          "BULOS": "atis",
+          "FILIPINO": "atis",
+          "ENGLISH": "atis"
+        },
+        {
+          "BULOS": "guyebenu",
+          "FILIPINO": "guyabano",
+          "ENGLISH": "soursop"
+        },
+        {
+          "BULOS": "pitsay",
+          "FILIPINO": "petsay",
+          "ENGLISH": "pechay"
+        },
+        {
+          "BULOS": "sibuyes",
+          "FILIPINO": "sibuyas",
+          "ENGLISH": "onion"
+        },
+        {
+          "BULOS": "bewang",
+          "FILIPINO": "bawang",
+          "ENGLISH": "garlic"
+        },
+        {
+          "BULOS": "talung",
+          "FILIPINO": "talong",
+          "ENGLISH": "eggplant"
+        },
+        {
+          "BULOS": "ampalaya",
+          "FILIPINO": "ampalaya",
+          "ENGLISH": "bitter gourd"
+        },
+        {
+          "BULOS": "ukra",
+          "FILIPINO": "okra",
+          "ENGLISH": "okra"
+        },
+        {
+          "BULOS": "setaw",
+          "FILIPINO": "sitaw",
+          "ENGLISH": "string bean"
+        },
+        {
+          "BULOS": "kalabesa",
+          "FILIPINO": "kalabasa",
+          "ENGLISH": "squash"
+        },
+        {
+          "BULOS": "munggu",
+          "FILIPINO": "monggo",
+          "ENGLISH": "munggo"
+        },
+        {
+          "BULOS": "kangkung",
+          "FILIPINO": "kangkong",
+          "ENGLISH": "water cabbage"
+        },
+        {
+          "BULOS": "labenus",
+          "FILIPINO": "labanos",
+          "ENGLISH": "radish"
+        },
+        {
+          "BULOS": "singkamas",
+          "FILIPINO": "singkamas",
+          "ENGLISH": "turnip"
+        },
+        {
+          "BULOS": "ripulyu",
+          "FILIPINO": "repolyo",
+          "ENGLISH": "cabbage"
+        },
+        {
+          "BULOS": "pipenu, katimon",
+          "FILIPINO": "pipino",
+          "ENGLISH": "cucumber"
+        },
+        {
+          "BULOS": "opu",
+          "FILIPINO": "upo",
+          "ENGLISH": "bottle gourd"
+        },
+        {
+          "BULOS": "patola",
+          "FILIPINO": "patola",
+          "ENGLISH": "sponge gourd"
+        },
+        {
+          "BULOS": "seli",
+          "FILIPINO": "sili",
+          "ENGLISH": "chili pepper"
+        },
+        {
+          "BULOS": "loya",
+          "FILIPINO": "luya",
+          "ENGLISH": "ginger"
+        },
+        {
+          "BULOS": "paminta",
+          "FILIPINO": "paminta",
+          "ENGLISH": "black pepper"
+        },
+        {
+          "BULOS": "sayoti",
+          "FILIPINO": "sayote",
+          "ENGLISH": "chayote"
+        },
+        {
+          "BULOS": "malunggey",
+          "FILIPINO": "malunggay",
+          "ENGLISH": "malunggay"
+        }
+      ]
+    },
+    {
+      "category": "LUGEL DE BELOY, PAADELAN KI PAMAYENAN (Common Places in the House, School, and Community",
+      "entries": [
+        {
+          "BULOS": "detongan",
+          "FILIPINO": "sala",
+          "ENGLISH": "sala"
+        },
+        {
+          "BULOS": "pebean",
+          "FILIPINO": "silid-tulugan",
+          "ENGLISH": "bedroom"
+        },
+        {
+          "BULOS": "pandiyosan",
+          "FILIPINO": "paliguan",
+          "ENGLISH": "shower room"
+        },
+        {
+          "BULOS": "panginanan",
+          "FILIPINO": "palikuran",
+          "ENGLISH": "comfort room"
+        },
+        {
+          "BULOS": "paimloyen",
+          "FILIPINO": "balkonahe",
+          "ENGLISH": "porch"
+        },
+        {
+          "BULOS": "sayeden",
+          "FILIPINO": "bintana",
+          "ENGLISH": "window"
+        },
+        {
+          "BULOS": "selongan",
+          "FILIPINO": "pinto",
+          "ENGLISH": "door"
+        },
+        {
+          "BULOS": "panganan",
+          "FILIPINO": "silid kainan",
+          "ENGLISH": "dining room"
+        },
+        {
+          "BULOS": "taptapan",
+          "FILIPINO": "labahan",
+          "ENGLISH": "laundry room"
+        },
+        {
+          "BULOS": "pakalutoan",
+          "FILIPINO": "lutuan",
+          "ENGLISH": "kitchen"
+        },
+        {
+          "BULOS": "Adelan",
+          "FILIPINO": "silid aralan",
+          "ENGLISH": "classroom"
+        },
+        {
+          "BULOS": "gewesan",
+          "FILIPINO": "palaruan",
+          "ENGLISH": "playground"
+        },
+        {
+          "BULOS": "pepanganan",
+          "FILIPINO": "kantina",
+          "ENGLISH": "canteen"
+        },
+        {
+          "BULOS": "bulongan",
+          "FILIPINO": "klinika",
+          "ENGLISH": "clinic"
+        },
+        {
+          "BULOS": "pooyen ni ka papelan",
+          "FILIPINO": "silid-aklatan",
+          "ENGLISH": "library"
+        },
+        {
+          "BULOS": "hardinan",
+          "FILIPINO": "hardin",
+          "ENGLISH": "garden"
+        },
+        {
+          "BULOS": "pulungan, surotan",
+          "FILIPINO": "gusaling pantahanan",
+          "ENGLISH": "Home Economics Building"
+        },
+        {
+          "BULOS": "Intabladu",
+          "FILIPINO": "entablado",
+          "ENGLISH": "stage"
+        },
+        {
+          "BULOS": "tanggepan ni Getodu",
+          "FILIPINO": "tanggapan ng Punung-Guro",
+          "ENGLISH": "Principal's Office"
+        },
+        {
+          "BULOS": "gym",
+          "FILIPINO": "gym",
+          "ENGLISH": "gym"
+        },
+        {
+          "BULOS": "simbehan",
+          "FILIPINO": "simbahan",
+          "ENGLISH": "church"
+        },
+        {
+          "BULOS": "palingke",
+          "FILIPINO": "palengke",
+          "ENGLISH": "market"
+        },
+        {
+          "BULOS": "palasa",
+          "FILIPINO": "plasa",
+          "ENGLISH": "plaza"
+        },
+        {
+          "BULOS": "benwaan",
+          "FILIPINO": "bayan",
+          "ENGLISH": "town"
+        },
+        {
+          "BULOS": "siyuded",
+          "FILIPINO": "siyudad",
+          "ENGLISH": "city"
+        },
+        {
+          "BULOS": "lalawigen",
+          "FILIPINO": "lalawigan",
+          "ENGLISH": "province"
+        },
+        {
+          "BULOS": "rehiyun",
+          "FILIPINO": "rehiyon",
+          "ENGLISH": "region"
+        },
+        {
+          "BULOS": "munisepiyu",
+          "FILIPINO": "munisipyo",
+          "ENGLISH": "municipal hall"
+        },
+        {
+          "BULOS": "lebongan",
+          "FILIPINO": "sementeryo",
+          "ENGLISH": "cemetery"
+        },
+        {
+          "BULOS": "paadelan",
+          "FILIPINO": "paaralan",
+          "ENGLISH": "school"
+        },
+        {
+          "BULOS": "beloy",
+          "FILIPINO": "bahay",
+          "ENGLISH": "house"
+        },
+        {
+          "BULOS": "pabulongan",
+          "FILIPINO": "ospital",
+          "ENGLISH": "hospital"
+        },
+        {
+          "BULOS": "istasyun ni pulis",
+          "FILIPINO": "istasyon ng pulis",
+          "ENGLISH": "police station"
+        },
+        {
+          "BULOS": "istasyun ni bumberu",
+          "FILIPINO": "istasyon ng bumbero",
+          "ENGLISH": "fire station"
+        },
+        {
+          "BULOS": "kumbintu",
+          "FILIPINO": "kumbento",
+          "ENGLISH": "convent"
+        },
+        {
+          "BULOS": "paradehan, gelaan",
+          "FILIPINO": "parke",
+          "ENGLISH": "park"
+        },
+        {
+          "BULOS": "bektas",
+          "FILIPINO": "daan",
+          "ENGLISH": "pathway"
+        },
+        {
+          "BULOS": "kolongan",
+          "FILIPINO": "kulungan",
+          "ENGLISH": "jail, prison"
+        }
+      ]
+    },
+    {
+      "category": "KAKMUKAN PA A PANGKARANEWEN A NGALAN (Other Common Nouns)",
+      "entries": [
+        {
+          "BULOS": "ilad ni manok",
+          "FILIPINO": "pakpak ng ibon",
+          "ENGLISH": "bird's wing"
+        },
+        {
+          "BULOS": "lpus",
+          "FILIPINO": "buntot",
+          "ENGLISH": "tail"
+        },
+        {
+          "BULOS": "Putput",
+          "FILIPINO": "balahibo",
+          "ENGLISH": "feather"
+        },
+        {
+          "BULOS": "katat ni kew",
+          "FILIPINO": "balat ng kahoy",
+          "ENGLISH": "tree bark"
+        },
+        {
+          "BULOS": "gemut ni kew",
+          "FILIPINO": "punong kahoy",
+          "ENGLISH": "tree"
+        },
+        {
+          "BULOS": "agid",
+          "FILIPINO": "dahon",
+          "ENGLISH": "leaf"
+        },
+        {
+          "BULOS": "purotas",
+          "FILIPINO": "prutas",
+          "ENGLISH": "fruit"
+        },
+        {
+          "BULOS": "bu",
+          "FILIPINO": "buto",
+          "ENGLISH": "seed"
+        },
+        {
+          "BULOS": "ramut",
+          "FILIPINO": "ugat",
+          "ENGLISH": "root"
+        },
+        {
+          "BULOS": "bukan",
+          "FILIPINO": "bulaklak",
+          "ENGLISH": "flower"
+        },
+        {
+          "BULOS": "putok",
+          "FILIPINO": "lupa",
+          "ENGLISH": "ground"
+        },
+        {
+          "BULOS": "kalasan, bukod",
+          "FILIPINO": "gubat",
+          "ENGLISH": "jungle, bush"
+        },
+        {
+          "BULOS": "tanoman",
+          "FILIPINO": "sakahan",
+          "ENGLISH": "field"
+        },
+        {
+          "BULOS": "asuk",
+          "FILIPINO": "usok",
+          "ENGLISH": "smoke"
+        },
+        {
+          "BULOS": "apoy",
+          "FILIPINO": "apoy",
+          "ENGLISH": "fire"
+        },
+        {
+          "BULOS": "depug",
+          "FILIPINO": "abo",
+          "ENGLISH": "ashes"
+        },
+        {
+          "BULOS": "langot, kalawwo-an",
+          "FILIPINO": "langit, kalawakan",
+          "ENGLISH": "sky, heavens"
+        },
+        {
+          "BULOS": "bulan",
+          "FILIPINO": "buwan",
+          "ENGLISH": "moon"
+        },
+        {
+          "BULOS": "butatala",
+          "FILIPINO": "bituin",
+          "ENGLISH": "star"
+        },
+        {
+          "BULOS": "atawang",
+          "FILIPINO": "ulap",
+          "ENGLISH": "cloud"
+        },
+        {
+          "BULOS": "hamog",
+          "FILIPINO": "hamog",
+          "ENGLISH": "fog"
+        },
+        {
+          "BULOS": "palos",
+          "FILIPINO": "hangin",
+          "ENGLISH": "wind (air)"
+        },
+        {
+          "BULOS": "orat",
+          "FILIPINO": "tubig",
+          "ENGLISH": "water"
+        },
+        {
+          "BULOS": "atab",
+          "FILIPINO": "dagat",
+          "ENGLISH": "sea"
+        },
+        {
+          "BULOS": "bulos",
+          "FILIPINO": "ilog",
+          "ENGLISH": "river"
+        },
+        {
+          "BULOS": "esip",
+          "FILIPINO": "isip",
+          "ENGLISH": "thought, idea"
+        },
+        {
+          "BULOS": "matlabe",
+          "FILIPINO": "mataba",
+          "ENGLISH": "fat, grease"
+        },
+        {
+          "BULOS": "bulsut",
+          "FILIPINO": "butas",
+          "ENGLISH": "hole"
+        },
+        {
+          "BULOS": "arigi",
+          "FILIPINO": "haligi",
+          "ENGLISH": "post"
+        },
+        {
+          "BULOS": "agta",
+          "FILIPINO": "tao",
+          "ENGLISH": "person"
+        },
+        {
+          "BULOS": "malande",
+          "FILIPINO": "matanda",
+          "ENGLISH": "old person"
+        },
+        {
+          "BULOS": "anak",
+          "FILIPINO": "bata",
+          "ENGLISH": "small child"
+        },
+        {
+          "BULOS": "patud",
+          "FILIPINO": "lalaki",
+          "ENGLISH": "man"
+        },
+        {
+          "BULOS": "mahuna",
+          "FILIPINO": "babae",
+          "ENGLISH": "woman"
+        },
+        {
+          "BULOS": "anak a mahuna",
+          "FILIPINO": "batang babae",
+          "ENGLISH": "young woman"
+        },
+        {
+          "BULOS": "anak a patud",
+          "FILIPINO": "batang lalaki",
+          "ENGLISH": "young man"
+        },
+        {
+          "BULOS": "simpili a agta",
+          "FILIPINO": "simpleng tao",
+          "ENGLISH": "simple person"
+        },
+        {
+          "BULOS": "kaibigan",
+          "FILIPINO": "kaibigan",
+          "ENGLISH": "friend"
+        }
+      ]
+    },
+    {
+      "category": "UN KOLAY IDE (Colors and Color Qualifiers)",
+      "entries": [
+        {
+          "BULOS": "malinow",
+          "FILIPINO": "asul",
+          "ENGLISH": "blue"
+        },
+        {
+          "BULOS": "maderag",
+          "FILIPINO": "pula",
+          "ENGLISH": "red"
+        },
+        {
+          "BULOS": "malapsay",
+          "FILIPINO": "puti",
+          "ENGLISH": "white"
+        },
+        {
+          "BULOS": "malatom",
+          "FILIPINO": "itim",
+          "ENGLISH": "black"
+        },
+        {
+          "BULOS": "mageagid",
+          "FILIPINO": "berde",
+          "ENGLISH": "green"
+        },
+        {
+          "BULOS": "madilaw",
+          "FILIPINO": "dilaw",
+          "ENGLISH": "yellow"
+        },
+        {
+          "BULOS": "mageputok",
+          "FILIPINO": "kulay tsokolate",
+          "ENGLISH": "brown"
+        },
+        {
+          "BULOS": "magedepog",
+          "FILIPINO": "kulay abo",
+          "ENGLISH": "gray"
+        },
+        {
+          "BULOS": "magemaderag",
+          "FILIPINO": "rosas",
+          "ENGLISH": "pink"
+        },
+        {
+          "BULOS": "mulumadilaw",
+          "FILIPINO": "dalandan",
+          "ENGLISH": "orange"
+        },
+        {
+          "BULOS": "mageubi",
+          "FILIPINO": "lila",
+          "ENGLISH": "violet"
+        },
+        {
+          "BULOS": "mulumaderag",
+          "FILIPINO": "medyo mapula",
+          "ENGLISH": "reddish"
+        },
+        {
+          "BULOS": "mulumalapsay",
+          "FILIPINO": "medyo maputi",
+          "ENGLISH": "whitish"
+        },
+        {
+          "BULOS": "mulumalatom",
+          "FILIPINO": "medyo maitim",
+          "ENGLISH": "blackish"
+        },
+        {
+          "BULOS": "mulumadilaw",
+          "FILIPINO": "medyo dilaw",
+          "ENGLISH": "yellowish"
+        },
+        {
+          "BULOS": "mulumaderag",
+          "FILIPINO": "medyo rosas",
+          "ENGLISH": "pinkish"
+        }
+      ]
+    },
+    {
+      "category": "HOGIS IDE (Shapes)",
+      "entries": [
+        {
+          "BULOS": "tiblog",
+          "FILIPINO": "bilog",
+          "ENGLISH": "circle, round"
+        },
+        {
+          "BULOS": "tiluwon a sulok",
+          "FILIPINO": "tatsulok",
+          "ENGLISH": "triangle"
+        },
+        {
+          "BULOS": "kudradu",
+          "FILIPINO": "parisukat",
+          "ENGLISH": "square"
+        },
+        {
+          "BULOS": "pahabe",
+          "FILIPINO": "parihaba",
+          "ENGLISH": "rectangle"
+        },
+        {
+          "BULOS": "tulutiblog, mageitlog",
+          "FILIPINO": "biluhaba",
+          "ENGLISH": "oblong"
+        },
+        {
+          "BULOS": "hogis posu",
+          "FILIPINO": "hugis puso",
+          "ENGLISH": "heartshape"
+        },
+        {
+          "BULOS": "magetiblog",
+          "FILIPINO": "parang bilog",
+          "ENGLISH": "roundish"
+        },
+        {
+          "BULOS": "hogis butatala",
+          "FILIPINO": "hugis bituin",
+          "ENGLISH": "starshape"
+        }
+      ]
+    },
+    {
+      "category": "BO PATI KINAM (Smell and Taste)",
+      "entries": [
+        {
+          "BULOS": "maapsot",
+          "FILIPINO": "maasim",
+          "ENGLISH": "sour"
+        },
+        {
+          "BULOS": "mapit",
+          "FILIPINO": "mapait",
+          "ENGLISH": "bitter"
+        },
+        {
+          "BULOS": "malanis",
+          "FILIPINO": "matamis",
+          "ENGLISH": "sweet"
+        },
+        {
+          "BULOS": "marasang",
+          "FILIPINO": "maanghang",
+          "ENGLISH": "spicy"
+        },
+        {
+          "BULOS": "matab-ang",
+          "FILIPINO": "matabang",
+          "ENGLISH": "blunt"
+        },
+        {
+          "BULOS": "maalat",
+          "FILIPINO": "maalat",
+          "ENGLISH": "salty"
+        },
+        {
+          "BULOS": "bo",
+          "FILIPINO": "amoy",
+          "ENGLISH": "smell, odor"
+        },
+        {
+          "BULOS": "mabengu",
+          "FILIPINO": "mabango",
+          "ENGLISH": "fragrant"
+        },
+        {
+          "BULOS": "mabelong, mabungtot",
+          "FILIPINO": "mabaho",
+          "ENGLISH": "stinky"
+        },
+        {
+          "BULOS": "malangsa",
+          "FILIPINO": "malansa",
+          "ENGLISH": "foul odor"
+        }
+      ]
+    },
+    {
+      "category": "UN BILANG IDE (Numbers from 0 to 100)",
+      "entries": [
+        {
+          "BULOS": "eyen",
+          "FILIPINO": "wala",
+          "ENGLISH": "zero"
+        },
+        {
+          "BULOS": "isin",
+          "FILIPINO": "isa",
+          "ENGLISH": "one"
+        },
+        {
+          "BULOS": "aduwa",
+          "FILIPINO": "dalawa",
+          "ENGLISH": "two"
+        },
+        {
+          "BULOS": "tiluwon",
+          "FILIPINO": "tatlo",
+          "ENGLISH": "three"
+        },
+        {
+          "BULOS": "apat",
+          "FILIPINO": "apat",
+          "ENGLISH": "four"
+        },
+        {
+          "BULOS": "lima",
+          "FILIPINO": "lima",
+          "ENGLISH": "five"
+        },
+        {
+          "BULOS": "anim",
+          "FILIPINO": "anim",
+          "ENGLISH": "six"
+        },
+        {
+          "BULOS": "pito",
+          "FILIPINO": "pito",
+          "ENGLISH": "seven"
+        },
+        {
+          "BULOS": "walo",
+          "FILIPINO": "walo",
+          "ENGLISH": "eight"
+        },
+        {
+          "BULOS": "siyam",
+          "FILIPINO": "siyam",
+          "ENGLISH": "nine"
+        },
+        {
+          "BULOS": "sampu",
+          "FILIPINO": "sampu",
+          "ENGLISH": "ten"
+        },
+        {
+          "BULOS": "labing isin",
+          "FILIPINO": "labing isa",
+          "ENGLISH": "eleven"
+        },
+        {
+          "BULOS": "labing aduwa",
+          "FILIPINO": "labindalawa",
+          "ENGLISH": "twelve"
+        },
+        {
+          "BULOS": "labing tiluwon",
+          "FILIPINO": "labintatlo",
+          "ENGLISH": "thirteen"
+        },
+        {
+          "BULOS": "labing apat",
+          "FILIPINO": "labing apat",
+          "ENGLISH": "fourteen"
+        },
+        {
+          "BULOS": "labing lima",
+          "FILIPINO": "labing lima",
+          "ENGLISH": "fifteen"
+        },
+        {
+          "BULOS": "labing anim",
+          "FILIPINO": "labing anim",
+          "ENGLISH": "sixteen"
+        },
+        {
+          "BULOS": "labing pito",
+          "FILIPINO": "labing pito",
+          "ENGLISH": "seventeen"
+        },
+        {
+          "BULOS": "labing walo",
+          "FILIPINO": "labing walo",
+          "ENGLISH": "eighteen"
+        },
+        {
+          "BULOS": "Labing siyam",
+          "FILIPINO": "labinsiyam",
+          "ENGLISH": "nineteen"
+        },
+        {
+          "BULOS": "dalawampu",
+          "FILIPINO": "dalawampu",
+          "ENGLISH": "twenty"
+        },
+        {
+          "BULOS": "dalawampu't isin",
+          "FILIPINO": "dalawampu't isa",
+          "ENGLISH": "twenty-one"
+        },
+        {
+          "BULOS": "dalawampu't aduwa",
+          "FILIPINO": "dalawampu't dalawa",
+          "ENGLISH": "twenty-two"
+        },
+        {
+          "BULOS": "dalawampu't tiluwon",
+          "FILIPINO": "dalawampu't tatlo",
+          "ENGLISH": "twenty-three"
+        },
+        {
+          "BULOS": "dalawampu't apat",
+          "FILIPINO": "dalawampu't apat",
+          "ENGLISH": "twenty-four"
+        },
+        {
+          "BULOS": "dalawampu't lima",
+          "FILIPINO": "dalawampu't lima",
+          "ENGLISH": "twenty-five"
+        },
+        {
+          "BULOS": "dalawampu't anim",
+          "FILIPINO": "dalawampu't anim",
+          "ENGLISH": "twenty-six"
+        },
+        {
+          "BULOS": "dalawampu't pito",
+          "FILIPINO": "dalawampu't pito",
+          "ENGLISH": "twenty-seven"
+        },
+        {
+          "BULOS": "dalawampu't walo",
+          "FILIPINO": "dalawampu't walo",
+          "ENGLISH": "twenty-eight"
+        },
+        {
+          "BULOS": "dalawampu't siyam",
+          "FILIPINO": "dalawampu't siyam",
+          "ENGLISH": "twenty-nine"
+        },
+        {
+          "BULOS": "tatlumpu",
+          "FILIPINO": "tatlumpu",
+          "ENGLISH": "thirty"
+        },
+        {
+          "BULOS": "tatlumpu't isin",
+          "FILIPINO": "tatlumpu't isa",
+          "ENGLISH": "thirty-one"
+        },
+        {
+          "BULOS": "tatlumpu't aduwa",
+          "FILIPINO": "tatlumpu't dalawa",
+          "ENGLISH": "thirty-two"
+        },
+        {
+          "BULOS": "tatlumpu't tiluwon",
+          "FILIPINO": "tatlumpu't tatlo",
+          "ENGLISH": "thirty-three"
+        },
+        {
+          "BULOS": "tatlumpu't apat",
+          "FILIPINO": "tatlumpu't apat",
+          "ENGLISH": "thirty-four"
+        },
+        {
+          "BULOS": "tatlumpu't lima",
+          "FILIPINO": "tatlumpu't lima",
+          "ENGLISH": "thirty-five"
+        },
+        {
+          "BULOS": "tatlumpu't anim",
+          "FILIPINO": "tatlumpu't anim",
+          "ENGLISH": "thirty-six"
+        },
+        {
+          "BULOS": "tatlumpu't pito",
+          "FILIPINO": "tatlumpu't pito",
+          "ENGLISH": "thirty-seven"
+        },
+        {
+          "BULOS": "tatlumpu't walo",
+          "FILIPINO": "tatlumpu't walo",
+          "ENGLISH": "thirty-eight"
+        },
+        {
+          "BULOS": "tatlumpu't siyam",
+          "FILIPINO": "tatlumpu't siyam",
+          "ENGLISH": "thirty-nine"
+        },
+        {
+          "BULOS": "apatnapu",
+          "FILIPINO": "apatnapu",
+          "ENGLISH": "forty"
+        },
+        {
+          "BULOS": "apatnapu't isin",
+          "FILIPINO": "apatnapu't isa",
+          "ENGLISH": "forty-one"
+        },
+        {
+          "BULOS": "apatnapu't aduwa",
+          "FILIPINO": "apatnapu't dalawa",
+          "ENGLISH": "forty-two"
+        },
+        {
+          "BULOS": "apatnapu't tiluwon",
+          "FILIPINO": "apatnapu't tatlo",
+          "ENGLISH": "forty-three"
+        },
+        {
+          "BULOS": "apatnapu't apat",
+          "FILIPINO": "apatnapu't apat",
+          "ENGLISH": "forty-four"
+        },
+        {
+          "BULOS": "apatnapu't lima",
+          "FILIPINO": "apatnapu't lima",
+          "ENGLISH": "forty-five"
+        },
+        {
+          "BULOS": "apatnapu't anim",
+          "FILIPINO": "apatnapu't anim",
+          "ENGLISH": "forty-six"
+        },
+        {
+          "BULOS": "apatnapu't pito",
+          "FILIPINO": "apatnapu't pito",
+          "ENGLISH": "forty-seven"
+        },
+        {
+          "BULOS": "apatnapu't walo",
+          "FILIPINO": "apatnapu't walo",
+          "ENGLISH": "forty-eight"
+        },
+        {
+          "BULOS": "apatnapu't siyam",
+          "FILIPINO": "apatnapu't siyam",
+          "ENGLISH": "forty-nine"
+        },
+        {
+          "BULOS": "limampu",
+          "FILIPINO": "limampu",
+          "ENGLISH": "fifty"
+        },
+        {
+          "BULOS": "limampu't isin",
+          "FILIPINO": "limampu't isa",
+          "ENGLISH": "fifty-one"
+        },
+        {
+          "BULOS": "limampu't aduwa",
+          "FILIPINO": "limampu't dalawa",
+          "ENGLISH": "fifty-two"
+        },
+        {
+          "BULOS": "limampu't tiluwon",
+          "FILIPINO": "limampu't tatlo",
+          "ENGLISH": "fifty-three"
+        },
+        {
+          "BULOS": "limampu't apat",
+          "FILIPINO": "limampu't apat",
+          "ENGLISH": "fifty-four"
+        },
+        {
+          "BULOS": "limampu't lima",
+          "FILIPINO": "limampu't lima",
+          "ENGLISH": "fifty-five"
+        },
+        {
+          "BULOS": "limampu't anim",
+          "FILIPINO": "limampu't anim",
+          "ENGLISH": "fifty-six"
+        },
+        {
+          "BULOS": "limampu't pito",
+          "FILIPINO": "limampu't pito",
+          "ENGLISH": "fifty-seven"
+        },
+        {
+          "BULOS": "limampu't walo",
+          "FILIPINO": "limampu't walo",
+          "ENGLISH": "fifty-eight"
+        },
+        {
+          "BULOS": "limampu't siyam",
+          "FILIPINO": "limampu't siyam",
+          "ENGLISH": "fifty-nine"
+        },
+        {
+          "BULOS": "animnapu",
+          "FILIPINO": "animnapu",
+          "ENGLISH": "sixty"
+        },
+        {
+          "BULOS": "animnapu't isin",
+          "FILIPINO": "animnapu't isa",
+          "ENGLISH": "sixty-one"
+        },
+        {
+          "BULOS": "animnapu't aduwa",
+          "FILIPINO": "animnapu't dalawa",
+          "ENGLISH": "sixty-two"
+        },
+        {
+          "BULOS": "animnapu't tiluwon",
+          "FILIPINO": "animnapu't tatlo",
+          "ENGLISH": "sixty-three"
+        },
+        {
+          "BULOS": "animnapu't apat",
+          "FILIPINO": "animnapu't apat",
+          "ENGLISH": "sixty-four"
+        },
+        {
+          "BULOS": "animnapu't lima",
+          "FILIPINO": "animnapu't lima",
+          "ENGLISH": "sixty-five"
+        },
+        {
+          "BULOS": "animnapu't anim",
+          "FILIPINO": "animnapu't anim",
+          "ENGLISH": "sixty-six"
+        },
+        {
+          "BULOS": "animnapu't pito",
+          "FILIPINO": "animnapu't pito",
+          "ENGLISH": "sixty-seven"
+        },
+        {
+          "BULOS": "animnapu't walo",
+          "FILIPINO": "animnapu't walo",
+          "ENGLISH": "sixty-eight"
+        },
+        {
+          "BULOS": "animnapu't siyam",
+          "FILIPINO": "animnapu't siyam",
+          "ENGLISH": "sixty-nine"
+        },
+        {
+          "BULOS": "pitumpu",
+          "FILIPINO": "pitumpu",
+          "ENGLISH": "seventy"
+        },
+        {
+          "BULOS": "pitumpu't isin",
+          "FILIPINO": "pitumpu't isa",
+          "ENGLISH": "seventy-one"
+        },
+        {
+          "BULOS": "pitumpu't aduwa",
+          "FILIPINO": "pitumpu't dalawa",
+          "ENGLISH": "seventy-two"
+        },
+        {
+          "BULOS": "pitumpu't tiluwon",
+          "FILIPINO": "pitumpu't tatlo",
+          "ENGLISH": "seventy-three"
+        },
+        {
+          "BULOS": "pitumpu't apat",
+          "FILIPINO": "pitumpu't apat",
+          "ENGLISH": "seventy-four"
+        },
+        {
+          "BULOS": "pitumpu't lima",
+          "FILIPINO": "pitumpu't lima",
+          "ENGLISH": "seventy-five"
+        },
+        {
+          "BULOS": "pitumpu't anim",
+          "FILIPINO": "pitumpu't anim",
+          "ENGLISH": "seventy-six"
+        },
+        {
+          "BULOS": "pitumpu't pito",
+          "FILIPINO": "pitumpu't pito",
+          "ENGLISH": "seventy-seven"
+        },
+        {
+          "BULOS": "pitumpu't walo",
+          "FILIPINO": "pitumpu't walo",
+          "ENGLISH": "seventy-eight"
+        },
+        {
+          "BULOS": "pitumpu't siyam",
+          "FILIPINO": "pitumpu't siyam",
+          "ENGLISH": "seventy-nine"
+        },
+        {
+          "BULOS": "walumpu",
+          "FILIPINO": "walumpu",
+          "ENGLISH": "eighty"
+        },
+        {
+          "BULOS": "walumpu't isin",
+          "FILIPINO": "walumpu't isa",
+          "ENGLISH": "eighty-one"
+        },
+        {
+          "BULOS": "walumpu't aduwa",
+          "FILIPINO": "walumpu't dalawa",
+          "ENGLISH": "eighty-two"
+        },
+        {
+          "BULOS": "walumpu't tiluwon",
+          "FILIPINO": "walumpu't tatlo",
+          "ENGLISH": "eighty-three"
+        },
+        {
+          "BULOS": "walumpu't apat",
+          "FILIPINO": "walumpu't apat",
+          "ENGLISH": "eighty-four"
+        },
+        {
+          "BULOS": "walumpu't lima",
+          "FILIPINO": "walumpu't lima",
+          "ENGLISH": "eighty-five"
+        },
+        {
+          "BULOS": "walumpu't anim",
+          "FILIPINO": "walumpu't anim",
+          "ENGLISH": "eighty-six"
+        },
+        {
+          "BULOS": "walumpu't pito",
+          "FILIPINO": "walumpu't pito",
+          "ENGLISH": "eighty-seven"
+        },
+        {
+          "BULOS": "walumpu't walo",
+          "FILIPINO": "walumpu't walo",
+          "ENGLISH": "eighty-eight"
+        },
+        {
+          "BULOS": "walumpu't siyam",
+          "FILIPINO": "walumpu't siyam",
+          "ENGLISH": "eighty-nine"
+        },
+        {
+          "BULOS": "siyamnapu",
+          "FILIPINO": "siyamnapu",
+          "ENGLISH": "ninety"
+        },
+        {
+          "BULOS": "siyamnapu't isin",
+          "FILIPINO": "siyamnapu't isa",
+          "ENGLISH": "ninety-one"
+        },
+        {
+          "BULOS": "siyamnapu't aduwa",
+          "FILIPINO": "siyamnapu't dalawa",
+          "ENGLISH": "ninety-two"
+        },
+        {
+          "BULOS": "siyamnapu't tiluwon",
+          "FILIPINO": "siyamnapu't tatlo",
+          "ENGLISH": "ninety-three"
+        },
+        {
+          "BULOS": "siyamnapu't apat",
+          "FILIPINO": "siyamnapu't apat",
+          "ENGLISH": "ninety-four"
+        },
+        {
+          "BULOS": "siyamnapu't lima",
+          "FILIPINO": "siyamnapu't lima",
+          "ENGLISH": "ninety-five"
+        },
+        {
+          "BULOS": "siyamnapu't anim",
+          "FILIPINO": "siyamnapu't anim",
+          "ENGLISH": "ninety-six"
+        },
+        {
+          "BULOS": "siyamnapu't pito",
+          "FILIPINO": "siyamnapu't pito",
+          "ENGLISH": "ninety-seven"
+        },
+        {
+          "BULOS": "siyamnapu't walo",
+          "FILIPINO": "siyamnapu't walo",
+          "ENGLISH": "ninety-eight"
+        },
+        {
+          "BULOS": "siyamnapu't siyam",
+          "FILIPINO": "siyamnapu't siyam",
+          "ENGLISH": "ninety-nine"
+        },
+        {
+          "BULOS": "isin a dean",
+          "FILIPINO": "isang daan",
+          "ENGLISH": "one hundred"
+        }
+      ]
+    },
+    {
+      "category": "SUROT A PANGSUKAT (Measurement Words and Expressions)",
+      "entries": [
+        {
+          "BULOS": "dengkal",
+          "FILIPINO": "dangkal",
+          "ENGLISH": "hand span"
+        },
+        {
+          "BULOS": "akyang",
+          "FILIPINO": "hakbang",
+          "ENGLISH": "step"
+        },
+        {
+          "BULOS": "palad",
+          "FILIPINO": "talampakan",
+          "ENGLISH": "foot long"
+        },
+        {
+          "BULOS": "meturu",
+          "FILIPINO": "metro",
+          "ENGLISH": "meter"
+        },
+        {
+          "BULOS": "kilumeturu",
+          "FILIPINO": "kilometro",
+          "ENGLISH": "kilometer"
+        },
+        {
+          "BULOS": "sintimituru",
+          "FILIPINO": "sentimetro",
+          "ENGLISH": "centimeter"
+        },
+        {
+          "BULOS": "pulgede",
+          "FILIPINO": "pulgada",
+          "ENGLISH": "inch"
+        },
+        {
+          "BULOS": "isin a dengkal",
+          "FILIPINO": "isang dangkal",
+          "ENGLISH": "1 hand span"
+        },
+        {
+          "BULOS": "isin a akyang",
+          "FILIPINO": "isang hakbang",
+          "ENGLISH": "1 step"
+        },
+        {
+          "BULOS": "maantisik",
+          "FILIPINO": "maikli",
+          "ENGLISH": "short"
+        },
+        {
+          "BULOS": "mas maantisik",
+          "FILIPINO": "mas maikli",
+          "ENGLISH": "shorter"
+        },
+        {
+          "BULOS": "maantisik-tesik",
+          "FILIPINO": "pinakamaikli",
+          "ENGLISH": "shortest"
+        },
+        {
+          "BULOS": "maanduwon",
+          "FILIPINO": "mahaba",
+          "ENGLISH": "long"
+        },
+        {
+          "BULOS": "mas maanduwon",
+          "FILIPINO": "mas mahaba",
+          "ENGLISH": "longer"
+        },
+        {
+          "BULOS": "manduwon-duwon",
+          "FILIPINO": "pinakamahaba",
+          "ENGLISH": "longest"
+        },
+        {
+          "BULOS": "mulumaditas",
+          "FILIPINO": "matangkad",
+          "ENGLISH": "tall"
+        },
+        {
+          "BULOS": "maditas",
+          "FILIPINO": "mataas",
+          "ENGLISH": "high"
+        },
+        {
+          "BULOS": "mas maditas",
+          "FILIPINO": "mas mataas",
+          "ENGLISH": "higher, taller"
+        },
+        {
+          "BULOS": "maditas-ditas",
+          "FILIPINO": "pinakamataas",
+          "ENGLISH": "highest, tallest"
+        },
+        {
+          "BULOS": "masidung/mabebe",
+          "FILIPINO": "pandak",
+          "ENGLISH": "short"
+        },
+        {
+          "BULOS": "miuntik",
+          "FILIPINO": "maliit",
+          "ENGLISH": "small"
+        },
+        {
+          "BULOS": "mas untik",
+          "FILIPINO": "mas maliit",
+          "ENGLISH": "smaller"
+        },
+        {
+          "BULOS": "miuntik-untik",
+          "FILIPINO": "pinakamaliit",
+          "ENGLISH": "smallest"
+        },
+        {
+          "BULOS": "lalaki",
+          "FILIPINO": "malaki",
+          "ENGLISH": "big"
+        },
+        {
+          "BULOS": "maslalaki",
+          "FILIPINO": "mas malaki",
+          "ENGLISH": "bigger"
+        },
+        {
+          "BULOS": "lalaki a hedep",
+          "FILIPINO": "pinakamalaki",
+          "ENGLISH": "biggest"
+        },
+        {
+          "BULOS": "hanga hanga",
+          "FILIPINO": "napakalaki",
+          "ENGLISH": "huge, enormous"
+        },
+        {
+          "BULOS": "masilaw",
+          "FILIPINO": "manipis",
+          "ENGLISH": "thin"
+        },
+        {
+          "BULOS": "mulumasilaw",
+          "FILIPINO": "mas manipis",
+          "ENGLISH": "thinner"
+        },
+        {
+          "BULOS": "masilaw selaw",
+          "FILIPINO": "pinakamanipis",
+          "ENGLISH": "thinnest"
+        },
+        {
+          "BULOS": "mokpal",
+          "FILIPINO": "makapal",
+          "ENGLISH": "thick"
+        },
+        {
+          "BULOS": "mulumokpal",
+          "FILIPINO": "mas makapal",
+          "ENGLISH": "thicker"
+        },
+        {
+          "BULOS": "mokpal mokpal",
+          "FILIPINO": "pinakamakapal",
+          "ENGLISH": "thickest"
+        },
+        {
+          "BULOS": "alayu",
+          "FILIPINO": "malayo",
+          "ENGLISH": "far"
+        },
+        {
+          "BULOS": "mialayu",
+          "FILIPINO": "mas malayo",
+          "ENGLISH": "farther"
+        },
+        {
+          "BULOS": "ulu alayu",
+          "FILIPINO": "pinakamalayo",
+          "ENGLISH": "farthest"
+        },
+        {
+          "BULOS": "alani",
+          "FILIPINO": "malapit",
+          "ENGLISH": "near"
+        },
+        {
+          "BULOS": "alani lani",
+          "FILIPINO": "mas malapit",
+          "ENGLISH": "nearer"
+        },
+        {
+          "BULOS": "alani lani a hedep",
+          "FILIPINO": "pinakamalapit",
+          "ENGLISH": "nearest"
+        },
+        {
+          "BULOS": "mabbiyet",
+          "FILIPINO": "mabigat",
+          "ENGLISH": "heavy"
+        },
+        {
+          "BULOS": "mulu mabbiyet",
+          "FILIPINO": "mas mabigat",
+          "ENGLISH": "heavier"
+        },
+        {
+          "BULOS": "mabbiyet biyet",
+          "FILIPINO": "pinakamabigat",
+          "ENGLISH": "heaviest"
+        },
+        {
+          "BULOS": "mamiyen",
+          "FILIPINO": "magaan",
+          "ENGLISH": "light"
+        },
+        {
+          "BULOS": "mulu mamiyen",
+          "FILIPINO": "mas magaan",
+          "ENGLISH": "lighter"
+        },
+        {
+          "BULOS": "mamiyen meyen",
+          "FILIPINO": "pinakamagaan",
+          "ENGLISH": "lightest"
+        },
+        {
+          "BULOS": "geramu",
+          "FILIPINO": "gramo",
+          "ENGLISH": "gram"
+        },
+        {
+          "BULOS": "kelu",
+          "FILIPINO": "kilo",
+          "ENGLISH": "kilogram"
+        },
+        {
+          "BULOS": "pinu",
+          "FILIPINO": "puno",
+          "ENGLISH": "full"
+        },
+        {
+          "BULOS": "kalohati",
+          "FILIPINO": "kalahati",
+          "ENGLISH": "half-full"
+        },
+        {
+          "BULOS": "anyu a pinu",
+          "FILIPINO": "halos puno",
+          "ENGLISH": "almost full"
+        },
+        {
+          "BULOS": "eyen ti unid",
+          "FILIPINO": "walang laman",
+          "ENGLISH": "empty"
+        },
+        {
+          "BULOS": "andi a kasta ti unid",
+          "FILIPINO": "halos walang laman",
+          "ENGLISH": "almost empty"
+        },
+        {
+          "BULOS": "eisin",
+          "FILIPINO": "nag-iisa",
+          "ENGLISH": "alone, only one"
+        },
+        {
+          "BULOS": "ayus",
+          "FILIPINO": "sakto",
+          "ENGLISH": "enough"
+        },
+        {
+          "BULOS": "leturu",
+          "FILIPINO": "litro",
+          "ENGLISH": "liter"
+        },
+        {
+          "BULOS": "isin a lasa a pinu",
+          "FILIPINO": "isang tasang puno",
+          "ENGLISH": "cupful"
+        },
+        {
+          "BULOS": "besu a pinu",
+          "FILIPINO": "basong puno",
+          "ENGLISH": "glassful"
+        },
+        {
+          "BULOS": "isin a garapun",
+          "FILIPINO": "isang garapon",
+          "ENGLISH": "one jar"
+        },
+        {
+          "BULOS": "isin a tasa",
+          "FILIPINO": "isang tasa",
+          "ENGLISH": "one cup"
+        },
+        {
+          "BULOS": "isin la",
+          "FILIPINO": "isa lang",
+          "ENGLISH": "only one"
+        },
+        {
+          "BULOS": "mahabe a lapis",
+          "FILIPINO": "mahabang lapis",
+          "ENGLISH": "long pencil"
+        }
+      ]
+    },
+    {
+      "category": "I SUROT A GELARAWEN (ADJECTIVE) Other Common Adjective",
+      "entries": [
+        {
+          "BULOS": "masampat",
+          "FILIPINO": "maganda",
+          "ENGLISH": "beautiful"
+        },
+        {
+          "BULOS": "yadi",
+          "FILIPINO": "mabuti",
+          "ENGLISH": "good"
+        },
+        {
+          "BULOS": "ge katingges",
+          "FILIPINO": "marunong",
+          "ENGLISH": "wise"
+        },
+        {
+          "BULOS": "malot",
+          "FILIPINO": "masama, pangit",
+          "ENGLISH": "bad, ugly"
+        },
+        {
+          "BULOS": "malummoy/makenis",
+          "FILIPINO": "pino, makinis",
+          "ENGLISH": "smooth"
+        },
+        {
+          "BULOS": "beko-beku",
+          "FILIPINO": "baku-baku",
+          "ENGLISH": "bumpy"
+        },
+        {
+          "BULOS": "maksa",
+          "FILIPINO": "matigas",
+          "ENGLISH": "hard"
+        },
+        {
+          "BULOS": "malumoy",
+          "FILIPINO": "malambot",
+          "ENGLISH": "soft"
+        },
+        {
+          "BULOS": "marumi",
+          "FILIPINO": "marumi",
+          "ENGLISH": "dirty"
+        },
+        {
+          "BULOS": "malenis",
+          "FILIPINO": "malinis",
+          "ENGLISH": "clean"
+        },
+        {
+          "BULOS": "mahedep",
+          "FILIPINO": "dukha, mahirap",
+          "ENGLISH": "poor"
+        },
+        {
+          "BULOS": "maalwa",
+          "FILIPINO": "mayaman",
+          "ENGLISH": "wealthy"
+        },
+        {
+          "BULOS": "matalenu",
+          "FILIPINO": "malalino",
+          "ENGLISH": "smart, clever"
+        },
+        {
+          "BULOS": "mattabe",
+          "FILIPINO": "mataba",
+          "ENGLISH": "fat"
+        },
+        {
+          "BULOS": "payet",
+          "FILIPINO": "payat",
+          "ENGLISH": "skinny"
+        },
+        {
+          "BULOS": "mallawa",
+          "FILIPINO": "malawak",
+          "ENGLISH": "wide"
+        },
+        {
+          "BULOS": "maketid",
+          "FILIPINO": "makitid",
+          "ENGLISH": "narrow"
+        },
+        {
+          "BULOS": "anak",
+          "FILIPINO": "bata",
+          "ENGLISH": "young"
+        },
+        {
+          "BULOS": "matande",
+          "FILIPINO": "matanda",
+          "ENGLISH": "old"
+        },
+        {
+          "BULOS": "matud",
+          "FILIPINO": "tama",
+          "ENGLISH": "correct"
+        },
+        {
+          "BULOS": "kakmukan",
+          "FILIPINO": "iba",
+          "ENGLISH": "other"
+        }
+      ]
+    },
+    {
+      "category": "I ODES (Time Concepts)",
+      "entries": [
+        {
+          "BULOS": "na adow",
+          "FILIPINO": "bukang liwayway",
+          "ENGLISH": "dawn"
+        },
+        {
+          "BULOS": "di abi-abi, de oge",
+          "FILIPINO": "bukas",
+          "ENGLISH": "tomorrow"
+        },
+        {
+          "BULOS": "abi-abi",
+          "FILIPINO": "umaga",
+          "ENGLISH": "morning"
+        },
+        {
+          "BULOS": "udtu",
+          "FILIPINO": "tanghali",
+          "ENGLISH": "noon, midday"
+        },
+        {
+          "BULOS": "apun",
+          "FILIPINO": "hapon",
+          "ENGLISH": "afternoon"
+        },
+        {
+          "BULOS": "nodumos",
+          "FILIPINO": "takipsilim",
+          "ENGLISH": "twilight"
+        },
+        {
+          "BULOS": "abi",
+          "FILIPINO": "gabi",
+          "ENGLISH": "evening, night"
+        },
+        {
+          "BULOS": "adow",
+          "FILIPINO": "araw",
+          "ENGLISH": "day"
+        },
+        {
+          "BULOS": "nun isakadaw",
+          "FILIPINO": "noong unang panahon",
+          "ENGLISH": "far in the past"
+        },
+        {
+          "BULOS": "katatapus la, kadedeos la",
+          "FILIPINO": "katatapos lang",
+          "ENGLISH": "near past"
+        },
+        {
+          "BULOS": "nun isin a adow, kasangagen",
+          "FILIPINO": "kamakalawa",
+          "ENGLISH": "day before yesterday"
+        },
+        {
+          "BULOS": "depun",
+          "FILIPINO": "kahapon",
+          "ENGLISH": "yesterday"
+        },
+        {
+          "BULOS": "de kasangagen",
+          "FILIPINO": "sa makalawa",
+          "ENGLISH": "day after tomorrow"
+        },
+        {
+          "BULOS": "nono",
+          "FILIPINO": "ngayon",
+          "ENGLISH": "now"
+        },
+        {
+          "BULOS": "kulukanin",
+          "FILIPINO": "mamaya",
+          "ENGLISH": "later"
+        },
+        {
+          "BULOS": "alane di",
+          "FILIPINO": "malapit na",
+          "ENGLISH": "near future"
+        },
+        {
+          "BULOS": "na aloy pa",
+          "FILIPINO": "matagal pa",
+          "ENGLISH": "far in the future"
+        },
+        {
+          "BULOS": "ala-ona",
+          "FILIPINO": "ala una",
+          "ENGLISH": "one o'clock"
+        },
+        {
+          "BULOS": "alas-dus",
+          "FILIPINO": "alas dos",
+          "ENGLISH": "two o'clock"
+        },
+        {
+          "BULOS": "alas-tiris",
+          "FILIPINO": "alas tres",
+          "ENGLISH": "three o'clock"
+        },
+        {
+          "BULOS": "alas-kuwatru",
+          "FILIPINO": "alas kuwatro",
+          "ENGLISH": "four o'clock"
+        },
+        {
+          "BULOS": "alas-singku",
+          "FILIPINO": "alas singko",
+          "ENGLISH": "five o'clock"
+        },
+        {
+          "BULOS": "ala-sais",
+          "FILIPINO": "alas sais",
+          "ENGLISH": "six o'clock"
+        },
+        {
+          "BULOS": "ala-siyete",
+          "FILIPINO": "alas siyete",
+          "ENGLISH": "seven o'clock"
+        },
+        {
+          "BULOS": "alas-utsu",
+          "FILIPINO": "alas otso",
+          "ENGLISH": "eight o'clock"
+        },
+        {
+          "BULOS": "alas-nuwibi",
+          "FILIPINO": "alas nuwebe",
+          "ENGLISH": "nine o'clock"
+        },
+        {
+          "BULOS": "alas-diyes",
+          "FILIPINO": "alas diyes",
+          "ENGLISH": "ten o'clock"
+        },
+        {
+          "BULOS": "alas-sunsi",
+          "FILIPINO": "alas onse",
+          "ENGLISH": "eleven o'clock"
+        },
+        {
+          "BULOS": "alas-dusi",
+          "FILIPINO": "alas dose",
+          "ENGLISH": "twelve o'clock"
+        },
+        {
+          "BULOS": "ala-ona imidya",
+          "FILIPINO": "ala una y media",
+          "ENGLISH": "one thirty"
+        }
+      ]
+    },
+    {
+      "category": "I ADOW DE ISIN A LINGGU (Days of the Week)",
+      "entries": [
+        {
+          "BULOS": "Lonis",
+          "FILIPINO": "Lunes",
+          "ENGLISH": "Monday"
+        },
+        {
+          "BULOS": "Martis",
+          "FILIPINO": "Martes",
+          "ENGLISH": "Tuesday"
+        },
+        {
+          "BULOS": "Merkulis",
+          "FILIPINO": "Miyerkules",
+          "ENGLISH": "Wednesday"
+        },
+        {
+          "BULOS": "Huwebis",
+          "FILIPINO": "Huwebes",
+          "ENGLISH": "Thursday"
+        },
+        {
+          "BULOS": "Biyarnis",
+          "FILIPINO": "Biyernes",
+          "ENGLISH": "Friday"
+        },
+        {
+          "BULOS": "Sabedu",
+          "FILIPINO": "Sabado",
+          "ENGLISH": "Saturday"
+        },
+        {
+          "BULOS": "Linggu",
+          "FILIPINO": "Linggo",
+          "ENGLISH": "Sunday"
+        }
+      ]
+    },
+    {
+      "category": "I BULAN DE ISIN A TAON (Months of the Year)",
+      "entries": [
+        {
+          "BULOS": "Ineru",
+          "FILIPINO": "Enero",
+          "ENGLISH": "January"
+        },
+        {
+          "BULOS": "Pibreru",
+          "FILIPINO": "Pebrero",
+          "ENGLISH": "February"
+        },
+        {
+          "BULOS": "Marsu",
+          "FILIPINO": "Marso",
+          "ENGLISH": "March"
+        },
+        {
+          "BULOS": "Abril",
+          "FILIPINO": "Abril",
+          "ENGLISH": "April"
+        },
+        {
+          "BULOS": "Mayu",
+          "FILIPINO": "Mayo",
+          "ENGLISH": "May"
+        },
+        {
+          "BULOS": "Hunyu",
+          "FILIPINO": "Hunyo",
+          "ENGLISH": "June"
+        },
+        {
+          "BULOS": "Hulyu",
+          "FILIPINO": "Hulyo",
+          "ENGLISH": "July"
+        },
+        {
+          "BULOS": "Agustu",
+          "FILIPINO": "Agosto",
+          "ENGLISH": "August"
+        },
+        {
+          "BULOS": "Sitimri",
+          "FILIPINO": "Setyembre",
+          "ENGLISH": "September"
+        },
+        {
+          "BULOS": "Uktubri",
+          "FILIPINO": "Oktubre",
+          "ENGLISH": "October"
+        },
+        {
+          "BULOS": "Nubimri",
+          "FILIPINO": "Nobyembre",
+          "ENGLISH": "November"
+        },
+        {
+          "BULOS": "Desimri",
+          "FILIPINO": "Disyembre",
+          "ENGLISH": "December"
+        }
+      ]
+    },
+    {
+      "category": "LAGEY NI PANAHUN (Weather Conditions)",
+      "entries": [
+        {
+          "BULOS": "ge tapuk, amiyen",
+          "FILIPINO": "maulan",
+          "ENGLISH": "rainy"
+        },
+        {
+          "BULOS": "ge adow, abeget",
+          "FILIPINO": "maaraw",
+          "ENGLISH": "sunny"
+        },
+        {
+          "BULOS": "menit",
+          "FILIPINO": "mainit",
+          "ENGLISH": "warm"
+        },
+        {
+          "BULOS": "magidnaw",
+          "FILIPINO": "malamig",
+          "ENGLISH": "cold, cool"
+        },
+        {
+          "BULOS": "kodipot",
+          "FILIPINO": "maulap",
+          "ENGLISH": "cloudy"
+        },
+        {
+          "BULOS": "makippalos, tigrurut",
+          "FILIPINO": "mahangin",
+          "ENGLISH": "windy"
+        },
+        {
+          "BULOS": "ge linumof",
+          "FILIPINO": "bumabagyo",
+          "ENGLISH": "stormy"
+        },
+        {
+          "BULOS": "amiyen",
+          "FILIPINO": "tag-ulan",
+          "ENGLISH": "rainy season"
+        },
+        {
+          "BULOS": "abeget",
+          "FILIPINO": "tag-init",
+          "ENGLISH": "summer"
+        }
+      ]
+    },
+    {
+      "category": "IWES (Verbs)",
+      "entries": [
+        {
+          "BULOS": "iweson",
+          "FILIPINO": "iwasan",
+          "ENGLISH": "to avoid"
+        },
+        {
+          "BULOS": "popodiin",
+          "FILIPINO": "pupurihin",
+          "ENGLISH": "to praise"
+        },
+        {
+          "BULOS": "nagkolumbey",
+          "FILIPINO": "malungkot",
+          "ENGLISH": "to be sad, unhappy"
+        },
+        {
+          "BULOS": "nagkasalig",
+          "FILIPINO": "masaya",
+          "ENGLISH": "to be happy"
+        },
+        {
+          "BULOS": "abutin",
+          "FILIPINO": "sundan",
+          "ENGLISH": "to follow"
+        },
+        {
+          "BULOS": "mamonu",
+          "FILIPINO": "mamuno",
+          "ENGLISH": "to lead"
+        },
+        {
+          "BULOS": "ayusin",
+          "FILIPINO": "ayusin",
+          "ENGLISH": "to fix"
+        },
+        {
+          "BULOS": "manulusun",
+          "FILIPINO": "maniwala",
+          "ENGLISH": "to believe"
+        },
+        {
+          "BULOS": "maglagu",
+          "FILIPINO": "magtago",
+          "ENGLISH": "to hide"
+        },
+        {
+          "BULOS": "urmusta",
+          "FILIPINO": "tumingin",
+          "ENGLISH": "to look for"
+        },
+        {
+          "BULOS": "umilok",
+          "FILIPINO": "tumawa",
+          "ENGLISH": "to laugh"
+        },
+        {
+          "BULOS": "bumuot",
+          "FILIPINO": "magmahal",
+          "ENGLISH": "to love"
+        },
+        {
+          "BULOS": "posposin",
+          "FILIPINO": "pigain",
+          "ENGLISH": "to squeeze"
+        },
+        {
+          "BULOS": "sunugin",
+          "FILIPINO": "sunugin",
+          "ENGLISH": "to burn"
+        },
+        {
+          "BULOS": "umabbu",
+          "FILIPINO": "umubo",
+          "ENGLISH": "to cough"
+        },
+        {
+          "BULOS": "pabiyaan",
+          "FILIPINO": "pabayaan",
+          "ENGLISH": "to allow"
+        },
+        {
+          "BULOS": "bentayen",
+          "FILIPINO": "bantayan",
+          "ENGLISH": "to look after"
+        },
+        {
+          "BULOS": "mapangalagean",
+          "FILIPINO": "mapangalagaan",
+          "ENGLISH": "to take care"
+        },
+        {
+          "BULOS": "makitan",
+          "FILIPINO": "makita",
+          "ENGLISH": "to see"
+        },
+        {
+          "BULOS": "iknain",
+          "FILIPINO": "marinig",
+          "ENGLISH": "to hear"
+        },
+        {
+          "BULOS": "mabeluden",
+          "FILIPINO": "mahawakan",
+          "ENGLISH": "to hold"
+        },
+        {
+          "BULOS": "lumipa",
+          "FILIPINO": "umupo",
+          "ENGLISH": "to sit"
+        },
+        {
+          "BULOS": "umuddi",
+          "FILIPINO": "tumayo",
+          "ENGLISH": "to stand"
+        },
+        {
+          "BULOS": "tigiin",
+          "FILIPINO": "tahiin",
+          "ENGLISH": "to sew"
+        },
+        {
+          "BULOS": "piyain",
+          "FILIPINO": "alamin",
+          "ENGLISH": "to know"
+        },
+        {
+          "BULOS": "gekaurom",
+          "FILIPINO": "magkakasakit",
+          "ENGLISH": "to be sick"
+        },
+        {
+          "BULOS": "malusug",
+          "FILIPINO": "malusog",
+          "ENGLISH": "to be healthy"
+        },
+        {
+          "BULOS": "olangan",
+          "FILIPINO": "tawagin",
+          "ENGLISH": "to call"
+        },
+        {
+          "BULOS": "ulit",
+          "FILIPINO": "bulong",
+          "ENGLISH": "to whisper"
+        },
+        {
+          "BULOS": "umolang ni isin a mangayun",
+          "FILIPINO": "tumawag ng isang kasamahan",
+          "ENGLISH": "to call someone"
+        },
+        {
+          "BULOS": "kumanta",
+          "FILIPINO": "kumanta",
+          "ENGLISH": "to sing"
+        },
+        {
+          "BULOS": "sumayaw",
+          "FILIPINO": "sumayaw",
+          "ENGLISH": "to dance"
+        },
+        {
+          "BULOS": "sumurut ni eyen ti kabuluhan",
+          "FILIPINO": "magsalita ng walang kabuluhan",
+          "ENGLISH": "to talk nonsense"
+        },
+        {
+          "BULOS": "geribok",
+          "FILIPINO": "namamaga",
+          "ENGLISH": "to swell"
+        },
+        {
+          "BULOS": "umide",
+          "FILIPINO": "humiga",
+          "ENGLISH": "to lie down"
+        },
+        {
+          "BULOS": "mapede",
+          "FILIPINO": "matulog",
+          "ENGLISH": "to sleep"
+        },
+        {
+          "BULOS": "tulakin",
+          "FILIPINO": "itulak",
+          "ENGLISH": "to push, shove"
+        },
+        {
+          "BULOS": "tagtpukin",
+          "FILIPINO": "saksakin",
+          "ENGLISH": "to stab"
+        },
+        {
+          "BULOS": "lumitow",
+          "FILIPINO": "lumutang",
+          "ENGLISH": "to float"
+        },
+        {
+          "BULOS": "numangoy",
+          "FILIPINO": "lumangoy",
+          "ENGLISH": "to swim"
+        },
+        {
+          "BULOS": "bewalin",
+          "FILIPINO": "ibawal",
+          "ENGLISH": "to forbid"
+        },
+        {
+          "BULOS": "umekut",
+          "FILIPINO": "umikot",
+          "ENGLISH": "to turn"
+        },
+        {
+          "BULOS": "mag-esip",
+          "FILIPINO": "mag-isip",
+          "ENGLISH": "to think"
+        },
+        {
+          "BULOS": "magsurot",
+          "FILIPINO": "magsalita",
+          "ENGLISH": "to say"
+        },
+        {
+          "BULOS": "sabiin",
+          "FILIPINO": "sabihin",
+          "ENGLISH": "to tell"
+        },
+        {
+          "BULOS": "bonglagin",
+          "FILIPINO": "ihagis",
+          "ENGLISH": "to throw"
+        },
+        {
+          "BULOS": "taplapan",
+          "FILIPINO": "labahan",
+          "ENGLISH": "to wash clothes"
+        },
+        {
+          "BULOS": "manalu",
+          "FILIPINO": "manalo",
+          "ENGLISH": "to win"
+        },
+        {
+          "BULOS": "magtarabeho",
+          "FILIPINO": "magtrabaho",
+          "ENGLISH": "to work"
+        },
+        {
+          "BULOS": "gepakasal",
+          "FILIPINO": "magpakasal",
+          "ENGLISH": "to marry"
+        },
+        {
+          "BULOS": "maglenis",
+          "FILIPINO": "maglinis",
+          "ENGLISH": "to clean"
+        },
+        {
+          "BULOS": "mamangan",
+          "FILIPINO": "kumain",
+          "ENGLISH": "to eat"
+        },
+        {
+          "BULOS": "kagetin",
+          "FILIPINO": "kagatin",
+          "ENGLISH": "to bite"
+        },
+        {
+          "BULOS": "uminum",
+          "FILIPINO": "uminom",
+          "ENGLISH": "to drink"
+        },
+        {
+          "BULOS": "nagkebighani, nakided",
+          "FILIPINO": "mabighani, namangha",
+          "ENGLISH": "to be amazed"
+        },
+        {
+          "BULOS": "dumuman",
+          "FILIPINO": "pumunta",
+          "ENGLISH": "to go"
+        },
+        {
+          "BULOS": "dumatong",
+          "FILIPINO": "dumating",
+          "ENGLISH": "to arrive"
+        },
+        {
+          "BULOS": "yumadi",
+          "FILIPINO": "gumawa",
+          "ENGLISH": "to make"
+        },
+        {
+          "BULOS": "pumugtos",
+          "FILIPINO": "pumutol",
+          "ENGLISH": "to cut"
+        },
+        {
+          "BULOS": "bumilang",
+          "FILIPINO": "bumilang",
+          "ENGLISH": "to count"
+        },
+        {
+          "BULOS": "mamunno",
+          "FILIPINO": "pumatay",
+          "ENGLISH": "to kill"
+        },
+        {
+          "BULOS": "matotu",
+          "FILIPINO": "matuto",
+          "ENGLISH": "to learn"
+        },
+        {
+          "BULOS": "tumagbong",
+          "FILIPINO": "tumalon",
+          "ENGLISH": "to jump"
+        },
+        {
+          "BULOS": "pakamala",
+          "FILIPINO": "mapatuyo",
+          "ENGLISH": "to dry"
+        },
+        {
+          "BULOS": "makipaglaben",
+          "FILIPINO": "makipaglaban",
+          "ENGLISH": "to fight"
+        },
+        {
+          "BULOS": "suntukin",
+          "FILIPINO": "suntukin",
+          "ENGLISH": "to hit"
+        },
+        {
+          "BULOS": "gipotin",
+          "FILIPINO": "itali",
+          "ENGLISH": "to tie"
+        },
+        {
+          "BULOS": "gumutu",
+          "FILIPINO": "umani",
+          "ENGLISH": "to harvest"
+        },
+        {
+          "BULOS": "magtanom",
+          "FILIPINO": "magtanim",
+          "ENGLISH": "to plant"
+        },
+        {
+          "BULOS": "mamaget/mangikag",
+          "FILIPINO": "mangaso",
+          "ENGLISH": "to hunt"
+        },
+        {
+          "BULOS": "mangikan",
+          "FILIPINO": "mangisda",
+          "ENGLISH": "to fish"
+        },
+        {
+          "BULOS": "maggewes",
+          "FILIPINO": "maglaro",
+          "ENGLISH": "to play"
+        },
+        {
+          "BULOS": "matakul",
+          "FILIPINO": "matakot",
+          "ENGLISH": "to fear, to be afraid"
+        },
+        {
+          "BULOS": "uminnawa",
+          "FILIPINO": "huminga",
+          "ENGLISH": "to breathe"
+        },
+        {
+          "BULOS": "madegdeg",
+          "FILIPINO": "mahulog",
+          "ENGLISH": "to fall"
+        },
+        {
+          "BULOS": "punosan",
+          "FILIPINO": "kuskusin",
+          "ENGLISH": "to rub"
+        },
+        {
+          "BULOS": "uweyin",
+          "FILIPINO": "hilahin",
+          "ENGLISH": "to pull"
+        },
+        {
+          "BULOS": "gumikan",
+          "FILIPINO": "tumakbo",
+          "ENGLISH": "to run"
+        }
+      ]
+    },
+    {
+      "category": "I SUROT A PAG-AADEL NI FILIPINO KI ENGLISH (Vocabulary for Filipino and English Subjects)",
+      "entries": [
+        {
+          "BULOS": "ngalan",
+          "FILIPINO": "pangalan",
+          "ENGLISH": "name"
+        },
+        {
+          "BULOS": "ngalan ni agla",
+          "FILIPINO": "pangalan ng tao",
+          "ENGLISH": "name of person"
+        },
+        {
+          "BULOS": "ngalan ni begey",
+          "FILIPINO": "pangalan ng bagay",
+          "ENGLISH": "name of object"
+        },
+        {
+          "BULOS": "ngalan ni lugel",
+          "FILIPINO": "pangalan ng pook",
+          "ENGLISH": "name of place"
+        },
+        {
+          "BULOS": "ngalan ni hayup",
+          "FILIPINO": "pangalan ng hayop",
+          "ENGLISH": "name of animal"
+        },
+        {
+          "BULOS": "gemit ni i",
+          "FILIPINO": "gamit ng \"ang\"",
+          "ENGLISH": "use of \"the\""
+        },
+        {
+          "BULOS": "*",
+          "FILIPINO": "gamit ng \"ang mga\"",
+          "ENGLISH": "use of \"the (plural)\""
+        },
+        {
+          "BULOS": "i paagowen, panotu",
+          "FILIPINO": "mga direksiyon",
+          "ENGLISH": "directions"
+        },
+        {
+          "BULOS": "gesaleta",
+          "FILIPINO": "pagkukuwento",
+          "ENGLISH": "story telling"
+        },
+        {
+          "BULOS": "kasingkahulugen",
+          "FILIPINO": "kasing kahulugan",
+          "ENGLISH": "synonym"
+        },
+        {
+          "BULOS": "magkasingtinug",
+          "FILIPINO": "magkasing tunog",
+          "ENGLISH": "homonym"
+        },
+        {
+          "BULOS": "pagdugeng-dugeng ni surot",
+          "FILIPINO": "pagbuo ng mga salita",
+          "ENGLISH": "word construction"
+        },
+        {
+          "BULOS": "pag abuya ni surot",
+          "FILIPINO": "pagkilala ng mga salita",
+          "ENGLISH": "word recognition"
+        },
+        {
+          "BULOS": "kanta a ti iwes ki yedi",
+          "FILIPINO": "awit na may kilos o galaw",
+          "ENGLISH": "action song"
+        },
+        {
+          "BULOS": "antisurot a iwes",
+          "FILIPINO": "pantomima",
+          "ENGLISH": "pantomime"
+        },
+        {
+          "BULOS": "belagtasan",
+          "FILIPINO": "balagtasan",
+          "ENGLISH": "poetical joust in verse"
+        },
+        {
+          "BULOS": "pagsurot",
+          "FILIPINO": "pagsasalita",
+          "ENGLISH": "speech"
+        },
+        {
+          "BULOS": "salela a de benwoan",
+          "FILIPINO": "pabula, kwentong bayan",
+          "ENGLISH": "fable, folktale"
+        },
+        {
+          "BULOS": "gewes",
+          "FILIPINO": "laro",
+          "ENGLISH": "game"
+        },
+        {
+          "BULOS": "pamatalingoy ni saleta",
+          "FILIPINO": "pakikinig sa kwento",
+          "ENGLISH": "listening to a story"
+        },
+        {
+          "BULOS": "pagkakaabul-abut ni pangyayadi",
+          "FILIPINO": "pagkakasunod-sunod ng mga pangyayari",
+          "ENGLISH": "sequencing events"
+        },
+        {
+          "BULOS": "getalakay",
+          "FILIPINO": "natatalakay",
+          "ENGLISH": "talk about"
+        },
+        {
+          "BULOS": "surot",
+          "FILIPINO": "salita",
+          "ENGLISH": "word"
+        },
+        {
+          "BULOS": "nagesabi",
+          "FILIPINO": "nasasabi",
+          "ENGLISH": "tell"
+        },
+        {
+          "BULOS": "kahulugen",
+          "FILIPINO": "kahulugan",
+          "ENGLISH": "meaning"
+        },
+        {
+          "BULOS": "nagkalarawen",
+          "FILIPINO": "nailalarawan",
+          "ENGLISH": "describe"
+        }
+      ]
+    },
+    {
+      "category": "I SUROT A PAG-AADEL NI MATEMATIKA (Vocabulary for Mathematics)",
+      "entries": [
+        {
+          "BULOS": "magbilang",
+          "FILIPINO": "magbilang",
+          "ENGLISH": "count"
+        },
+        {
+          "BULOS": "bilang",
+          "FILIPINO": "bilang",
+          "ENGLISH": "number"
+        },
+        {
+          "BULOS": "lokuyin",
+          "FILIPINO": "tukuyin",
+          "ENGLISH": "identify"
+        },
+        {
+          "BULOS": "kolang ni isin",
+          "FILIPINO": "kulang ng isa",
+          "ENGLISH": "one less"
+        },
+        {
+          "BULOS": "pedugengan ni isin",
+          "FILIPINO": "dinagdagan ng isa",
+          "ENGLISH": "one more"
+        },
+        {
+          "BULOS": "kappuoyen ni bilang",
+          "FILIPINO": "kinalalagyan ng bilang",
+          "ENGLISH": "place value"
+        },
+        {
+          "BULOS": "makmuk",
+          "FILIPINO": "marami",
+          "ENGLISH": "many"
+        },
+        {
+          "BULOS": "miuntik",
+          "FILIPINO": "kaunti",
+          "ENGLISH": "few"
+        },
+        {
+          "BULOS": "mas miuntik kesa de",
+          "FILIPINO": "mas kakaunti kaysa sa",
+          "ENGLISH": "fewer than"
+        },
+        {
+          "BULOS": "kasing makmuk ni",
+          "FILIPINO": "kasing dami ng",
+          "ENGLISH": "as many as"
+        },
+        {
+          "BULOS": "pinakíuntik",
+          "FILIPINO": "pinakamaliit",
+          "ENGLISH": "least"
+        },
+        {
+          "BULOS": "pagkumparain",
+          "FILIPINO": "paghahambingin",
+          "ENGLISH": "compare"
+        },
+        {
+          "BULOS": "mas hanga",
+          "FILIPINO": "pinakamalaki",
+          "ENGLISH": "greatest"
+        },
+        {
+          "BULOS": "palawot lawot a bilang",
+          "FILIPINO": "palukso-luksong pagbilang",
+          "ENGLISH": "skip counting"
+        },
+        {
+          "BULOS": "waklat",
+          "FILIPINO": "pera",
+          "ENGLISH": "money"
+        },
+        {
+          "BULOS": "kaksit",
+          "FILIPINO": "barya",
+          "ENGLISH": "coins"
+        },
+        {
+          "BULOS": "waklat a papel",
+          "FILIPINO": "perang papel",
+          "ENGLISH": "bills"
+        },
+        {
+          "BULOS": "simbulu ni waklat",
+          "FILIPINO": "simbolo ng pera",
+          "ENGLISH": "peso sign"
+        },
+        {
+          "BULOS": "liwetin",
+          "FILIPINO": "ulitin",
+          "ENGLISH": "repeat"
+        },
+        {
+          "BULOS": "solatin",
+          "FILIPINO": "isulat",
+          "ENGLISH": "write"
+        },
+        {
+          "BULOS": "pagdugeng",
+          "FILIPINO": "pagdadagdag",
+          "ENGLISH": "addition"
+        },
+        {
+          "BULOS": "bilang a pangdugeng",
+          "FILIPINO": "mga bilang na pangdagdag",
+          "ENGLISH": "addends"
+        },
+        {
+          "BULOS": "kapesanan",
+          "FILIPINO": "kabuuan",
+          "ENGLISH": "sum, total"
+        },
+        {
+          "BULOS": "pagdugengin",
+          "FILIPINO": "pagsamahin",
+          "ENGLISH": "putting together"
+        },
+        {
+          "BULOS": "panande ni pagdugeng",
+          "FILIPINO": "pananda ng pagdadagdag",
+          "ENGLISH": "plus sign"
+        },
+        {
+          "BULOS": "pagkuloyin",
+          "FILIPINO": "pagsamahin",
+          "ENGLISH": "join"
+        },
+        {
+          "BULOS": "pagbewes",
+          "FILIPINO": "pagbabawas",
+          "ENGLISH": "subtraction"
+        },
+        {
+          "BULOS": "i bilang a pebewesan",
+          "FILIPINO": "mga bilang na binabawasan",
+          "ENGLISH": "subtrahend"
+        },
+        {
+          "BULOS": "i bilang a benawes",
+          "FILIPINO": "mga bilang na binabawas",
+          "ENGLISH": "minuend"
+        },
+        {
+          "BULOS": "tubeg de pagbewes",
+          "FILIPINO": "sagot sa pagbawas",
+          "ENGLISH": "difference"
+        },
+        {
+          "BULOS": "pag-amit",
+          "FILIPINO": "pagkuha",
+          "ENGLISH": "taking away"
+        },
+        {
+          "BULOS": "nawawal",
+          "FILIPINO": "naiwan",
+          "ENGLISH": "left"
+        },
+        {
+          "BULOS": "bewasan",
+          "FILIPINO": "bawasan",
+          "ENGLISH": "minus"
+        },
+        {
+          "BULOS": "katumbes",
+          "FILIPINO": "katumbas",
+          "ENGLISH": "equivalent"
+        },
+        {
+          "BULOS": "katumbes de",
+          "FILIPINO": "katumbas sa",
+          "ENGLISH": "equal"
+        },
+        {
+          "BULOS": "eyen katumbes",
+          "FILIPINO": "hindi katumbas",
+          "ENGLISH": "not equal"
+        }
+      ]
+    },
+    {
+      "category": "I SUROT A PAG-AADEL NI EDUKASYON DE PAGPAPAKAAGTA (Vocabulary for Edukasyon sa Pagpapakatao)",
+      "entries": [
+        {
+          "BULOS": "katlebongan",
+          "FILIPINO": "kalakasan",
+          "ENGLISH": "strength"
+        },
+        {
+          "BULOS": "kakoweyen",
+          "FILIPINO": "kahinaan",
+          "ENGLISH": "weakness"
+        },
+        {
+          "BULOS": "kadeogen",
+          "FILIPINO": "kakayahan",
+          "ENGLISH": "ability"
+        },
+        {
+          "BULOS": "mapagboy",
+          "FILIPINO": "pagkabukas palad, mapagbigay",
+          "ENGLISH": "charitable"
+        },
+        {
+          "BULOS": "katepongan",
+          "FILIPINO": "katapatan",
+          "ENGLISH": "sincerity"
+        },
+        {
+          "BULOS": "kapiyonan",
+          "FILIPINO": "kabutihan",
+          "ENGLISH": "goodness"
+        },
+        {
+          "BULOS": "migpanuluson",
+          "FILIPINO": "masunurin",
+          "ENGLISH": "obedient"
+        },
+        {
+          "BULOS": "paggelang",
+          "FILIPINO": "paggalang",
+          "ENGLISH": "respect"
+        },
+        {
+          "BULOS": "pagpapahalage",
+          "FILIPINO": "pagpapahalaga",
+          "ENGLISH": "value"
+        },
+        {
+          "BULOS": "pagtanggap",
+          "FILIPINO": "pagtanggap",
+          "ENGLISH": "acceptance"
+        },
+        {
+          "BULOS": "pagbuot",
+          "FILIPINO": "pagmamahal",
+          "ENGLISH": "love"
+        },
+        {
+          "BULOS": "kalinesan",
+          "FILIPINO": "kalinisan",
+          "ENGLISH": "cleanliness"
+        },
+        {
+          "BULOS": "Makidepat",
+          "FILIPINO": "Diyos",
+          "ENGLISH": "God"
+        },
+        {
+          "BULOS": "pagkapanulusun",
+          "FILIPINO": "pananampalataya",
+          "ENGLISH": "faith"
+        },
+        {
+          "BULOS": "pagkapanulusun",
+          "FILIPINO": "paniniwala",
+          "ENGLISH": "belief"
+        },
+        {
+          "BULOS": "geasa",
+          "FILIPINO": "pag-asa",
+          "ENGLISH": "hope"
+        },
+        {
+          "BULOS": "karapatan",
+          "FILIPINO": "karapatan",
+          "ENGLISH": "right"
+        },
+        {
+          "BULOS": "matud",
+          "FILIPINO": "totoo",
+          "ENGLISH": "True"
+        },
+        {
+          "BULOS": "kamatoden",
+          "FILIPINO": "katotohanan",
+          "ENGLISH": "truth"
+        },
+        {
+          "BULOS": "surut a an matud",
+          "FILIPINO": "salita na hindi totoo",
+          "ENGLISH": "a lie"
+        },
+        {
+          "BULOS": "takut",
+          "FILIPINO": "takot",
+          "ENGLISH": "fear"
+        },
+        {
+          "BULOS": "eyen ge ka intindihan",
+          "FILIPINO": "di-pagkakaintin-dihan",
+          "ENGLISH": "misunderstanding"
+        },
+        {
+          "BULOS": "kahalagehan",
+          "FILIPINO": "kahalagahan",
+          "ENGLISH": "valuable"
+        },
+        {
+          "BULOS": "fungkulin",
+          "FILIPINO": "tungkulin",
+          "ENGLISH": "responsibility"
+        },
+        {
+          "BULOS": "nasyonalismo",
+          "FILIPINO": "nasyonalismo",
+          "ENGLISH": "nationalism"
+        },
+        {
+          "BULOS": "gemalasokit de kapaligiden",
+          "FILIPINO": "pagmamalasakit sa kapaligiran",
+          "ENGLISH": "concern for environment"
+        },
+        {
+          "BULOS": "kapaligiden",
+          "FILIPINO": "kapaligiran",
+          "ENGLISH": "environment"
+        },
+        {
+          "BULOS": "malitande",
+          "FILIPINO": "magulang",
+          "ENGLISH": "parent"
+        },
+        {
+          "BULOS": "mittanak",
+          "FILIPINO": "mag-anak, pamilya",
+          "ENGLISH": "family"
+        },
+        {
+          "BULOS": "sadili",
+          "FILIPINO": "sarili",
+          "ENGLISH": "oneself"
+        },
+        {
+          "BULOS": "adow ni kapanganakan",
+          "FILIPINO": "araw ng kapanganakan",
+          "ENGLISH": "birthdate"
+        },
+        {
+          "BULOS": "nangyadi",
+          "FILIPINO": "nangyari",
+          "ENGLISH": "happen"
+        }
+      ]
+    },
+    {
+      "category": "I SUROT A PAG-AADEL NI ADELIN PANLEPONAN (Vocabulary for Araling Panlipunan)",
+      "entries": [
+        {
+          "BULOS": "kaugelian",
+          "FILIPINO": "kaugalian",
+          "ENGLISH": "custom"
+        },
+        {
+          "BULOS": "ugeli",
+          "FILIPINO": "kaugalian",
+          "ENGLISH": "habit, custom"
+        },
+        {
+          "BULOS": "kultora",
+          "FILIPINO": "mga kaugalian",
+          "ENGLISH": "traditions"
+        },
+        {
+          "BULOS": "un palatandean ide",
+          "FILIPINO": "mga sagisag",
+          "ENGLISH": "symbols"
+        },
+        {
+          "BULOS": "un kailangan ide",
+          "FILIPINO": "mga pangangailangan",
+          "ENGLISH": "needs"
+        },
+        {
+          "BULOS": "kapangyedihan",
+          "FILIPINO": "kapangyarihan",
+          "ENGLISH": "power"
+        },
+        {
+          "BULOS": "kadugeng",
+          "FILIPINO": "kasapi",
+          "ENGLISH": "member"
+        },
+        {
+          "BULOS": "pamayenan",
+          "FILIPINO": "pamayanan",
+          "ENGLISH": "village, community"
+        },
+        {
+          "BULOS": "pagkakabukud",
+          "FILIPINO": "pagkakaiba",
+          "ENGLISH": "difference"
+        },
+        {
+          "BULOS": "toladin",
+          "FILIPINO": "ihambing",
+          "ENGLISH": "compare"
+        },
+        {
+          "BULOS": "pagtitiwala",
+          "FILIPINO": "pagtitiwala",
+          "ENGLISH": "trust"
+        },
+        {
+          "BULOS": "pagkakakeisin",
+          "FILIPINO": "pagkabuklod-buklod, pagkakaisa",
+          "ENGLISH": "unity"
+        },
+        {
+          "BULOS": "patulutabengan",
+          "FILIPINO": "pagtutulungan",
+          "ENGLISH": "cooperation"
+        },
+        {
+          "BULOS": "pagepo",
+          "FILIPINO": "panimula",
+          "ENGLISH": "beginning"
+        },
+        {
+          "BULOS": "inapuan",
+          "FILIPINO": "pinagmulan",
+          "ENGLISH": "origin"
+        },
+        {
+          "BULOS": "nagkapekita",
+          "FILIPINO": "naipakikita",
+          "ENGLISH": "show"
+        },
+        {
+          "BULOS": "gepokita kita",
+          "FILIPINO": "pagmomodelo",
+          "ENGLISH": "modeling"
+        },
+        {
+          "BULOS": "pakikikakoloy",
+          "FILIPINO": "pakikitungo",
+          "ENGLISH": "dealing"
+        },
+        {
+          "BULOS": "kahalagehan",
+          "FILIPINO": "kahalagahan",
+          "ENGLISH": "importance"
+        },
+        {
+          "BULOS": "paabuyain",
+          "FILIPINO": "ipakikilala",
+          "ENGLISH": "introduce"
+        },
+        {
+          "BULOS": "kadugeng",
+          "FILIPINO": "kabilang",
+          "ENGLISH": "including"
+        }
+      ]
+    },
+    {
+      "category": "I SUROT A PAG-AADEL NI EDUKASYONG PANGLAWES (Vocabulary for Physical Education)",
+      "entries": [
+        {
+          "BULOS": "behagi",
+          "FILIPINO": "parte, bahagi",
+          "ENGLISH": "parts"
+        },
+        {
+          "BULOS": "iwes",
+          "FILIPINO": "galaw",
+          "ENGLISH": "movement"
+        },
+        {
+          "BULOS": "hogis",
+          "FILIPINO": "hugis",
+          "ENGLISH": "shape"
+        },
+        {
+          "BULOS": "umiwes",
+          "FILIPINO": "gumalaw",
+          "ENGLISH": "to move"
+        },
+        {
+          "BULOS": "belansi",
+          "FILIPINO": "balanse",
+          "ENGLISH": "balance"
+        },
+        {
+          "BULOS": "lepatin",
+          "FILIPINO": "ilipat",
+          "ENGLISH": "transfer"
+        },
+        {
+          "BULOS": "pakitain",
+          "FILIPINO": "ipakita",
+          "ENGLISH": "demonstrate"
+        },
+        {
+          "BULOS": "guropu",
+          "FILIPINO": "grupo",
+          "ENGLISH": "group"
+        },
+        {
+          "BULOS": "pakitain",
+          "FILIPINO": "ipakita",
+          "ENGLISH": "perform"
+        },
+        {
+          "BULOS": "toladin",
+          "FILIPINO": "gayahin",
+          "ENGLISH": "imitate"
+        },
+        {
+          "BULOS": "makidugeng",
+          "FILIPINO": "makisali",
+          "ENGLISH": "participate"
+        },
+        {
+          "BULOS": "paaweli",
+          "FILIPINO": "pakaliwa",
+          "ENGLISH": "turn left"
+        },
+        {
+          "BULOS": "paawenan",
+          "FILIPINO": "pakanan",
+          "ENGLISH": "turn right"
+        },
+        {
+          "BULOS": "kagemitan",
+          "FILIPINO": "kagamitan",
+          "ENGLISH": "materials"
+        },
+        {
+          "BULOS": "toful a patakde",
+          "FILIPINO": "lakad patakda",
+          "ENGLISH": "march"
+        },
+        {
+          "BULOS": "lumawot",
+          "FILIPINO": "lumundag",
+          "ENGLISH": "jump"
+        },
+        {
+          "BULOS": "lawes",
+          "FILIPINO": "katawan",
+          "ENGLISH": "body"
+        },
+        {
+          "BULOS": "toful a pasolung",
+          "FILIPINO": "lakad pasulong",
+          "ENGLISH": "forward march"
+        },
+        {
+          "BULOS": "deup",
+          "FILIPINO": "palakpak",
+          "ENGLISH": "clap"
+        },
+        {
+          "BULOS": "innawa a pasilung",
+          "FILIPINO": "hingang papasok",
+          "ENGLISH": "inhale"
+        },
+        {
+          "BULOS": "innawa a pabulweg",
+          "FILIPINO": "hingang papalabas",
+          "ENGLISH": "exhale"
+        },
+        {
+          "BULOS": "mabegel",
+          "FILIPINO": "mabagal",
+          "ENGLISH": "slow"
+        },
+        {
+          "BULOS": "panpari",
+          "FILIPINO": "bilis",
+          "ENGLISH": "speed"
+        },
+        {
+          "BULOS": "maparipari a hedep",
+          "FILIPINO": "mabilis na mabilis",
+          "ENGLISH": "fast"
+        },
+        {
+          "BULOS": "pagkanta",
+          "FILIPINO": "pag-awit",
+          "ENGLISH": "singing"
+        }
+      ]
+    },
+    {
+      "category": "I SUROT A PAG-AADEL NI MOSIKA (Vocabulary for Music)",
+      "entries": [
+        {
+          "BULOS": "simbolu",
+          "FILIPINO": "simbolo",
+          "ENGLISH": "symbol"
+        },
+        {
+          "BULOS": "busis",
+          "FILIPINO": "boses",
+          "ENGLISH": "voice"
+        },
+        {
+          "BULOS": "pakanta a surot",
+          "FILIPINO": "paawit na salita",
+          "ENGLISH": "chant"
+        },
+        {
+          "BULOS": "sokat",
+          "FILIPINO": "sukat",
+          "ENGLISH": "measurement"
+        },
+        {
+          "BULOS": "maditas",
+          "FILIPINO": "mataas",
+          "ENGLISH": "high"
+        },
+        {
+          "BULOS": "masidong",
+          "FILIPINO": "mababa",
+          "ENGLISH": "low"
+        },
+        {
+          "BULOS": "Panandelean a tegil",
+          "FILIPINO": "Pansamantalang tigil",
+          "ENGLISH": "pause"
+        },
+        {
+          "BULOS": "tugtug",
+          "FILIPINO": "tugtog",
+          "ENGLISH": "to play instrument"
+        },
+        {
+          "BULOS": "tonu",
+          "FILIPINO": "tono",
+          "ENGLISH": "tone"
+        },
+        {
+          "BULOS": "kapugtus",
+          "FILIPINO": "kalahati",
+          "ENGLISH": "half"
+        },
+        {
+          "BULOS": "buu",
+          "FILIPINO": "buo",
+          "ENGLISH": "whole"
+        },
+        {
+          "BULOS": "Pakitain",
+          "FILIPINO": "ipakita",
+          "ENGLISH": "demonstrate"
+        },
+        {
+          "BULOS": "gitade",
+          "FILIPINO": "gitara",
+          "ENGLISH": "guitar"
+        },
+        {
+          "BULOS": "tinug",
+          "FILIPINO": "tunog",
+          "ENGLISH": "sound"
+        },
+        {
+          "BULOS": "paimloy",
+          "FILIPINO": "pahinga",
+          "ENGLISH": "rest"
+        },
+        {
+          "BULOS": "awit, kanta",
+          "FILIPINO": "awit, kanta",
+          "ENGLISH": "sing, song"
+        },
+        {
+          "BULOS": "mangomaw",
+          "FILIPINO": "maingay",
+          "ENGLISH": "loud"
+        }
+      ]
+    },
+    {
+      "category": "I SUROT A PAG-AADEL NI KALOSOGEN (Vocabulary for Health)",
+      "entries": [
+        {
+          "BULOS": "urom, karamdeman",
+          "FILIPINO": "sakit, karamdaman",
+          "ENGLISH": "sickness, disease"
+        },
+        {
+          "BULOS": "piyon a kabebiyeg",
+          "FILIPINO": "maayos na pakiramdam",
+          "ENGLISH": "good health"
+        },
+        {
+          "BULOS": "kalosogen",
+          "FILIPINO": "kalusugan",
+          "ENGLISH": "health"
+        },
+        {
+          "BULOS": "lagnat",
+          "FILIPINO": "lagnat",
+          "ENGLISH": "fever"
+        },
+        {
+          "BULOS": "bulong",
+          "FILIPINO": "gamot",
+          "ENGLISH": "medicine"
+        },
+        {
+          "BULOS": "pagpanisuka",
+          "FILIPINO": "pagsuka",
+          "ENGLISH": "vomit"
+        },
+        {
+          "BULOS": "pagpanginan, pagwetwet",
+          "FILIPINO": "pagtatae",
+          "ENGLISH": "diarrhea"
+        },
+        {
+          "BULOS": "sippun",
+          "FILIPINO": "sipon",
+          "ENGLISH": "colds"
+        },
+        {
+          "BULOS": "apdis ni ulu",
+          "FILIPINO": "sakit ng ulo",
+          "ENGLISH": "headache"
+        },
+        {
+          "BULOS": "kaksan",
+          "FILIPINO": "buto",
+          "ENGLISH": "bone"
+        },
+        {
+          "BULOS": "lungpu",
+          "FILIPINO": "lumpo",
+          "ENGLISH": "crippled"
+        },
+        {
+          "BULOS": "kulang de amagid",
+          "FILIPINO": "anemya",
+          "ENGLISH": "anemia"
+        },
+        {
+          "BULOS": "mahedep mpapepede",
+          "FILIPINO": "mahirap makatulog",
+          "ENGLISH": "insomnia"
+        },
+        {
+          "BULOS": "kutu",
+          "FILIPINO": "kuto",
+          "ENGLISH": "lice"
+        },
+        {
+          "BULOS": "kalat",
+          "FILIPINO": "balat",
+          "ENGLISH": "skin"
+        },
+        {
+          "BULOS": "sagu, matlom, amagid",
+          "FILIPINO": "dugo",
+          "ENGLISH": "blood"
+        },
+        {
+          "BULOS": "pusu",
+          "FILIPINO": "puso",
+          "ENGLISH": "heart"
+        },
+        {
+          "BULOS": "bege",
+          "FILIPINO": "atay",
+          "ENGLISH": "liver"
+        },
+        {
+          "BULOS": "geris asu",
+          "FILIPINO": "galis aso",
+          "ENGLISH": "scabies"
+        },
+        {
+          "BULOS": "tarangkasu",
+          "FILIPINO": "trangkaso",
+          "ENGLISH": "flu"
+        },
+        {
+          "BULOS": "pidsa",
+          "FILIPINO": "pigsa",
+          "ENGLISH": "boil"
+        },
+        {
+          "BULOS": "Pepi",
+          "FILIPINO": "pipi",
+          "ENGLISH": "mute"
+        },
+        {
+          "BULOS": "taoli",
+          "FILIPINO": "tutuli",
+          "ENGLISH": "ear wax"
+        }
+      ]
+    },
+    {
+      "category": "SUROT A TANTO (Question Words)",
+      "entries": [
+        {
+          "BULOS": "Anu?",
+          "FILIPINO": "Ano?",
+          "ENGLISH": "What?"
+        },
+        {
+          "BULOS": "Kapide?",
+          "FILIPINO": "Kailan?",
+          "ENGLISH": "When?"
+        },
+        {
+          "BULOS": "Denu?",
+          "FILIPINO": "Saan?",
+          "ENGLISH": "Where?"
+        },
+        {
+          "BULOS": "I denu?",
+          "FILIPINO": "Alin?",
+          "ENGLISH": "Which?"
+        },
+        {
+          "BULOS": "Inu?",
+          "FILIPINO": "Sino?",
+          "ENGLISH": "Who?"
+        },
+        {
+          "BULOS": "Bekot?",
+          "FILIPINO": "Bakit?",
+          "ENGLISH": "Why?"
+        },
+        {
+          "BULOS": "Pide? Pide?",
+          "FILIPINO": "Magkano? Ilan?",
+          "ENGLISH": "How much? / How many?"
+        }
+      ]
+    },
+    {
+      "category": "PAAGOWEN, DIREKSIYUN (Direction/Location)",
+      "entries": [
+        {
+          "BULOS": "umapo de",
+          "FILIPINO": "mula sa",
+          "ENGLISH": "from"
+        },
+        {
+          "BULOS": "de disapow ni",
+          "FILIPINO": "sa ibabaw ng",
+          "ENGLISH": "on top of"
+        },
+        {
+          "BULOS": "de disalad",
+          "FILIPINO": "sa ilalim",
+          "ENGLISH": "under"
+        },
+        {
+          "BULOS": "de loub",
+          "FILIPINO": "sa loob",
+          "ENGLISH": "inside"
+        },
+        {
+          "BULOS": "de butok",
+          "FILIPINO": "sa gitna",
+          "ENGLISH": "in the middle"
+        },
+        {
+          "BULOS": "de tagebu",
+          "FILIPINO": "sa unahan",
+          "ENGLISH": "at the front end (first)"
+        },
+        {
+          "BULOS": "de inapoan",
+          "FILIPINO": "sa hulihan",
+          "ENGLISH": "at the back end (last)"
+        },
+        {
+          "BULOS": "de ditas",
+          "FILIPINO": "sa itaas",
+          "ENGLISH": "up, above"
+        },
+        {
+          "BULOS": "de idogen",
+          "FILIPINO": "sa likuran",
+          "ENGLISH": "back"
+        },
+        {
+          "BULOS": "de siolung",
+          "FILIPINO": "sa ibaba",
+          "ENGLISH": "below"
+        },
+        {
+          "BULOS": "dio",
+          "FILIPINO": "dito",
+          "ENGLISH": "here"
+        },
+        {
+          "BULOS": "duman",
+          "FILIPINO": "doon",
+          "ENGLISH": "there"
+        },
+        {
+          "BULOS": "de dibelew a behagi",
+          "FILIPINO": "kabilang bahagi",
+          "ENGLISH": "other side, far side"
+        },
+        {
+          "BULOS": "de",
+          "FILIPINO": "sa",
+          "ENGLISH": "at"
+        }
+      ]
+    },
+    {
+      "category": "PANGKARANEWEN APESABE (Common Phrases)",
+      "entries": [
+        {
+          "BULOS": "Masampat a abi-abi.",
+          "FILIPINO": "Magandang umaga.",
+          "ENGLISH": "Good morning."
+        },
+        {
+          "BULOS": "Masampat a udtu.",
+          "FILIPINO": "Magandang tanghali.",
+          "ENGLISH": "Good noon."
+        },
+        {
+          "BULOS": "Masampat a apun.",
+          "FILIPINO": "Magandang hapon.",
+          "ENGLISH": "Good afternoon."
+        },
+        {
+          "BULOS": "Masampat a abi.",
+          "FILIPINO": "Magandang gabi.",
+          "ENGLISH": "Good evening."
+        },
+        {
+          "BULOS": "Magiano kamu di?",
+          "FILIPINO": "Kumusta po kayo?",
+          "ENGLISH": "How are you?"
+        },
+        {
+          "BULOS": "Nagkasaligok a inabuyanan ku ikamu.",
+          "FILIPINO": "Masaya akong makilala ka.",
+          "ENGLISH": "Glad to meet you."
+        },
+        {
+          "BULOS": "Hali ta nototul ok di.",
+          "FILIPINO": "O sige na / aalis na.",
+          "ENGLISH": "Goodbye."
+        },
+        {
+          "BULOS": "Masampat pan.",
+          "FILIPINO": "Mabuti naman.",
+          "ENGLISH": "I am fine."
+        },
+        {
+          "BULOS": "Ayus pan la.",
+          "FILIPINO": "Mabuti naman po.",
+          "ENGLISH": "I am good."
+        },
+        {
+          "BULOS": "Ikamu kaya? / Ikaw?",
+          "FILIPINO": "Kayo po? / Ikaw?",
+          "ENGLISH": "How about you?"
+        },
+        {
+          "BULOS": "Denu ka paagow?",
+          "FILIPINO": "Saan ka pupunta?",
+          "ENGLISH": "Where are you going?"
+        },
+        {
+          "BULOS": "Maligeya a kaadowen.",
+          "FILIPINO": "Maligayang kaarawan.",
+          "ENGLISH": "Happy birthday."
+        },
+        {
+          "BULOS": "Maligeya a Pasku.",
+          "FILIPINO": "Maligayang Pasko.",
+          "ENGLISH": "Merry Christmas."
+        },
+        {
+          "BULOS": "Manegu a bowon a taon.",
+          "FILIPINO": "Manigong Bagong Taon.",
+          "ENGLISH": "Happy New Year."
+        },
+        {
+          "BULOS": "Masaya a pista.",
+          "FILIPINO": "Masayang kapistahan.",
+          "ENGLISH": "Happy fiesta."
+        },
+        {
+          "BULOS": "Engat de biyahi.",
+          "FILIPINO": "Ingat sa pagbiyahe.",
+          "ENGLISH": "Happy trip."
+        },
+        {
+          "BULOS": "Maligeya de pagdetong.",
+          "FILIPINO": "Maligayang pagdating.",
+          "ENGLISH": "Welcome home."
+        },
+        {
+          "BULOS": "Kalbian kamu ni Makidepat.",
+          "FILIPINO": "Pagpalain ka nawa ng Panginoon.",
+          "ENGLISH": "God bless you."
+        },
+        {
+          "BULOS": "Masampat a mahuna.",
+          "FILIPINO": "Ang ganda mo.",
+          "ENGLISH": "You are so beautiful."
+        },
+        {
+          "BULOS": "Masampat a uliltaw.",
+          "FILIPINO": "Ang guwapo mo.",
+          "ENGLISH": "You are so handsome."
+        },
+        {
+          "BULOS": "Buot ku ikaw.",
+          "FILIPINO": "Mahal kita.",
+          "ENGLISH": "I love you."
+        },
+        {
+          "BULOS": "Anu i ngalan mu?",
+          "FILIPINO": "Ano ang pangalan mo?",
+          "ENGLISH": "What is your name?"
+        },
+        {
+          "BULOS": "Tage deno ka?",
+          "FILIPINO": "Taga saan ka?",
+          "ENGLISH": "Where are you from?"
+        },
+        {
+          "BULOS": "Dëno ka nappotatan?",
+          "FILIPINO": "Saan ka nakatira?",
+          "ENGLISH": "Where do you live?"
+        },
+        {
+          "BULOS": "Makmuk a salamat.",
+          "FILIPINO": "Maraming salamat.",
+          "ENGLISH": "Thank you."
+        },
+        {
+          "BULOS": "Kati nappatod?",
+          "FILIPINO": "Maaari po ba...?",
+          "ENGLISH": "May I...?"
+        },
+        {
+          "BULOS": "Patawedingok mu.",
+          "FILIPINO": "Patawarin mo ako.",
+          "ENGLISH": "Please forgive me. / I"
+        },
+        {
+          "BULOS": "Nekisila ok.",
+          "FILIPINO": "Makikiiraan po.",
+          "ENGLISH": "Excuse me. / May I"
+        },
+        {
+          "BULOS": "–",
+          "FILIPINO": "Opo.",
+          "ENGLISH": "Yes."
+        },
+        {
+          "BULOS": "Eyen pan.",
+          "FILIPINO": "Hindi po.",
+          "ENGLISH": "No."
+        },
+        {
+          "BULOS": "Kanin pan.",
+          "FILIPINO": "Sandali lang po.",
+          "ENGLISH": "For a while. / A moment"
+        },
+        {
+          "BULOS": "Pa mano pan.",
+          "FILIPINO": "Mano po.",
+          "ENGLISH": "Bless me."
+        },
+        {
+          "BULOS": "Notolulok di.",
+          "FILIPINO": "Aalis na po ako.",
+          "ENGLISH": "I'm leaving. / I am"
+        },
+        {
+          "BULOS": "Katnapatodok a tabengan?",
+          "FILIPINO": "Maaari mo ba akong tulungan?",
+          "ENGLISH": "Can you help me?"
+        },
+        {
+          "BULOS": "Anu kayo incyedi ku de kamu?",
+          "FILIPINO": "Ano po ang magagawa ko para sa inyo?",
+          "ENGLISH": "What can I do for you?"
+        },
+        {
+          "BULOS": "Nagkepiya ku.",
+          "FILIPINO": "Naiintindihan ko.",
+          "ENGLISH": "I understand."
+        },
+        {
+          "BULOS": "Denu ka paagow?",
+          "FILIPINO": "Saan ka pupunta?",
+          "ENGLISH": "Where are you going?"
+        },
+        {
+          "BULOS": "Nakangok duman de tanuman.",
+          "FILIPINO": "Pupunta ako sa halamanan.",
+          "ENGLISH": "I'm going to the garden."
+        },
+        {
+          "BULOS": "Denu un tanuman?",
+          "FILIPINO": "Nasaan ang halamanan?",
+          "ENGLISH": "Where is the garden?"
+        },
+        {
+          "BULOS": "Alani de ditow un tanuman.",
+          "FILIPINO": "Malapit sa ilog ang halamanan.",
+          "ENGLISH": "The garden is by the river."
+        },
+        {
+          "BULOS": "Dinu a tanuman non?",
+          "FILIPINO": "Kaninong halamanan iyon?",
+          "ENGLISH": "Whose garden is it?"
+        },
+        {
+          "BULOS": "Dëku un tanuman.",
+          "FILIPINO": "Sa akin ang halamanan.",
+          "ENGLISH": "It is my garden."
+        },
+        {
+          "BULOS": "Anu i buot mu a amitin?",
+          "FILIPINO": "Ano ang gusto mong kunin?",
+          "ENGLISH": "What do you want to get?"
+        },
+        {
+          "BULOS": "Limampu a pesu.",
+          "FILIPINO": "Limampung piso ito.",
+          "ENGLISH": "It is fifty pesos."
+        },
+        {
+          "BULOS": "Nangamitok ni aduwa.",
+          "FILIPINO": "Kukuha ako ng dalawa.",
+          "ENGLISH": "I will get two."
+        },
+        {
+          "BULOS": "Hali amitin mu di.",
+          "FILIPINO": "Sige kunin mo na.",
+          "ENGLISH": "Okay, you can get it."
+        },
+        {
+          "BULOS": "Pide un aduwa?",
+          "FILIPINO": "Magkano ang dalawa?",
+          "ENGLISH": "How much for two?"
+        },
+        {
+          "BULOS": "Isin adean un aduwa.",
+          "FILIPINO": "Isang daang piso ang dalawa.",
+          "ENGLISH": "The two are 100 pesos."
+        },
+        {
+          "BULOS": "Ano ipepauddi mu?",
+          "FILIPINO": "Ano ang itinatayo mo?",
+          "ENGLISH": "What are you building?"
+        },
+        {
+          "BULOS": "Geyedi ok ni beloy.",
+          "FILIPINO": "Gumagawa ako ng bahay.",
+          "ENGLISH": "I'm building a house."
+        },
+        {
+          "BULOS": "Dinu a beloy i wina?",
+          "FILIPINO": "Kaninong bahay iyan?",
+          "ENGLISH": "Whose house is that?"
+        },
+        {
+          "BULOS": "Beloy ko nay.",
+          "FILIPINO": "Bahay ko iyan.",
+          "ENGLISH": "That is my house."
+        },
+        {
+          "BULOS": "Masampat a beloy.",
+          "FILIPINO": "Maganda ang bahay.",
+          "ENGLISH": "It is a good house."
+        },
+        {
+          "BULOS": "Denu i ama mu?",
+          "FILIPINO": "Nasaan ang tatay mo?",
+          "ENGLISH": "Where is your father?"
+        },
+        {
+          "BULOS": "De beloy eya.",
+          "FILIPINO": "Nasa bahay siya.",
+          "ENGLISH": "He is at the house."
+        },
+        {
+          "BULOS": "Anu i peyedi mu?",
+          "FILIPINO": "Ano ang ginagawa mo?",
+          "ENGLISH": "What are you doing?"
+        },
+        {
+          "BULOS": "Ge hande ok ni papangan.",
+          "FILIPINO": "Naghahanda ako ng pagkain.",
+          "ENGLISH": "I'm preparing food."
+        },
+        {
+          "BULOS": "Umapo ok de beriyo.",
+          "FILIPINO": "Galing ako sa baryo.",
+          "ENGLISH": "I have come from the barrio."
+        },
+        {
+          "BULOS": "Ano i ngalan mu?",
+          "FILIPINO": "Ano ang pangalan mo?",
+          "ENGLISH": "What is your name?"
+        },
+        {
+          "BULOS": "Aku i _____.",
+          "FILIPINO": "Ako si _____.",
+          "ENGLISH": "My name is _____."
+        },
+        {
+          "BULOS": "Kapide ka dumalong?",
+          "FILIPINO": "Kailan ka dumating?",
+          "ENGLISH": "When did you come?"
+        },
+        {
+          "BULOS": "Apun di nun dumatong ok.",
+          "FILIPINO": "Hapon na nang dumating.",
+          "ENGLISH": "I came in the afternoon."
+        },
+        {
+          "BULOS": "Bekot ta dumio ka?",
+          "FILIPINO": "Bakit ka pumarito?",
+          "ENGLISH": "Why did you come?"
+        },
+        {
+          "BULOS": "Buot ku a makitan i ama mu.",
+          "FILIPINO": "Gusto kong makita ang tatay mo.",
+          "ENGLISH": "I want to see your father."
+        },
+        {
+          "BULOS": "Padetong di eya.",
+          "FILIPINO": "Paparating na siya.",
+          "ENGLISH": "He is coming."
+        },
+        {
+          "BULOS": "Napaabut la i eya.",
+          "FILIPINO": "Susunod lang siya.",
+          "ENGLISH": "She will come later."
+        },
+        {
+          "BULOS": "Dumatong di i eya.",
+          "FILIPINO": "Dumating na siya.",
+          "ENGLISH": "He already came."
+        },
+        {
+          "BULOS": "Buot na a tumotul.",
+          "FILIPINO": "Gusto niyang umalis.",
+          "ENGLISH": "She wants to go."
+        },
+        {
+          "BULOS": "Tumotul ka di.",
+          "FILIPINO": "Umalis ka na.",
+          "ENGLISH": "You go away."
+        },
+        {
+          "BULOS": "Nangamitok ni mais.",
+          "FILIPINO": "Kukuha ako ng mais.",
+          "ENGLISH": "I'm going to get corn."
+        },
+        {
+          "BULOS": "Hali napatod ka di a tumotul.",
+          "FILIPINO": "Sige, maaari ka nang umalis.",
+          "ENGLISH": "OK, you can go."
+        },
+        {
+          "BULOS": "Dëno i eya paagow?",
+          "FILIPINO": "Saan siya pupunta?",
+          "ENGLISH": "Where is he going?"
+        },
+        {
+          "BULOS": "Noduman i eya de tindehan.",
+          "FILIPINO": "Pupunta siya sa tindahan.",
+          "ENGLISH": "He is going to the store."
+        },
+        {
+          "BULOS": "Denu i tindehan?",
+          "FILIPINO": "Nasaan ang tindahan?",
+          "ENGLISH": "Where is the store?"
+        },
+        {
+          "BULOS": "De kaginlan a bektas un tindehan.",
+          "FILIPINO": "Nasa tabing daan ang tindahan.",
+          "ENGLISH": "The store is by the road."
+        },
+        {
+          "BULOS": "Bekot i eya no duman de tindehan?",
+          "FILIPINO": "Bakit siya pupunta sa tindahan?",
+          "ENGLISH": "Why is he going to the store?"
+        },
+        {
+          "BULOS": "Buot na a mangamit ni biges.",
+          "FILIPINO": "Gusto niyang bumili ng bigas.",
+          "ENGLISH": "He wants to buy rice."
+        },
+        {
+          "BULOS": "Ano i buol mo?",
+          "FILIPINO": "Ano ang gusto mo?",
+          "ENGLISH": "What do you want?"
+        },
+        {
+          "BULOS": "Nangamit ok ni kasirola.",
+          "FILIPINO": "Kukuha ako ng kaserola.",
+          "ENGLISH": "I want to get a casserole."
+        },
+        {
+          "BULOS": "Hanga o miuntik?",
+          "FILIPINO": "Malaki o maliit?",
+          "ENGLISH": "Big or small?"
+        },
+        {
+          "BULOS": "Buot ku un untik kasirola.",
+          "FILIPINO": "Gusto ko ng maliit na kaserola.",
+          "ENGLISH": "I want a small casserole."
+        },
+        {
+          "BULOS": "Pide i oyo?",
+          "FILIPINO": "Magkano ito?",
+          "ENGLISH": "How much is it?"
+        },
+        {
+          "BULOS": "Dinu a papangan i pe hande mu?",
+          "FILIPINO": "Kaninong pagkain ang inihahanda mo?",
+          "ENGLISH": "Whose food are you preparing?"
+        },
+        {
+          "BULOS": "Papangan ni ama mu.",
+          "FILIPINO": "Pagkain ng tatay mo.",
+          "ENGLISH": "Your father's food."
+        },
+        {
+          "BULOS": "Anu a papangan i pepokaluto mu?",
+          "FILIPINO": "Anong pagkain ang niluluto mo?",
+          "ENGLISH": "What food are you preparing?"
+        },
+        {
+          "BULOS": "Gepokaluto ok ni kanin ki ikan.",
+          "FILIPINO": "Nagluluto ako ng kanin at isda.",
+          "ENGLISH": "I'm preparing rice and fish."
+        }
+      ]
+    }
+  ]
+}
