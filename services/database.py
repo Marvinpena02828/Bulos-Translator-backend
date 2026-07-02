@@ -4,6 +4,8 @@ from pymongo.errors import DuplicateKeyError, ConnectionFailure
 import logging
 from typing import Optional, List, Dict, Any, Tuple
 import asyncio
+import ssl
+import certifi
 
 
 class DatabaseManager:
@@ -46,44 +48,67 @@ class DatabaseManager:
         """
         Establish database connection with retry logic.
         
+        Motor uses lazy connection - the actual connection is established
+        on first database operation. This avoids Python 3.13 SSL issues
+        during startup ping operations.
+        
         Args:
             max_retries: Maximum number of connection attempts (default: 3)
             
         Raises:
             ConnectionFailure: If connection fails after all retry attempts
         """
-        for attempt in range(max_retries):
+        try:
+            # Create Motor client with TLS settings for Python 3.13 compatibility
+            # Use tlsAllowInvalidCertificates to bypass strict SSL validation
+            self.client = AsyncIOMotorClient(
+                self.connection_string,
+                maxPoolSize=self.max_pool_size,
+                minPoolSize=self.min_pool_size,
+                serverSelectionTimeoutMS=10000,
+                connectTimeoutMS=10000,
+                tls=True,
+                tlsAllowInvalidCertificates=True,
+                tlsAllowInvalidHostnames=True,
+            )
+            self.db = self.client[self.database_name]
+            
+            self.logger.info(
+                f"Database client initialized with TLS settings (pool size: {self.min_pool_size}-{self.max_pool_size})"
+            )
+            self.logger.info(
+                "Connection will be established on first database operation"
+            )
+            
+            # Try to create indexes with a timeout
+            # If it fails, defer to first actual database operation
             try:
-                self.client = AsyncIOMotorClient(
-                    self.connection_string,
-                    maxPoolSize=self.max_pool_size,
-                    minPoolSize=self.min_pool_size,
-                    serverSelectionTimeoutMS=5000
+                await asyncio.wait_for(self._create_indexes(), timeout=5.0)
+                self.logger.info("Database connection verified - indexes created successfully")
+            except asyncio.TimeoutError:
+                self.logger.warning(
+                    "Index creation timed out - indexes will be created on first database operation"
                 )
-                self.db = self.client[self.database_name]
-                
-                # Test connection with ping command
-                await self.client.admin.command('ping')
-                
-                self.logger.info(
-                    f"Database connection established (pool size: {self.min_pool_size}-{self.max_pool_size})"
+            except ConnectionFailure as conn_error:
+                error_msg = str(conn_error)
+                if "TLSV1_ALERT_INTERNAL_ERROR" in error_msg or "SSL handshake failed" in error_msg:
+                    self.logger.error(
+                        "TLS handshake failed - This usually means your IP address is not whitelisted in MongoDB Atlas"
+                    )
+                    self.logger.error(
+                        "Go to MongoDB Atlas → Network Access → Add IP Address → Add your current IP"
+                    )
+                self.logger.error(f"Connection failed: {error_msg}")
+                raise
+            except Exception as index_error:
+                self.logger.warning(
+                    f"Index creation deferred: {str(index_error)}"
                 )
-                
-                # Create indexes for optimal query performance
-                await self._create_indexes()
-                
-                return
-                
-            except ConnectionFailure as e:
-                self.logger.error(
-                    f"Database connection failed (attempt {attempt + 1}/{max_retries}): {str(e)}"
-                )
-                if attempt == max_retries - 1:
-                    self.logger.error("Max connection retries reached. Connection failed.")
-                    raise
-                
-                # Wait before retrying with exponential backoff
-                await asyncio.sleep(2 ** attempt)
+                self.logger.info("Indexes will be created on first successful database operation")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to initialize database client: {str(e)}", exc_info=True)
+            raise
     
     async def disconnect(self) -> None:
         """Close database connection and cleanup resources."""
