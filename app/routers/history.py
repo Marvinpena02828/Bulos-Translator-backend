@@ -21,23 +21,19 @@ router = APIRouter(
     tags=["History"]
 )
 
-# Database manager singleton (will be initialized on startup)
-_db_manager: DatabaseManager = None
+# History service singleton
 _history_service: "HistoryService" = None
 
 
 def get_db_manager() -> DatabaseManager:
-    """Get database manager instance"""
-    global _db_manager
-    if _db_manager is None:
-        from services.database import initialize_db_manager
-        _db_manager = initialize_db_manager(
-            connection_string=settings.mongodb_url,
-            database_name=settings.mongodb_database,
-            max_pool_size=settings.mongodb_max_pool_size,
-            min_pool_size=settings.mongodb_min_pool_size
+    """Get the global database manager instance from main app"""
+    from app import main
+    if main._db_manager is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database connection not available"
         )
-    return _db_manager
+    return main._db_manager
 
 
 async def get_history_service(
