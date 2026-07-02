@@ -28,6 +28,88 @@ SUPPORTED_LANGUAGES = ['bul', 'en', 'tl']  # Bulos, English, Tagalog
 
 
 
+# Authentication Models
+
+class UserRegister(BaseModel):
+    """Schema for user registration."""
+    
+    username: str = Field(..., min_length=3, max_length=50, description="Username for the account")
+    email: str = Field(..., min_length=5, max_length=100, description="Email address")
+    password: str = Field(..., min_length=6, max_length=100, description="Password (min 6 characters)")
+    full_name: Optional[str] = Field(None, max_length=100, description="User's full name")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "username": "johndoe",
+                "email": "john@example.com",
+                "password": "securepass123",
+                "full_name": "John Doe"
+            }
+        }
+
+
+class UserLogin(BaseModel):
+    """Schema for user login."""
+    
+    username: str = Field(..., min_length=3, max_length=50, description="Username or email")
+    password: str = Field(..., min_length=6, max_length=100, description="Password")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "username": "johndoe",
+                "password": "securepass123"
+            }
+        }
+
+
+class TokenResponse(BaseModel):
+    """Schema for authentication token response."""
+    
+    access_token: str = Field(..., description="JWT access token")
+    token_type: str = Field(default="bearer", description="Token type (always 'bearer')")
+    user_id: str = Field(..., description="ID of the authenticated user")
+    username: str = Field(..., description="Username of the authenticated user")
+    expires_in: int = Field(..., description="Token expiration time in seconds")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "token_type": "bearer",
+                "user_id": "507f1f77bcf86cd799439011",
+                "username": "johndoe",
+                "expires_in": 1800
+            }
+        }
+
+
+class UserResponse(BaseModel):
+    """Schema for user information response."""
+    
+    id: str = Field(..., alias="_id", description="User ID")
+    username: str = Field(..., description="Username")
+    email: str = Field(..., description="Email address")
+    full_name: Optional[str] = Field(None, description="User's full name")
+    created_at: datetime = Field(..., description="Account creation timestamp")
+    is_active: bool = Field(default=True, description="Whether the account is active")
+    
+    class Config:
+        populate_by_name = True
+        schema_extra = {
+            "example": {
+                "_id": "507f1f77bcf86cd799439011",
+                "username": "johndoe",
+                "email": "john@example.com",
+                "full_name": "John Doe",
+                "created_at": "2024-01-15T10:30:00Z",
+                "is_active": True
+            }
+        }
+
+
+
 # Vocabulary Models
 
 class VocabularyCreate(BaseModel):
@@ -265,5 +347,137 @@ class ErrorResponse(BaseModel):
                 "error": "Validation Error",
                 "message": "Invalid language code provided",
                 "status_code": 400
+            }
+        }
+
+
+
+# Dictionary Models
+
+class DictionaryEntry(BaseModel):
+    """Schema for dictionary entry from lexicon."""
+    
+    id: Optional[str] = Field(None, alias="_id", description="Dictionary entry ID")
+    bulos: str = Field(..., description="Bulos word/phrase")
+    filipino: str = Field(..., description="Filipino translation")
+    english: str = Field(..., description="English translation")
+    category: str = Field(..., description="Full category name")
+    category_key: str = Field(..., description="Normalized category key (kebab-case)")
+    created_at: Optional[datetime] = Field(None, description="Entry creation timestamp")
+    updated_at: Optional[datetime] = Field(None, description="Entry last update timestamp")
+    metadata: Optional[dict] = Field(None, description="Additional metadata")
+    
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+        json_schema_extra = {
+            "example": {
+                "_id": "507f1f77bcf86cd799439011",
+                "bulos": "ulù",
+                "filipino": "ulo",
+                "english": "head",
+                "category": "BAHAGI NI LAWES (Parts of the Body)",
+                "category_key": "parts-of-body",
+                "created_at": "2024-01-15T10:30:00Z",
+                "updated_at": "2024-01-15T10:30:00Z",
+                "metadata": {
+                    "source": "dictionary.json",
+                    "import_version": "1.0"
+                }
+            }
+        }
+
+
+class CategoryInfo(BaseModel):
+    """Schema for category information."""
+    
+    category: str = Field(..., description="Full category name")
+    category_key: str = Field(..., description="Normalized category key")
+    entry_count: int = Field(..., ge=0, description="Number of entries in this category")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "category": "BAHAGI NI LAWES (Parts of the Body)",
+                "category_key": "parts-of-body",
+                "entry_count": 45
+            }
+        }
+
+
+class ImportResult(BaseModel):
+    """Schema for dictionary import operation result."""
+    
+    total_entries: int = Field(..., ge=0, description="Total number of entries processed")
+    inserted: int = Field(..., ge=0, description="Number of entries successfully inserted")
+    skipped: int = Field(..., ge=0, description="Number of entries skipped (duplicates)")
+    errors: int = Field(..., ge=0, description="Number of errors encountered")
+    duration: float = Field(..., ge=0, description="Import duration in seconds")
+    error_details: List[str] = Field(default_factory=list, description="List of error messages")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "total_entries": 450,
+                "inserted": 445,
+                "skipped": 5,
+                "errors": 0,
+                "duration": 2.34,
+                "error_details": []
+            }
+        }
+
+
+class DictionaryLookupRequest(BaseModel):
+    """Schema for dictionary lookup request."""
+    
+    word: str = Field(..., min_length=1, max_length=200, description="Word to lookup")
+    source_language: str = Field(
+        default="bul",
+        min_length=2,
+        max_length=5,
+        description="Source language code (bul, tl, en)"
+    )
+    
+    @validator('source_language')
+    def validate_language_code(cls, v):
+        """Validate that language code is in supported languages list."""
+        if v not in SUPPORTED_LANGUAGES:
+            raise ValueError(f"Unsupported language code: {v}. Must be one of {SUPPORTED_LANGUAGES}")
+        return v
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "word": "ulù",
+                "source_language": "bul"
+            }
+        }
+
+
+class DictionarySearchRequest(BaseModel):
+    """Schema for dictionary search request."""
+    
+    query: str = Field(..., min_length=1, max_length=200, description="Search query")
+    language: str = Field(
+        default="all",
+        description="Language to search (bul, tl, en, or 'all' for all languages)"
+    )
+    limit: int = Field(default=50, ge=1, le=200, description="Maximum number of results")
+    
+    @validator('language')
+    def validate_language(cls, v):
+        """Validate language parameter."""
+        valid_languages = SUPPORTED_LANGUAGES + ['all']
+        if v not in valid_languages:
+            raise ValueError(f"Invalid language: {v}. Must be one of {valid_languages}")
+        return v
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "query": "head",
+                "language": "all",
+                "limit": 50
             }
         }
