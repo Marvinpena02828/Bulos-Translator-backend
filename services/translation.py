@@ -1,19 +1,13 @@
-"""Translation service with LSTM model integration and history tracking"""
+"""Translation service with hybrid approach: Dictionary + Google Translate"""
 import asyncio
 import json
 import os
-import pickle
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
-from collections import defaultdict
 
-import numpy as np
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+from googletrans import Translator
+import aiohttp
 
 from services.database import DatabaseManager
 from models.schemas import TranslationRequest, TranslationResponse
@@ -24,9 +18,9 @@ logger = get_logger(__name__)
 
 
 class TranslationService:
-    """Service for translating text using LSTM encoder-decoder models"""
+    """Service for translating text using dictionary lookup and Google Translate API"""
     
-    # Supported language pairs (bidirectional)
+    # Supported language pairs
     SUPPORTED_PAIRS = [
         ("bul", "en"),  # Bulos <-> English
         ("en", "bul"),
@@ -46,52 +40,38 @@ class TranslationService:
         self.db = db_manager
         self.history_collection = "history"
         
-        # Model storage
-        self.models: Dict[str, Any] = {}
-        self.tokenizers: Dict[str, Tuple[Tokenizer, Tokenizer]] = {}
-        self.max_sequence_length = 20
+        # Dictionary storage
+        self.dictionary: Dict[str, Dict[str, str]] = {}
         
-        # Model directory from config
-        self.models_dir = Path(settings.translation_models_dir)
-        self.models_dir.mkdir(parents=True, exist_ok=True)
+        # Google Translate client
+        self.translator = Translator()
         
         # Translation timeout from config
         self.timeout = settings.translation_timeout_seconds
         
-        logger.info(f"TranslationService initialized with models directory: {self.models_dir}")
+        logger.info(f"TranslationService initialized with timeout: {self.timeout}s")
     
     async def initialize(self) -> None:
         """
-        Load or train LSTM models for all language pairs
+        Load dictionary data for Bulos translations
         
-        This method loads dictionary data, trains models if needed, and prepares
-        the service for translation requests.
+        This method loads the trilingual dictionary for Bulos word lookups.
+        English <-> Tagalog translations use Google Translate API.
         """
-        logger.info("Initializing translation models...")
+        logger.info("Initializing translation service...")
         
         try:
             # Load dictionary data
-            training_data = await self._load_dictionary_data()
-            logger.info(f"Loaded {len(training_data)} training entries from dictionary")
+            dictionary_data = await self._load_dictionary_data()
+            logger.info(f"Loaded {len(dictionary_data)} entries from dictionary")
             
-            # Initialize models for each language pair
-            for source_lang, target_lang in self.SUPPORTED_PAIRS:
-                pair_key = f"{source_lang}_{target_lang}"
-                model_path = self.models_dir / f"{pair_key}_model.h5"
-                tokenizer_path = self.models_dir / f"{pair_key}_tokenizers.pkl"
-                
-                # Check if model already exists
-                if model_path.exists() and tokenizer_path.exists():
-                    logger.info(f"Loading existing model for {pair_key}")
-                    await self._load_model(pair_key, model_path, tokenizer_path)
-                else:
-                    logger.info(f"Training new model for {pair_key}")
-                    await self._train_model(pair_key, source_lang, target_lang, training_data)
+            # Index dictionary for fast lookups
+            self._index_dictionary(dictionary_data)
             
-            logger.info("All translation models initialized successfully")
+            logger.info("Translation service initialized successfully")
             
         except Exception as e:
-            logger.error(f"Failed to initialize translation models: {str(e)}", exc_info=True)
+            logger.error(f"Failed to initialize translation service: {str(e)}", exc_info=True)
             raise
     
     async def _load_dictionary_data(self) -> List[Dict[str, str]]:
@@ -111,7 +91,7 @@ class TranslationService:
             dictionary = json.load(f)
         
         # Extract entries from all categories
-        training_data = []
+        entries = []
         for category in dictionary.get("categories", []):
             for entry in category.get("entries", []):
                 bulos = entry.get("BULOS", "").strip()
@@ -120,300 +100,424 @@ class TranslationService:
                 
                 # Skip entries with missing translations or placeholder values
                 if bulos and filipino and english and bulos != "—" and filipino != "—":
-                    training_data.append({
+                    entries.append({
                         "bul": bulos.lower(),
                         "tl": filipino.lower(),
                         "en": english.lower()
                     })
         
-        logger.info(f"Extracted {len(training_data)} valid training entries")
-        return training_data
+        logger.info(f"Extracted {len(entries)} valid dictionary entries")
+        return entries
     
-    def _prepare_training_pairs(
-        self,
-        source_lang: str,
-        target_lang: str,
-        training_data: List[Dict[str, str]]
-    ) -> Tuple[List[str], List[str]]:
+    def _index_dictionary(self, entries: List[Dict[str, str]]) -> None:
         """
-        Prepare source-target language pairs for training
+        Index dictionary entries for fast lookup
         
-        Args:
-            source_lang: Source language code
-            target_lang: Target language code
-            training_data: List of trilingual entries
+        Creates indexes for each language to enable O(1) lookups
+        Indexes both individual words AND complete phrases
+        """
+        self.dictionary = {
+            'bul_to_en': {},
+            'bul_to_tl': {},
+            'en_to_bul': {},
+            'tl_to_bul': {},
+            # Phrase indexes (for multi-word expressions)
+            'phrases_tl_to_bul': {},
+            'phrases_en_to_bul': {},
+        }
+        
+        for entry in entries:
+            bul = entry['bul']
+            tl = entry['tl']
+            en = entry['en']
             
-        Returns:
-            Tuple of (source_texts, target_texts)
-        """
-        source_texts = []
-        target_texts = []
-        
-        for entry in training_data:
-            source_text = entry.get(source_lang)
-            target_text = entry.get(target_lang)
+            # Check if this is a phrase (contains spaces) or single word
+            is_phrase = ' ' in tl or ' ' in bul
             
-            if source_text and target_text:
-                source_texts.append(source_text)
-                # Add start and end tokens for decoder
-                target_texts.append(f"<start> {target_text} <end>")
-        
-        logger.info(f"Prepared {len(source_texts)} training pairs for {source_lang}->{target_lang}")
-        return source_texts, target_texts
-    
-    def _create_tokenizers(
-        self,
-        source_texts: List[str],
-        target_texts: List[str]
-    ) -> Tuple[Tokenizer, Tokenizer]:
-        """
-        Create and fit tokenizers for source and target languages
-        
-        Args:
-            source_texts: List of source language texts
-            target_texts: List of target language texts
+            if is_phrase:
+                # Index as phrase
+                # Normalize: lowercase, remove trailing punctuation
+                tl_normalized = tl.lower().strip().rstrip('.!?')
+                en_normalized = en.lower().strip().rstrip('.!?')
+                bul_normalized = bul.lower().strip().rstrip('.!?')
+                
+                self.dictionary['phrases_tl_to_bul'][tl_normalized] = bul_normalized
+                self.dictionary['phrases_en_to_bul'][en_normalized] = bul_normalized
+                
+                logger.debug(f"Indexed phrase: '{tl_normalized}' -> '{bul_normalized}'")
             
-        Returns:
-            Tuple of (source_tokenizer, target_tokenizer)
-        """
-        # Create tokenizers
-        source_tokenizer = Tokenizer(char_level=True, filters='', lower=True)
-        target_tokenizer = Tokenizer(char_level=True, filters='', lower=True)
-        
-        # Fit on texts
-        source_tokenizer.fit_on_texts(source_texts)
-        target_tokenizer.fit_on_texts(target_texts)
+            # Also index as individual words (for word-by-word fallback)
+            # Bulos mappings
+            self.dictionary['bul_to_en'][bul] = en
+            self.dictionary['bul_to_tl'][bul] = tl
+            
+            # Reverse mappings (for single word lookups)
+            self.dictionary['en_to_bul'][en] = bul
+            self.dictionary['tl_to_bul'][tl] = bul
         
         logger.info(
-            f"Created tokenizers - Source vocab: {len(source_tokenizer.word_index)}, "
-            f"Target vocab: {len(target_tokenizer.word_index)}"
+            f"Dictionary indexed: "
+            f"{len(self.dictionary['bul_to_en'])} Bulos entries, "
+            f"{len(self.dictionary['en_to_bul'])} English entries, "
+            f"{len(self.dictionary['tl_to_bul'])} Tagalog entries, "
+            f"{len(self.dictionary['phrases_tl_to_bul'])} Tagalog phrases, "
+            f"{len(self.dictionary['phrases_en_to_bul'])} English phrases"
         )
-        
-        return source_tokenizer, target_tokenizer
     
-    def _build_lstm_model(
-        self,
-        source_vocab_size: int,
-        target_vocab_size: int,
-        embedding_dim: int = 64,
-        lstm_units: int = 128
-    ) -> keras.Model:
+    def _is_single_word(self, text: str) -> bool:
+        """Check if text is a single word (no spaces, basic punctuation only)"""
+        # Remove common punctuation
+        cleaned = text.strip().lower().replace('.', '').replace(',', '').replace('!', '').replace('?', '')
+        return ' ' not in cleaned
+    
+    async def _translate_with_google(self, text: str, source_lang: str, target_lang: str) -> Tuple[str, float]:
         """
-        Build LSTM encoder-decoder model for translation
+        Translate using Google Translate API
         
         Args:
-            source_vocab_size: Size of source language vocabulary
-            target_vocab_size: Size of target language vocabulary
-            embedding_dim: Dimension of embedding layer
-            lstm_units: Number of LSTM units
+            text: Text to translate
+            source_lang: Source language code (en, tl)
+            target_lang: Target language code (en, tl)
             
         Returns:
-            Compiled Keras model
+            Tuple of (translated_text, confidence)
         """
-        # Encoder
-        encoder_inputs = layers.Input(shape=(None,))
-        encoder_embedding = layers.Embedding(
-            source_vocab_size, embedding_dim, mask_zero=True
-        )(encoder_inputs)
-        encoder_lstm = layers.LSTM(lstm_units, return_state=True)
-        _, state_h, state_c = encoder_lstm(encoder_embedding)
-        encoder_states = [state_h, state_c]
+        # Map our codes to Google Translate codes
+        google_lang_map = {
+            'en': 'en',
+            'tl': 'tl',
+            'fil': 'tl',
+        }
         
-        # Decoder
-        decoder_inputs = layers.Input(shape=(None,))
-        decoder_embedding = layers.Embedding(
-            target_vocab_size, embedding_dim, mask_zero=True
-        )(decoder_inputs)
-        decoder_lstm = layers.LSTM(lstm_units, return_sequences=True, return_state=True)
-        decoder_outputs, _, _ = decoder_lstm(
-            decoder_embedding, initial_state=encoder_states
-        )
-        decoder_dense = layers.Dense(target_vocab_size, activation='softmax')
-        decoder_outputs = decoder_dense(decoder_outputs)
+        src = google_lang_map.get(source_lang, source_lang)
+        dest = google_lang_map.get(target_lang, target_lang)
         
-        # Build model
-        model = keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
-        model.compile(
-            optimizer='adam',
-            loss='sparse_categorical_crossentropy',
-            metrics=['accuracy']
-        )
+        logger.info(f"Using Google Translate: {text} ({src} -> {dest})")
         
-        logger.info(f"Built LSTM model with {lstm_units} units")
-        return model
-    
-    async def _train_model(
-        self,
-        pair_key: str,
-        source_lang: str,
-        target_lang: str,
-        training_data: List[Dict[str, str]]
-    ) -> None:
-        """
-        Train LSTM model for a specific language pair
-        
-        Args:
-            pair_key: Language pair key (e.g., "bul_en")
-            source_lang: Source language code
-            target_lang: Target language code
-            training_data: List of trilingual entries
-        """
-        logger.info(f"Training model for {pair_key}...")
-        
-        # Prepare training pairs
-        source_texts, target_texts = self._prepare_training_pairs(
-            source_lang, target_lang, training_data
-        )
-        
-        if len(source_texts) < 10:
-            logger.warning(f"Insufficient training data for {pair_key}: {len(source_texts)} samples")
-            # Create a simple rule-based fallback
-            self.models[pair_key] = "rule_based"
-            return
-        
-        # Create tokenizers
-        source_tokenizer, target_tokenizer = self._create_tokenizers(
-            source_texts, target_texts
-        )
-        self.tokenizers[pair_key] = (source_tokenizer, target_tokenizer)
-        
-        # Convert texts to sequences
-        source_sequences = source_tokenizer.texts_to_sequences(source_texts)
-        target_sequences = target_tokenizer.texts_to_sequences(target_texts)
-        
-        # Pad sequences
-        source_padded = pad_sequences(
-            source_sequences, maxlen=self.max_sequence_length, padding='post'
-        )
-        target_padded = pad_sequences(
-            target_sequences, maxlen=self.max_sequence_length, padding='post'
-        )
-        
-        # Prepare decoder input and output
-        decoder_input = target_padded[:, :-1]
-        decoder_output = np.expand_dims(target_padded[:, 1:], -1)
-        
-        # Build model
-        source_vocab_size = len(source_tokenizer.word_index) + 1
-        target_vocab_size = len(target_tokenizer.word_index) + 1
-        
-        model = self._build_lstm_model(source_vocab_size, target_vocab_size)
-        
-        # Train model
-        logger.info(f"Starting training for {pair_key}...")
-        model.fit(
-            [source_padded, decoder_input],
-            decoder_output,
-            batch_size=32,
-            epochs=50,
-            validation_split=0.2,
-            verbose=0
-        )
-        
-        # Save model and tokenizers
-        model_path = self.models_dir / f"{pair_key}_model.h5"
-        tokenizer_path = self.models_dir / f"{pair_key}_tokenizers.pkl"
-        
-        model.save(model_path)
-        with open(tokenizer_path, 'wb') as f:
-            pickle.dump((source_tokenizer, target_tokenizer), f)
-        
-        self.models[pair_key] = model
-        
-        logger.info(f"Model training completed and saved for {pair_key}")
-    
-    async def _load_model(
-        self,
-        pair_key: str,
-        model_path: Path,
-        tokenizer_path: Path
-    ) -> None:
-        """
-        Load pre-trained model and tokenizers from disk
-        
-        Args:
-            pair_key: Language pair key
-            model_path: Path to saved model file
-            tokenizer_path: Path to saved tokenizers file
-        """
         try:
-            # Load model
-            model = keras.models.load_model(model_path)
-            self.models[pair_key] = model
+            # Run in executor to avoid blocking
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(
+                None,
+                lambda: self.translator.translate(text, src=src, dest=dest)
+            )
             
-            # Load tokenizers
-            with open(tokenizer_path, 'rb') as f:
-                source_tokenizer, target_tokenizer = pickle.load(f)
-            self.tokenizers[pair_key] = (source_tokenizer, target_tokenizer)
+            translated_text = result.text
+            # Google Translate doesn't provide confidence, use a high default
+            confidence = 0.95
             
-            logger.info(f"Successfully loaded model and tokenizers for {pair_key}")
+            logger.info(f"Google Translate result: {translated_text}")
+            return translated_text, confidence
             
         except Exception as e:
-            logger.error(f"Failed to load model for {pair_key}: {str(e)}", exc_info=True)
-            raise
+            logger.error(f"Google Translate error: {str(e)}", exc_info=True)
+            # Fallback to original text
+            return text, 0.0
     
-    def _translate_with_model(
-        self,
-        text: str,
-        pair_key: str
-    ) -> str:
+    def _lookup_phrase(self, text: str, source_lang: str, target_lang: str) -> Optional[str]:
         """
-        Translate text using trained LSTM model
+        Look up complete phrase in dictionary
         
         Args:
-            text: Input text to translate
-            pair_key: Language pair key
+            text: Phrase to look up
+            source_lang: Source language code
+            target_lang: Target language code
+            
+        Returns:
+            Translated phrase if found, None otherwise
+        """
+        # Normalize: lowercase, remove trailing punctuation
+        text_normalized = text.lower().strip().rstrip('.!?')
+        
+        # Only support phrase lookup for Tagalog/English -> Bulos
+        if target_lang == 'bul':
+            if source_lang == 'tl':
+                result = self.dictionary['phrases_tl_to_bul'].get(text_normalized)
+                if result:
+                    logger.info(f"Phrase match: '{text}' ({source_lang}) -> '{result}' ({target_lang})")
+                    return result
+            elif source_lang == 'en':
+                result = self.dictionary['phrases_en_to_bul'].get(text_normalized)
+                if result:
+                    logger.info(f"Phrase match: '{text}' ({source_lang}) -> '{result}' ({target_lang})")
+                    return result
+        
+        return None
+    
+    def _lookup_dictionary(self, text: str, source_lang: str, target_lang: str) -> Optional[str]:
+        """
+        Look up translation in dictionary
+        
+        Args:
+            text: Text to look up (should be single word)
+            source_lang: Source language code
+            target_lang: Target language code
+            
+        Returns:
+            Translated text if found, None otherwise
+        """
+        text_lower = text.strip().lower()
+        
+        # Direct lookup for supported pairs
+        lookup_key = f"{source_lang}_to_{target_lang}"
+        if lookup_key in self.dictionary:
+            result = self.dictionary[lookup_key].get(text_lower)
+            if result:
+                logger.info(f"Dictionary hit: {text} ({source_lang}) -> {result} ({target_lang})")
+                return result
+        
+        # Bridge through Tagalog for Bulos translations not in direct mapping
+        # E.g., en -> bul: first translate en -> tl with Google, then tl -> bul from dictionary
+        if source_lang == 'en' and target_lang == 'bul':
+            # Check if we have this English word mapped to Bulos
+            bul_result = self.dictionary['en_to_bul'].get(text_lower)
+            if bul_result:
+                return bul_result
+        
+        if source_lang == 'bul' and target_lang == 'en':
+            en_result = self.dictionary['bul_to_en'].get(text_lower)
+            if en_result:
+                return en_result
+        
+        logger.debug(f"Dictionary miss: {text} ({source_lang} -> {target_lang})")
+        return None
+    
+    async def _translate_sync(
+        self,
+        text: str,
+        source_language: str,
+        target_language: str
+    ) -> Tuple[str, Optional[float]]:
+        """
+        Synchronous translation logic
+        
+        Strategy:
+        1. If source or target is Bulos: use dictionary lookup (word-by-word for sentences)
+        2. If English <-> Tagalog: use Google Translate
+        3. For Bulos: if not in dictionary, use Tagalog as fallback for that word
+        
+        Args:
+            text: Text to translate
+            source_language: Source language code
+            target_language: Target language code
+            
+        Returns:
+            Tuple of (translated_text, confidence_score)
+        """
+        text = text.strip()
+        is_single_word = self._is_single_word(text)
+        
+        # Case 1: Bulos involved - always try dictionary first
+        if 'bul' in [source_language, target_language]:
+            # For single words, try dictionary lookup
+            if is_single_word:
+                dict_result = self._lookup_dictionary(text, source_language, target_language)
+                if dict_result:
+                    return dict_result, 1.0  # Perfect confidence for dictionary lookups
+            
+            # If not found in dictionary and it's Bulos -> X
+            if source_language == 'bul':
+                if is_single_word:
+                    logger.warning(f"Bulos word not in dictionary: {text}")
+                    return f"[Unknown: {text}]", 0.0
+                else:
+                    # Try word-by-word translation
+                    return await self._translate_bulos_sentence(text, target_language), 0.8
+            
+            # If X -> Bulos, use word-by-word translation with Tagalog fallback
+            if target_language == 'bul':
+                logger.info(f"Translating to Bulos with Tagalog fallback: {text} ({source_language} -> bul)")
+                return await self._translate_to_bulos_hybrid(text, source_language), 0.85
+        
+        # Case 2: English <-> Tagalog - use Google Translate
+        if source_language in ['en', 'tl'] and target_language in ['en', 'tl']:
+            return await self._translate_with_google(text, source_language, target_language)
+        
+        # Fallback
+        logger.warning(f"Unsupported translation: {text} ({source_language} -> {target_language})")
+        return text, 0.0
+    
+    async def _translate_to_bulos_hybrid(self, text: str, source_language: str) -> str:
+        """
+        Translate text to Bulos using hybrid phrase + word-by-word approach
+        
+        Strategy:
+        1. Try phrase matching on complete sentence
+        2. If not found, split by sentence delimiters and try each segment
+        3. For unmatched segments, use word-by-word translation
+        4. Words not in dictionary fall back to Tagalog
+        
+        Args:
+            text: Input text
+            source_language: Source language (en or tl)
+            
+        Returns:
+            Hybrid Bulos/Tagalog text
+        """
+        import re
+        
+        # Step 1: Get Tagalog translation of entire sentence
+        if source_language == 'en':
+            tagalog_text, _ = await self._translate_with_google(text, 'en', 'tl')
+        elif source_language == 'tl':
+            tagalog_text = text
+        else:
+            return text
+        
+        logger.info(f"Tagalog intermediate: {tagalog_text}")
+        
+        # Step 2: Try phrase matching on complete text first
+        phrase_match = self._lookup_phrase(tagalog_text, 'tl', 'bul')
+        if phrase_match:
+            logger.info(f"Complete phrase matched: {phrase_match}")
+            return phrase_match
+        
+        # Step 3: Split by sentence boundaries (periods, question marks, exclamations)
+        # Keep delimiters for reconstruction
+        segments = re.split(r'([.!?]+\s*)', tagalog_text)
+        
+        translated_segments = []
+        
+        for i, segment in enumerate(segments):
+            # Skip empty segments
+            if not segment.strip():
+                translated_segments.append(segment)
+                continue
+            
+            # If this is a delimiter (punctuation), keep it as-is
+            if re.match(r'^[.!?]+\s*$', segment):
+                translated_segments.append(segment)
+                continue
+            
+            # Try phrase matching on this segment
+            segment_phrase = self._lookup_phrase(segment.strip(), 'tl', 'bul')
+            if segment_phrase:
+                logger.info(f"Segment phrase matched: '{segment.strip()}' -> '{segment_phrase}'")
+                translated_segments.append(segment_phrase)
+                continue
+            
+            # No phrase match - do word-by-word translation
+            logger.debug(f"No phrase match for segment: '{segment}', using word-by-word")
+            translated_segment = await self._translate_segment_word_by_word(segment)
+            translated_segments.append(translated_segment)
+        
+        result = ''.join(translated_segments)
+        logger.info(f"Hybrid translation result: {result}")
+        return result
+    
+    async def _translate_segment_word_by_word(self, segment: str) -> str:
+        """
+        Translate a text segment word-by-word
+        
+        Args:
+            segment: Text segment to translate
+            
+        Returns:
+            Translated segment
+        """
+        import re
+        
+        # Better word tokenization - split on whitespace and punctuation
+        # But keep punctuation attached to words for later reconstruction
+        tokens = re.findall(r'\S+|\s+', segment)
+        
+        translated_tokens = []
+        
+        for token in tokens:
+            # If it's whitespace, keep it as-is
+            if token.isspace():
+                translated_tokens.append(token)
+                continue
+            
+            # For word tokens, clean and look up
+            word = token
+            clean_word = word.lower().strip('.,!?;:"\'')
+            
+            # Handle Tagalog grammatical particles
+            # "magandang" = "maganda" + "ng" (linker)
+            base_word = clean_word
+            suffix = ""
+            
+            # Check for common Tagalog suffixes and separate them
+            if clean_word.endswith('ng') and len(clean_word) > 2:
+                base_word = clean_word[:-2]
+                suffix = 'ng'
+            
+            # Try to find Bulos equivalent for base word
+            bulos_word = self._lookup_dictionary(base_word, 'tl', 'bul')
+            
+            if not bulos_word and base_word != clean_word:
+                # Try the full word if base word not found
+                bulos_word = self._lookup_dictionary(clean_word, 'tl', 'bul')
+                suffix = ""  # Reset suffix if we found the full word
+            
+            if bulos_word:
+                # Found in dictionary - use Bulos word
+                result_word = bulos_word + suffix
+                
+                # Preserve original punctuation from the word
+                # Find what punctuation was stripped
+                prefix_punct = ""
+                suffix_punct = ""
+                
+                # Get leading punctuation
+                for i, c in enumerate(word):
+                    if c.lower() not in 'abcdefghijklmnopqrstuvwxyzñ':
+                        prefix_punct += c
+                    else:
+                        break
+                
+                # Get trailing punctuation
+                for i in range(len(word) - 1, -1, -1):
+                    c = word[i]
+                    if c.lower() not in 'abcdefghijklmnopqrstuvwxyzñ':
+                        suffix_punct = c + suffix_punct
+                    else:
+                        break
+                
+                result_word = prefix_punct + result_word + suffix_punct
+                translated_tokens.append(result_word)
+                logger.debug(f"Token: {word} -> {result_word} (Bulos)")
+            else:
+                # Not in dictionary - keep original
+                translated_tokens.append(word)
+                logger.debug(f"Token: {word} -> {word} (Tagalog fallback)")
+        
+        return ''.join(translated_tokens)
+    
+    async def _translate_bulos_sentence(self, text: str, target_language: str) -> str:
+        """
+        Translate Bulos sentence to target language word-by-word
+        
+        Args:
+            text: Bulos text
+            target_language: Target language (en or tl)
             
         Returns:
             Translated text
         """
-        model = self.models.get(pair_key)
+        words = text.split()
+        translated_words = []
         
-        # Fallback for rule-based or missing models
-        if model == "rule_based" or model is None:
-            logger.warning(f"Using fallback translation for {pair_key}")
-            return f"[Translation: {text}]"
-        
-        # Get tokenizers
-        source_tokenizer, target_tokenizer = self.tokenizers[pair_key]
-        
-        # Prepare input sequence
-        text_lower = text.lower()
-        input_seq = source_tokenizer.texts_to_sequences([text_lower])
-        input_padded = pad_sequences(
-            input_seq, maxlen=self.max_sequence_length, padding='post'
-        )
-        
-        # Create decoder input (start token)
-        start_token = target_tokenizer.word_index.get('<start>', 1)
-        decoder_input = np.array([[start_token]])
-        
-        # Generate translation character by character
-        translated_chars = []
-        for _ in range(self.max_sequence_length):
-            predictions = model.predict([input_padded, decoder_input], verbose=0)
-            predicted_id = np.argmax(predictions[0, -1, :])
+        for word in words:
+            # Clean punctuation for lookup
+            clean_word = word.lower().strip('.,!?;:"\'')
             
-            # Check for end token
-            if predicted_id == target_tokenizer.word_index.get('<end>', 0):
-                break
+            # Look up in dictionary
+            trans_word = self._lookup_dictionary(clean_word, 'bul', target_language)
             
-            # Get character
-            predicted_char = target_tokenizer.index_word.get(predicted_id, '')
-            if predicted_char and predicted_char not in ['<start>', '<end>']:
-                translated_chars.append(predicted_char)
-            
-            # Update decoder input
-            decoder_input = np.append(decoder_input, [[predicted_id]], axis=1)
+            if trans_word:
+                # Preserve punctuation
+                if word != clean_word:
+                    punct = word[len(clean_word):]
+                    translated_words.append(trans_word + punct)
+                else:
+                    translated_words.append(trans_word)
+            else:
+                # Unknown word - keep original
+                translated_words.append(f"[{word}]")
         
-        translated_text = ''.join(translated_chars).strip()
-        
-        # If translation is empty, return input
-        if not translated_text:
-            logger.warning(f"Empty translation result for: {text}")
-            return text
-        
-        return translated_text
+        return ' '.join(translated_words)
     
     async def translate(
         self,
@@ -424,6 +528,10 @@ class TranslationService:
     ) -> Dict[str, Any]:
         """
         Translate text from source to target language with timeout enforcement
+        
+        Uses hybrid approach:
+        - Bulos translations: Dictionary lookup with Tagalog bridge
+        - English <-> Tagalog: Google Translate API
         
         Args:
             text: Text to translate
@@ -452,18 +560,10 @@ class TranslationService:
                 f"Supported pairs: {self.SUPPORTED_PAIRS}"
             )
         
-        pair_key = f"{source_language}_{target_language}"
-        
         try:
-            # Run translation in executor with timeout
-            loop = asyncio.get_event_loop()
-            translated_text = await asyncio.wait_for(
-                loop.run_in_executor(
-                    None,
-                    self._translate_with_model,
-                    text,
-                    pair_key
-                ),
+            # Run translation with timeout
+            translated_text, confidence = await asyncio.wait_for(
+                self._translate_sync(text, source_language, target_language),
                 timeout=self.timeout
             )
             
@@ -488,7 +588,7 @@ class TranslationService:
                 "translated_text": translated_text,
                 "source_language": source_language,
                 "target_language": target_language,
-                "confidence": None  # LSTM models don't provide confidence scores easily
+                "confidence": confidence
             }
             
         except asyncio.TimeoutError:
