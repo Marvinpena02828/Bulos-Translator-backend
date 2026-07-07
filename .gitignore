@@ -164,8 +164,10 @@ models/*.pbmm
 models/*.scorer
 models/*.h5
 models/*.pkl
+models/*.keras
 models/translation/*.h5
 models/translation/*.pkl
+models/translation/*.keras
 
 # Log files
 logs/*.log
