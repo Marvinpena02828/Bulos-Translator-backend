@@ -27,9 +27,12 @@ class Settings(BaseSettings):
     algorithm: str = Field(default="HS256", description="JWT algorithm")
     access_token_expire_minutes: int = Field(default=30, description="Access token expiration time in minutes")
     
-    # DeepSpeech Settings
-    deepspeech_model_path: str = Field(..., description="Path to DeepSpeech model file")
-    deepspeech_scorer_path: str = Field(..., description="Path to DeepSpeech scorer file")
+    # Whisper Settings
+    whisper_model: str = Field(default="base", description="Whisper model size (tiny, base, small, medium, large)")
+    whisper_device: str = Field(default="cpu", description="Device for Whisper inference (cpu or cuda)")
+    
+    # FFmpeg Settings
+    ffmpeg_path: Optional[str] = Field(default=None, description="Path to ffmpeg executable (auto-detect if not specified)")
     
     # Translation Model Settings
     translation_models_dir: str = Field(default="./models/translation", description="Directory containing translation models")
@@ -78,6 +81,6 @@ except Exception:
     import os
     os.environ.setdefault('MONGODB_URL', 'mongodb://localhost:27017')
     os.environ.setdefault('SECRET_KEY', 'change-this-secret-key-in-production')
-    os.environ.setdefault('DEEPSPEECH_MODEL_PATH', './models/deepspeech.pbmm')
-    os.environ.setdefault('DEEPSPEECH_SCORER_PATH', './models/deepspeech.scorer')
+    os.environ.setdefault('WHISPER_MODEL', 'base')
+    os.environ.setdefault('WHISPER_DEVICE', 'cpu')
     settings = Settings()

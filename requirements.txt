@@ -18,14 +18,18 @@ passlib[bcrypt]==1.7.4
 python-dotenv==1.0.0
 
 # Speech Recognition
-deepspeech==0.9.3
+openai-whisper
 numpy==1.24.3
 scipy==1.11.4
 wave==0.0.2
+ffmpeg-python
 
 # Machine Learning (for LSTM translation models)
 tensorflow==2.15.0
 keras==2.15.0
+
+# Translation Services
+googletrans==4.0.0rc1
 
 # Audio Processing
 pydub==0.25.1

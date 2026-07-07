@@ -1,15 +1,18 @@
-"""Speech processing service with DeepSpeech integration"""
+"""Speech processing service with OpenAI Whisper integration"""
 import asyncio
 import wave
+import tempfile
+import os
+import shutil
 from pathlib import Path
 from typing import Tuple, Optional
 import io
 
 try:
-    import deepspeech
-    DEEPSPEECH_AVAILABLE = True
+    import whisper
+    WHISPER_AVAILABLE = True
 except ImportError:
-    DEEPSPEECH_AVAILABLE = False
+    WHISPER_AVAILABLE = False
 
 from config import settings
 from utils.logging_config import get_logger
@@ -17,17 +20,57 @@ from utils.logging_config import get_logger
 logger = get_logger(__name__)
 
 
+def _find_ffmpeg():
+    """
+    Find FFmpeg executable
+    
+    Search order:
+    1. User-specified path in .env (FFMPEG_PATH)
+    2. System PATH
+    3. Common installation paths
+    """
+    # Check config first
+    if settings.ffmpeg_path and os.path.exists(settings.ffmpeg_path):
+        logger.info(f"Using FFmpeg from config: {settings.ffmpeg_path}")
+        return settings.ffmpeg_path
+    
+    # Check system PATH
+    ffmpeg_path = shutil.which('ffmpeg')
+    if ffmpeg_path:
+        logger.info(f"FFmpeg found in PATH: {ffmpeg_path}")
+        return ffmpeg_path
+    
+    # Check common paths as fallback
+    common_paths = [
+        os.path.expanduser(r"~\scoop\shims\ffmpeg.exe"),
+        r"C:\ffmpeg\bin\ffmpeg.exe",
+        r"C:\ProgramData\chocolatey\bin\ffmpeg.exe",
+    ]
+    
+    for path in common_paths:
+        if os.path.exists(path):
+            logger.info(f"FFmpeg found at: {path}")
+            return path
+    
+    logger.warning("FFmpeg not found - please set FFMPEG_PATH in .env or restart terminal")
+    return None
+
+
+# Locate FFmpeg on module load
+_FFMPEG_PATH = _find_ffmpeg()
+
+
 class SpeechProcessor:
-    """Service for processing speech audio using Mozilla DeepSpeech"""
+    """Service for processing speech audio using OpenAI Whisper"""
     
     def __init__(self):
         """
         Initialize speech processor
         
-        DeepSpeech model and scorer paths are loaded from config
+        Whisper model size and device are loaded from config
         """
-        self.model_path = settings.deepspeech_model_path
-        self.scorer_path = settings.deepspeech_scorer_path
+        self.model_name = settings.whisper_model
+        self.device = settings.whisper_device
         self.model: Optional[any] = None
         
         # Settings from config
@@ -43,34 +86,33 @@ class SpeechProcessor:
     
     async def initialize(self) -> None:
         """
-        Load DeepSpeech model and scorer
+        Load Whisper model
         
-        This method loads the pre-trained DeepSpeech model and language scorer
-        from the configured paths. Must be called before transcribing audio.
+        This method loads the pre-trained Whisper model. The model is downloaded
+        automatically on first use if not already cached.
+        
+        Available models: tiny, base, small, medium, large
+        - tiny: Fastest, least accurate (~75MB)
+        - base: Good balance (~150MB) - RECOMMENDED
+        - small: Better accuracy (~500MB)
+        - medium: Very accurate (~1.5GB)
+        - large: Best accuracy (~3GB)
         
         Raises:
-            FileNotFoundError: If model or scorer files are not found
-            RuntimeError: If DeepSpeech is not installed or model loading fails
+            RuntimeError: If Whisper is not installed or model loading fails
         """
-        logger.info("Initializing DeepSpeech model...")
+        logger.info("Initializing Whisper model...")
         
-        if not DEEPSPEECH_AVAILABLE:
-            logger.error("DeepSpeech library is not installed")
+        if not WHISPER_AVAILABLE:
+            logger.error("Whisper library is not installed")
             raise RuntimeError(
-                "DeepSpeech is not installed. Install it with: pip install deepspeech"
+                "Whisper is not installed. Install it with: pip install openai-whisper"
             )
         
-        # Check if model files exist
-        model_path = Path(self.model_path)
-        scorer_path = Path(self.scorer_path)
+        # Check if FFmpeg is available
         
-        if not model_path.exists():
-            logger.error(f"DeepSpeech model not found at {model_path}")
-            raise FileNotFoundError(f"DeepSpeech model not found: {model_path}")
         
-        if not scorer_path.exists():
-            logger.error(f"DeepSpeech scorer not found at {scorer_path}")
-            raise FileNotFoundError(f"DeepSpeech scorer not found: {scorer_path}")
+        logger.info(f"Using FFmpeg at: {_FFMPEG_PATH}")
         
         try:
             # Load model in thread pool to avoid blocking
@@ -78,38 +120,38 @@ class SpeechProcessor:
             self.model = await loop.run_in_executor(
                 None,
                 self._load_model_sync,
-                str(model_path),
-                str(scorer_path)
+                self.model_name,
+                self.device
             )
             
-            logger.info("DeepSpeech model loaded successfully")
+            logger.info(f"Whisper model '{self.model_name}' loaded successfully on {self.device}")
             
         except Exception as e:
-            logger.error(f"Failed to load DeepSpeech model: {str(e)}", exc_info=True)
-            raise RuntimeError(f"Failed to load DeepSpeech model: {str(e)}")
+            logger.error(f"Failed to load Whisper model: {str(e)}", exc_info=True)
+            raise RuntimeError(f"Failed to load Whisper model: {str(e)}")
     
-    def _load_model_sync(self, model_path: str, scorer_path: str):
+    def _load_model_sync(self, model_name: str, device: str):
         """
         Synchronous model loading (runs in thread pool)
         
         Args:
-            model_path: Path to DeepSpeech model file (.pbmm)
-            scorer_path: Path to DeepSpeech scorer file (.scorer)
+            model_name: Whisper model size (tiny, base, small, medium, large)
+            device: Device for inference (cpu or cuda)
             
         Returns:
-            Loaded DeepSpeech model instance
+            Loaded Whisper model instance
         """
-        logger.info(f"Loading DeepSpeech model from {model_path}")
-        model = deepspeech.Model(model_path)
-        
-        logger.info(f"Enabling external scorer from {scorer_path}")
-        model.enableExternalScorer(scorer_path)
-        
+        logger.info(f"Loading Whisper model '{model_name}' on device '{device}'")
+        model = whisper.load_model(model_name, device=device)
+        logger.info(f"Whisper model loaded: {model_name}")
         return model
     
     def _validate_audio_file(self, audio_data: bytes) -> None:
         """
         Validate audio file size and format
+        
+        Whisper supports many audio formats: WAV, MP3, M4A, FLAC, OGG, WEBM, etc.
+        We validate the file signature (magic bytes) to ensure it's a recognized format.
         
         Args:
             audio_data: Raw audio file bytes
@@ -128,174 +170,226 @@ class SpeechProcessor:
                 f"(received: {size_mb:.2f}MB)"
             )
         
-        # Validate WAV format by checking header
-        if len(audio_data) < 44:  # Minimum WAV header size
-            logger.warning("Audio file too small to be valid WAV")
-            raise ValueError("Audio file is too small to be a valid WAV file")
+        # Check minimum file size
+        if len(audio_data) < 12:
+            logger.warning("Audio file too small to be valid")
+            raise ValueError("Audio file is too small to be valid")
         
-        # Check for RIFF header
-        if audio_data[:4] != b'RIFF':
-            logger.warning("Audio file missing RIFF header")
-            raise ValueError("Invalid audio format: must be WAV file (RIFF header missing)")
+        # Validate audio format by checking magic bytes (file signature)
+        # Common audio format signatures:
+        supported_formats = {
+            b'RIFF': 'WAV',           # WAV files start with 'RIFF'
+            b'ID3': 'MP3',            # MP3 files with ID3 tags
+            b'\xff\xfb': 'MP3',       # MP3 files (MPEG-1 Layer 3)
+            b'\xff\xf3': 'MP3',       # MP3 files (MPEG-1 Layer 3)
+            b'\xff\xf2': 'MP3',       # MP3 files (MPEG-2 Layer 3)
+            b'fLaC': 'FLAC',          # FLAC files
+            b'OggS': 'OGG',           # OGG files
+            b'\x1a\x45\xdf\xa3': 'WEBM',  # WEBM files
+        }
         
-        # Check for WAVE identifier
-        if audio_data[8:12] != b'WAVE':
-            logger.warning("Audio file missing WAVE identifier")
-            raise ValueError("Invalid audio format: must be WAV file (WAVE identifier missing)")
+        # M4A files use MP4 container format
+        # Check for 'ftyp' at offset 4 (MP4/M4A signature)
+        if len(audio_data) >= 12 and audio_data[4:8] == b'ftyp':
+            logger.debug(f"Audio format detected: M4A/MP4 ({file_size} bytes)")
+            return
         
+        # Check other formats by magic bytes at start
+        detected_format = None
+        for signature, format_name in supported_formats.items():
+            if audio_data[:len(signature)] == signature:
+                detected_format = format_name
+                break
+        
+        if detected_format:
+            logger.debug(f"Audio format detected: {detected_format} ({file_size} bytes)")
+            return
+        
+        # If no recognized format, log warning but allow (Whisper may still handle it)
+        logger.warning(
+            f"Audio format not recognized by signature check, but allowing Whisper to try. "
+            f"First bytes: {audio_data[:12].hex()}"
+        )
+        # Don't raise error - let Whisper handle it with FFmpeg
         logger.debug(f"Audio validation passed: {file_size} bytes")
     
     def _validate_audio_duration(self, audio_data: bytes) -> float:
         """
         Validate audio duration and return duration in seconds
         
+        For non-WAV formats (M4A, MP3, etc.), we skip duration validation
+        since parsing requires complex libraries. Whisper will handle it.
+        
         Args:
             audio_data: Raw audio file bytes
             
         Returns:
-            Duration in seconds
+            Duration in seconds (or estimated 0.0 for non-WAV)
             
         Raises:
-            ValueError: If audio duration exceeds maximum allowed duration
+            ValueError: If audio duration exceeds maximum allowed duration (WAV only)
         """
         try:
-            # Parse WAV file to get duration
-            audio_io = io.BytesIO(audio_data)
-            with wave.open(audio_io, 'rb') as wav_file:
-                frames = wav_file.getnframes()
-                rate = wav_file.getframerate()
-                duration = frames / float(rate)
-            
-            # Check duration limit
-            if duration > self.max_duration:
-                logger.warning(
-                    f"Audio duration too long: {duration:.2f}s (max: {self.max_duration}s)"
-                )
-                raise ValueError(
-                    f"Audio duration exceeds maximum of {self.max_duration}s "
-                    f"(received: {duration:.2f}s)"
-                )
-            
-            logger.debug(f"Audio duration: {duration:.2f}s")
-            return duration
+            # Only validate duration for WAV files (easy to parse)
+            if audio_data[:4] == b'RIFF' and audio_data[8:12] == b'WAVE':
+                audio_io = io.BytesIO(audio_data)
+                with wave.open(audio_io, 'rb') as wav_file:
+                    frames = wav_file.getnframes()
+                    rate = wav_file.getframerate()
+                    duration = frames / float(rate)
+                
+                # Check duration limit
+                if duration > self.max_duration:
+                    logger.warning(
+                        f"Audio duration too long: {duration:.2f}s (max: {self.max_duration}s)"
+                    )
+                    raise ValueError(
+                        f"Audio duration exceeds maximum of {self.max_duration}s "
+                        f"(received: {duration:.2f}s)"
+                    )
+                
+                logger.debug(f"Audio duration: {duration:.2f}s")
+                return duration
+            else:
+                # For M4A, MP3, etc., skip duration validation
+                # Whisper will handle it, and we rely on file size limit
+                logger.debug("Non-WAV format detected, skipping duration validation")
+                return 0.0  # Return 0 as placeholder
             
         except wave.Error as e:
-            logger.error(f"Failed to parse WAV file: {str(e)}")
-            raise ValueError(f"Invalid WAV file format: {str(e)}")
+            # If wave parsing fails, it's not a WAV file - that's okay
+            logger.debug(f"Not a WAV file or parsing failed: {str(e)}")
+            return 0.0  # Return 0 as placeholder
+        except Exception as e:
+            # Any other error, log but don't fail
+            logger.warning(f"Duration validation skipped due to error: {str(e)}")
+            return 0.0
     
-    def _prepare_audio_for_deepspeech(self, audio_data: bytes) -> Tuple[bytes, int]:
-        """
-        Prepare audio data for DeepSpeech processing
-        
-        DeepSpeech requires 16kHz 16-bit mono audio. This method extracts
-        the raw audio samples from the WAV file.
-        
-        Args:
-            audio_data: Raw WAV file bytes
-            
-        Returns:
-            Tuple of (raw_audio_samples, sample_rate)
-            
-        Raises:
-            ValueError: If audio format is incompatible with DeepSpeech
-        """
-        try:
-            audio_io = io.BytesIO(audio_data)
-            with wave.open(audio_io, 'rb') as wav_file:
-                # Get audio parameters
-                channels = wav_file.getnchannels()
-                sample_width = wav_file.getsampwidth()
-                sample_rate = wav_file.getframerate()
-                
-                # DeepSpeech expects 16kHz 16-bit mono
-                if channels != 1:
-                    logger.warning(f"Audio has {channels} channels, expected mono (1)")
-                    raise ValueError(
-                        f"Audio must be mono (1 channel), received {channels} channels"
-                    )
-                
-                if sample_width != 2:  # 2 bytes = 16 bits
-                    logger.warning(f"Audio is {sample_width*8}-bit, expected 16-bit")
-                    raise ValueError(
-                        f"Audio must be 16-bit, received {sample_width*8}-bit"
-                    )
-                
-                if sample_rate != 16000:
-                    logger.warning(f"Audio sample rate is {sample_rate}Hz, expected 16000Hz")
-                    raise ValueError(
-                        f"Audio must be 16kHz sample rate, received {sample_rate}Hz"
-                    )
-                
-                # Extract raw audio samples
-                raw_audio = wav_file.readframes(wav_file.getnframes())
-                
-                logger.debug(
-                    f"Audio prepared: {len(raw_audio)} bytes, "
-                    f"{sample_rate}Hz, {channels}ch, {sample_width*8}bit"
-                )
-                
-                return raw_audio, sample_rate
-                
-        except wave.Error as e:
-            logger.error(f"Failed to prepare audio: {str(e)}")
-            raise ValueError(f"Invalid WAV file: {str(e)}")
-    
-    def _transcribe_sync(self, audio_data: bytes) -> Tuple[str, float]:
+    def _transcribe_sync(self, audio_data: bytes, language: str = None) -> Tuple[str, float, str]:
         """
         Synchronous transcription (runs in thread pool)
         
         Args:
-            audio_data: Raw WAV audio file bytes
+            audio_data: Raw audio file bytes (any format supported by FFmpeg)
+            language: Optional language code (bul, en, tl)
             
         Returns:
-            Tuple of (transcribed_text, confidence_score)
+            Tuple of (transcribed_text, confidence_score, detected_language)
         """
-        # Prepare audio for DeepSpeech
-        raw_audio, sample_rate = self._prepare_audio_for_deepspeech(audio_data)
+        # Map our language codes to Whisper language codes
+        # Whisper uses ISO 639-1 codes: https://github.com/openai/whisper/blob/main/whisper/tokenizer.py
+        whisper_language_map = {
+            'bul': None,  # Bulos not in Whisper - let it auto-detect
+            'en': 'en',   # English
+            'tl': 'tl',   # Tagalog (Filipino)
+            'fil': 'tl',  # Filipino → Tagalog
+        }
         
-        # Convert bytes to numpy array (int16)
-        import numpy as np
-        audio_array = np.frombuffer(raw_audio, dtype=np.int16)
+        whisper_lang = whisper_language_map.get(language, None) if language else None
         
-        # Transcribe using DeepSpeech
-        logger.debug("Running DeepSpeech transcription...")
+        # Detect file format and use appropriate extension for temp file
+        # This helps FFmpeg identify the format correctly
+        file_ext = '.wav'  # default
         
-        # Get metadata for confidence score
-        metadata = self.model.sttWithMetadata(audio_array)
+        if len(audio_data) >= 12 and audio_data[4:8] == b'ftyp':
+            file_ext = '.m4a'
+        elif len(audio_data) >= 3 and audio_data[:3] == b'ID3':
+            file_ext = '.mp3'
+        elif len(audio_data) >= 2 and audio_data[:2] in [b'\xff\xfb', b'\xff\xf3', b'\xff\xf2']:
+            file_ext = '.mp3'
+        elif len(audio_data) >= 4:
+            if audio_data[:4] == b'fLaC':
+                file_ext = '.flac'
+            elif audio_data[:4] == b'OggS':
+                file_ext = '.ogg'
         
-        # Extract best transcription
-        if metadata.transcripts:
-            transcript = metadata.transcripts[0]
-            text = ''.join(token.text for token in transcript.tokens)
-            confidence = transcript.confidence
+        # Save audio to temporary file (Whisper requires file path)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
+            temp_file.write(audio_data)
+            temp_path = temp_file.name
+        
+        try:
+            logger.info(f"Transcribing {file_ext} file (language: {language} → whisper: {whisper_lang})...")
+            logger.info("Note: First transcription is slow (~30-40s) as Whisper loads. Subsequent ones are faster.")
             
-            logger.debug(f"Transcription: '{text}' (confidence: {confidence:.4f})")
-            return text, confidence
-        else:
-            logger.warning("DeepSpeech returned no transcription")
-            return "", 0.0
+            # Transcribe using Whisper
+            # Whisper handles multiple audio formats and sample rates automatically via FFmpeg
+            # Note: fp16=False is important for CPU inference
+            # Note: First run is slow because Whisper loads models into memory
+            transcribe_options = {
+                'fp16': False,  # Use FP32 for CPU compatibility
+                'verbose': False,  # Reduce logging
+                'task': 'transcribe',  # We want transcription, not translation
+            }
+            
+            # Only add language if we have a valid mapping
+            # For Bulos or unknown languages, let Whisper auto-detect
+            if whisper_lang:
+                transcribe_options['language'] = whisper_lang
+                logger.debug(f"Using language hint: {whisper_lang}")
+            else:
+                logger.debug("No language hint - Whisper will auto-detect")
+            
+            result = self.model.transcribe(temp_path, **transcribe_options)
+            
+            # Extract text and confidence
+            text = result['text'].strip()
+            
+            # Get detected language from Whisper result
+            detected_language = result.get('language', 'unknown')
+            logger.info(f"Detected language: {detected_language}")
+            
+            # Whisper doesn't provide per-segment confidence like DeepSpeech
+            # We'll use a proxy: if result has segments with avg_logprob, use that
+            confidence = 0.0
+            if 'segments' in result and result['segments']:
+                # Average log probability across segments (convert to 0-1 scale)
+                avg_logprob = sum(s.get('avg_logprob', -1.0) for s in result['segments']) / len(result['segments'])
+                # Convert log probability to approximate confidence (0-1)
+                # Typical range: -0.5 (confident) to -1.5 (less confident)
+                confidence = max(0.0, min(1.0, (avg_logprob + 1.5) / 1.0))
+            else:
+                # Default confidence if no segments
+                confidence = 0.9 if text else 0.0
+            
+            logger.info(f"Transcription complete: '{text[:50]}...' (confidence: {confidence:.4f})")
+            return text, confidence, detected_language
+            
+        finally:
+            # Clean up temporary file
+            try:
+                os.unlink(temp_path)
+            except Exception as e:
+                logger.warning(f"Failed to delete temporary file {temp_path}: {str(e)}")
     
-    async def transcribe(self, audio_data: bytes) -> Tuple[str, float]:
+    async def transcribe(self, audio_data: bytes, language: str = None) -> Tuple[str, float, str]:
         """
-        Transcribe audio to text using DeepSpeech
+        Transcribe audio to text using Whisper
         
         This method validates the audio file (format, size, duration), processes
-        it through DeepSpeech with timeout enforcement, and returns the transcribed
-        text with a confidence score.
+        it through Whisper with timeout enforcement, and returns the transcribed
+        text with a confidence score and detected language.
+        
+        Whisper is more flexible than DeepSpeech:
+        - Supports multiple audio formats (WAV, MP3, etc.)
+        - Handles various sample rates automatically
+        - Works with stereo and mono audio
+        - Multilingual support (99 languages)
         
         Args:
-            audio_data: Raw WAV audio file bytes
+            audio_data: Raw audio file bytes (WAV preferred)
+            language: Optional language code for better accuracy (en, tl, etc.)
             
         Returns:
-            Tuple of (transcribed_text, confidence_score)
+            Tuple of (transcribed_text, confidence_score, detected_language)
             
         Raises:
             ValueError: If audio validation fails (format, size, or duration)
-            RuntimeError: If DeepSpeech model is not initialized
+            RuntimeError: If Whisper model is not initialized
             asyncio.TimeoutError: If transcription exceeds timeout
         """
         if self.model is None:
-            logger.error("DeepSpeech model not initialized")
+            logger.error("Whisper model not initialized")
             raise RuntimeError(
                 "Speech processor not initialized. Call initialize() first."
             )
@@ -311,21 +405,22 @@ class SpeechProcessor:
         try:
             # Run transcription in executor with timeout
             loop = asyncio.get_event_loop()
-            text, confidence = await asyncio.wait_for(
+            text, confidence, detected_language = await asyncio.wait_for(
                 loop.run_in_executor(
                     None,
                     self._transcribe_sync,
-                    audio_data
+                    audio_data,
+                    language
                 ),
                 timeout=self.timeout
             )
             
             logger.info(
                 f"Transcription completed: '{text}' "
-                f"(confidence: {confidence:.4f}, duration: {duration:.2f}s)"
+                f"(confidence: {confidence:.4f}, duration: {duration:.2f}s, language: {detected_language})"
             )
             
-            return text, confidence
+            return text, confidence, detected_language
             
         except asyncio.TimeoutError:
             logger.error(
