@@ -22,17 +22,28 @@ logger = get_logger(__name__)
 
 def _find_ffmpeg():
     """
-    Find FFmpeg executable
+    Find FFmpeg executable and add to PATH if needed
     
     Search order:
     1. User-specified path in .env (FFMPEG_PATH)
     2. System PATH
     3. Common installation paths
+    
+    If FFmpeg is found but not in PATH, this function will add its directory
+    to the PATH environment variable so Whisper can find it.
     """
     # Check config first
     if settings.ffmpeg_path and os.path.exists(settings.ffmpeg_path):
         logger.info(f"Using FFmpeg from config: {settings.ffmpeg_path}")
-        return settings.ffmpeg_path
+        ffmpeg_path = settings.ffmpeg_path
+        
+        # Add FFmpeg directory to PATH if not already there
+        ffmpeg_dir = str(Path(ffmpeg_path).parent)
+        if ffmpeg_dir not in os.environ.get('PATH', ''):
+            os.environ['PATH'] = ffmpeg_dir + os.pathsep + os.environ.get('PATH', '')
+            logger.info(f"Added FFmpeg directory to PATH: {ffmpeg_dir}")
+        
+        return ffmpeg_path
     
     # Check system PATH
     ffmpeg_path = shutil.which('ffmpeg')
@@ -50,6 +61,13 @@ def _find_ffmpeg():
     for path in common_paths:
         if os.path.exists(path):
             logger.info(f"FFmpeg found at: {path}")
+            
+            # Add FFmpeg directory to PATH
+            ffmpeg_dir = str(Path(path).parent)
+            if ffmpeg_dir not in os.environ.get('PATH', ''):
+                os.environ['PATH'] = ffmpeg_dir + os.pathsep + os.environ.get('PATH', '')
+                logger.info(f"Added FFmpeg directory to PATH: {ffmpeg_dir}")
+            
             return path
     
     logger.warning("FFmpeg not found - please set FFMPEG_PATH in .env or restart terminal")
@@ -279,13 +297,18 @@ class SpeechProcessor:
         # Map our language codes to Whisper language codes
         # Whisper uses ISO 639-1 codes: https://github.com/openai/whisper/blob/main/whisper/tokenizer.py
         whisper_language_map = {
-            'bul': None,  # Bulos not in Whisper - let it auto-detect
+            'bul': 'tl',  # Bulos is related to Tagalog - use Tagalog model for better phonetic matching
             'en': 'en',   # English
             'tl': 'tl',   # Tagalog (Filipino)
             'fil': 'tl',  # Filipino → Tagalog
         }
         
         whisper_lang = whisper_language_map.get(language, None) if language else None
+        
+        # Special handling for Bulos: Use Tagalog as base but log that we're doing phonetic transcription
+        is_bulos_transcription = (language == 'bul')
+        if is_bulos_transcription:
+            logger.info("Bulos audio detected - using Tagalog model for phonetic transcription")
         
         # Detect file format and use appropriate extension for temp file
         # This helps FFmpeg identify the format correctly
@@ -320,6 +343,13 @@ class SpeechProcessor:
                 'fp16': False,  # Use FP32 for CPU compatibility
                 'verbose': False,  # Reduce logging
                 'task': 'transcribe',  # We want transcription, not translation
+                # Enable better word-level timestamps for confidence calculation
+                'word_timestamps': True,
+                # Temperature fallback for better accuracy with unclear audio
+                # Use fewer temperatures to speed up processing (0.0 is most deterministic)
+                'temperature': (0.0, 0.2, 0.4),  # Try 3 temperatures instead of 6
+                # Beam search for better accuracy (balanced setting)
+                'beam_size': 3,  # Reduced from 5 for faster processing
             }
             
             # Only add language if we have a valid mapping
@@ -337,22 +367,58 @@ class SpeechProcessor:
             
             # Get detected language from Whisper result
             detected_language = result.get('language', 'unknown')
+            
+            # Override detected language if we know it's Bulos
+            if is_bulos_transcription:
+                detected_language = 'bul'
+            
             logger.info(f"Detected language: {detected_language}")
             
-            # Whisper doesn't provide per-segment confidence like DeepSpeech
-            # We'll use a proxy: if result has segments with avg_logprob, use that
+            # Calculate confidence from word-level probabilities
             confidence = 0.0
             if 'segments' in result and result['segments']:
-                # Average log probability across segments (convert to 0-1 scale)
-                avg_logprob = sum(s.get('avg_logprob', -1.0) for s in result['segments']) / len(result['segments'])
-                # Convert log probability to approximate confidence (0-1)
-                # Typical range: -0.5 (confident) to -1.5 (less confident)
-                confidence = max(0.0, min(1.0, (avg_logprob + 1.5) / 1.0))
+                # Calculate average confidence from segments
+                total_prob = 0.0
+                word_count = 0
+                
+                for segment in result['segments']:
+                    # Use no_speech_prob as indicator of quality (lower is better)
+                    no_speech_prob = segment.get('no_speech_prob', 0.5)
+                    
+                    # Use avg_logprob (typical range: -0.2 to -1.5)
+                    avg_logprob = segment.get('avg_logprob', -1.0)
+                    
+                    # Convert to confidence score (0-1)
+                    # Good transcription: avg_logprob around -0.3, no_speech_prob < 0.1
+                    # Adjusted formula to be less harsh on confidence scores
+                    segment_confidence = max(0.0, min(1.0, (avg_logprob + 1.2) / 1.0))
+                    segment_confidence *= (1.0 - no_speech_prob)  # Penalize if speech is unclear
+                    
+                    # Weight by segment length
+                    segment_words = len(segment.get('words', [])) if 'words' in segment else 1
+                    total_prob += segment_confidence * segment_words
+                    word_count += segment_words
+                
+                if word_count > 0:
+                    confidence = total_prob / word_count
+                else:
+                    confidence = 0.5  # Neutral confidence if no words
             else:
                 # Default confidence if no segments
-                confidence = 0.9 if text else 0.0
+                confidence = 0.8 if text else 0.0
             
             logger.info(f"Transcription complete: '{text[:50]}...' (confidence: {confidence:.4f})")
+            
+            # Log warning if confidence is very low
+            if confidence < 0.3:
+                logger.warning(
+                    f"Low transcription confidence ({confidence:.4f}). This may indicate:\n"
+                    f"  - Poor audio quality (background noise, low volume)\n"
+                    f"  - Microphone issues or recording problems\n"
+                    f"  - Speaker accent differs from training data\n"
+                    f"  - Language mismatch (e.g., Bulos transcribed as Tagalog)"
+                )
+            
             return text, confidence, detected_language
             
         finally:
