@@ -168,6 +168,25 @@ class DatabaseManager:
                 name="email_unique"
             )
             
+            # Evaluation collection indexes
+            # Compound index for user evaluation retrieval by type
+            await self.db.evaluations.create_index(
+                [("user_id", 1), ("evaluation_type", 1)],
+                name="user_evaluation_type"
+            )
+            
+            # Index for timestamp-based queries (recent evaluations)
+            await self.db.evaluations.create_index(
+                [("timestamp", -1)],
+                name="evaluation_timestamp"
+            )
+            
+            # Index for filtering by evaluation type
+            await self.db.evaluations.create_index(
+                [("evaluation_type", 1)],
+                name="evaluation_type"
+            )
+            
             self.logger.info("Database indexes created successfully")
             
         except Exception as e:

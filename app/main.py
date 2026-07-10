@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 
 from config import settings
 from utils.logging_config import configure_logging, get_logger
-from app.routers import auth_router, vocabulary_router, translation_router, speech_router, history_router, health_router, dictionary_router
+from app.routers import auth_router, vocabulary_router, translation_router, speech_router, history_router, health_router, dictionary_router, evaluation_router
 
 # Configure logging before anything else
 configure_logging()
@@ -232,6 +232,7 @@ def create_application() -> FastAPI:
     app.include_router(history_router)
     app.include_router(health_router)
     app.include_router(dictionary_router)
+    app.include_router(evaluation_router)
     
     return app
 

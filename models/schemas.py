@@ -1,6 +1,6 @@
 """Pydantic data models and request/response schemas for API endpoints"""
 from pydantic import BaseModel, Field, validator
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime
 from bson import ObjectId
 
@@ -204,6 +204,7 @@ class TranslationResponse(BaseModel):
     source_language: str = Field(..., description="Source language code")
     target_language: str = Field(..., description="Target language code")
     confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Translation confidence score (0-1)")
+    intermediate_language: Optional[str] = Field(None, description="Intermediate language used (e.g., 'tl' when en→tl→bul only reached tl)")
     
     class Config:
         schema_extra = {
@@ -212,7 +213,8 @@ class TranslationResponse(BaseModel):
                 "translated_text": "Kamusta ka?",
                 "source_language": "en",
                 "target_language": "tl",
-                "confidence": 0.95
+                "confidence": 0.95,
+                "intermediate_language": None
             }
         }
 
@@ -504,5 +506,136 @@ class DictionarySearchRequest(BaseModel):
                 "query": "head",
                 "language": "all",
                 "limit": 50
+            }
+        }
+
+
+
+# Evaluation Models (ISO/IEC 25010 & TAM)
+
+class ISO25010Evaluation(BaseModel):
+    """Schema for ISO/IEC 25010 Software Quality evaluation submission."""
+    
+    functional_suitability: int = Field(
+        ..., ge=1, le=5,
+        description="Rating for functional suitability (1-5 Likert scale)"
+    )
+    usability: int = Field(
+        ..., ge=1, le=5,
+        description="Rating for usability (1-5 Likert scale)"
+    )
+    performance_efficiency: int = Field(
+        ..., ge=1, le=5,
+        description="Rating for performance efficiency (1-5 Likert scale)"
+    )
+    reliability: int = Field(
+        ..., ge=1, le=5,
+        description="Rating for reliability (1-5 Likert scale)"
+    )
+    maintainability: int = Field(
+        ..., ge=1, le=5,
+        description="Rating for maintainability (1-5 Likert scale)"
+    )
+    portability: int = Field(
+        ..., ge=1, le=5,
+        description="Rating for portability (1-5 Likert scale)"
+    )
+    comments: Optional[str] = Field(
+        None, max_length=1000,
+        description="Optional comments or feedback"
+    )
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "functional_suitability": 5,
+                "usability": 4,
+                "performance_efficiency": 5,
+                "reliability": 4,
+                "maintainability": 4,
+                "portability": 5,
+                "comments": "The system is very helpful for learning Bulos!"
+            }
+        }
+
+
+class TAMEvaluation(BaseModel):
+    """Schema for Technology Acceptance Model (TAM) evaluation submission."""
+    
+    perceived_usefulness: int = Field(
+        ..., ge=1, le=5,
+        description="Rating for perceived usefulness (1-5 Likert scale)"
+    )
+    perceived_ease_of_use: int = Field(
+        ..., ge=1, le=5,
+        description="Rating for perceived ease of use (1-5 Likert scale)"
+    )
+    behavioral_intention: int = Field(
+        ..., ge=1, le=5,
+        description="Rating for behavioral intention to use (1-5 Likert scale)"
+    )
+    comments: Optional[str] = Field(
+        None, max_length=1000,
+        description="Optional comments or feedback"
+    )
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "perceived_usefulness": 5,
+                "perceived_ease_of_use": 4,
+                "behavioral_intention": 5,
+                "comments": "I will definitely use this app to communicate with Dumagat speakers!"
+            }
+        }
+
+
+class EvaluationResponse(BaseModel):
+    """Schema for evaluation submission response."""
+    
+    evaluation_id: str = Field(..., description="ID of the submitted evaluation")
+    message: str = Field(..., description="Success message")
+    timestamp: datetime = Field(..., description="Submission timestamp")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "evaluation_id": "507f1f77bcf86cd799439011",
+                "message": "ISO/IEC 25010 evaluation submitted successfully",
+                "timestamp": "2026-07-10T10:30:00Z"
+            }
+        }
+
+
+class EvaluationResultsResponse(BaseModel):
+    """Schema for aggregated evaluation results."""
+    
+    total_evaluations: int = Field(..., ge=0, description="Total number of evaluations")
+    iso25010_results: Dict[str, float] = Field(..., description="ISO/IEC 25010 mean scores")
+    tam_results: Dict[str, float] = Field(..., description="TAM mean scores")
+    iso25010_interpretation: str = Field(..., description="Interpretation of ISO/IEC 25010 overall mean")
+    tam_interpretation: str = Field(..., description="Interpretation of TAM overall mean")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "total_evaluations": 25,
+                "iso25010_results": {
+                    "functional_suitability": 4.52,
+                    "usability": 4.32,
+                    "performance_efficiency": 4.48,
+                    "reliability": 4.20,
+                    "maintainability": 4.12,
+                    "portability": 4.60,
+                    "overall_mean": 4.37
+                },
+                "tam_results": {
+                    "perceived_usefulness": 4.68,
+                    "perceived_ease_of_use": 4.44,
+                    "behavioral_intention": 4.72,
+                    "overall_mean": 4.61
+                },
+                "iso25010_interpretation": "Acceptable",
+                "tam_interpretation": "Highly Acceptable"
             }
         }
