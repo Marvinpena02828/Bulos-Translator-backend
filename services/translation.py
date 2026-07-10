@@ -30,6 +30,35 @@ class TranslationService:
         ("tl", "en"),
     ]
     
+    # Tagalog to Bulos pronoun mapping
+    TAGALOG_TO_BULOS_PRONOUNS = {
+        # Personal pronouns
+        'ako': 'aku',           # I
+        'ikaw': 'ikaw',         # you (singular)
+        'siya': 'eya',          # he/she
+        'tayo': 'kita',         # we (inclusive)
+        'kami': 'kami',         # we (exclusive)
+        'kayo': 'kamu',         # you (plural)
+        'sila': 'ira',          # they
+        
+        # Possessive pronouns (short form)
+        'ko': 'ku',             # my, mine
+        'mo': 'mu',             # your, yours (singular)
+        'niya': 'na',           # his, her, hers
+        'natin': 'ta',          # our, ours (inclusive)
+        'namin': 'mi',          # our, ours (exclusive)
+        'ninyo': 'niyu',        # your, yours (plural)
+        'nila': 'ira',          # their, theirs
+        
+        # Possessive adjectives (long form)
+        'aking': 'ku a',        # my (with linker)
+        'aming': 'mi a',        # our (exclusive, with linker)
+        'ating': 'ta a',        # our (inclusive, with linker)
+        'kanyang': 'na a',      # his/her (with linker)
+        'kanilang': 'ira a',    # their (with linker)
+        'inyong': 'niyu a',     # your plural (with linker)
+    }
+    
     def __init__(self, db_manager: DatabaseManager):
         """
         Initialize translation service
@@ -42,9 +71,6 @@ class TranslationService:
         
         # Dictionary storage
         self.dictionary: Dict[str, Dict[str, str]] = {}
-        
-        # Google Translate client
-        self.translator = Translator()
         
         # Translation timeout from config
         self.timeout = settings.translation_timeout_seconds
@@ -195,12 +221,13 @@ class TranslationService:
         logger.info(f"Using Google Translate: {text} ({src} -> {dest})")
         
         try:
-            # Run in executor to avoid blocking
-            loop = asyncio.get_event_loop()
-            result = await loop.run_in_executor(
-                None,
-                lambda: self.translator.translate(text, src=src, dest=dest)
-            )
+            # googletrans 4.x uses httpx and returns coroutines
+            # We need to await the translate call directly
+            from googletrans import Translator
+            translator = Translator()
+            
+            # Directly await the translate call (it's async in googletrans 4.x)
+            result = await translator.translate(text, src=src, dest=dest)
             
             translated_text = result.text
             # Google Translate doesn't provide confidence, use a high default
@@ -407,83 +434,198 @@ class TranslationService:
     
     async def _translate_segment_word_by_word(self, segment: str) -> str:
         """
-        Translate a text segment word-by-word
+        Translate a text segment word-by-word with grammar-aware suffix conversion
+        
+        This method handles Tagalog grammatical structures and converts them to Bulos:
+        - Tagalog linkers (-ng, -na) → Bulos linker (a, with space)
+        - Tagalog possessive markers (ni, nina) → Bulos equivalents
+        - Tagalog affixes → appropriate Bulos forms
         
         Args:
-            segment: Text segment to translate
+            segment: Text segment to translate (typically a sentence or phrase)
             
         Returns:
-            Translated segment
+            Translated segment with proper Bulos grammar
         """
         import re
         
-        # Better word tokenization - split on whitespace and punctuation
-        # But keep punctuation attached to words for later reconstruction
+        # Tokenize: split on whitespace and punctuation
+        # Keep punctuation attached to words for reconstruction
         tokens = re.findall(r'\S+|\s+', segment)
         
         translated_tokens = []
         
-        for token in tokens:
+        for i, token in enumerate(tokens):
             # If it's whitespace, keep it as-is
             if token.isspace():
                 translated_tokens.append(token)
                 continue
             
-            # For word tokens, clean and look up
+            # Extract the actual word without surrounding punctuation
             word = token
             clean_word = word.lower().strip('.,!?;:"\'')
             
-            # Handle Tagalog grammatical particles
-            # "magandang" = "maganda" + "ng" (linker)
-            base_word = clean_word
-            suffix = ""
+            # Detect and extract Tagalog grammatical suffixes
+            base_word, tagalog_suffix, suffix_type = self._extract_tagalog_grammar(clean_word)
             
-            # Check for common Tagalog suffixes and separate them
-            if clean_word.endswith('ng') and len(clean_word) > 2:
-                base_word = clean_word[:-2]
-                suffix = 'ng'
-            
-            # Try to find Bulos equivalent for base word
-            bulos_word = self._lookup_dictionary(base_word, 'tl', 'bul')
-            
-            if not bulos_word and base_word != clean_word:
-                # Try the full word if base word not found
-                bulos_word = self._lookup_dictionary(clean_word, 'tl', 'bul')
-                suffix = ""  # Reset suffix if we found the full word
-            
-            if bulos_word:
-                # Found in dictionary - use Bulos word
-                result_word = bulos_word + suffix
-                
-                # Preserve original punctuation from the word
-                # Find what punctuation was stripped
-                prefix_punct = ""
-                suffix_punct = ""
-                
-                # Get leading punctuation
-                for i, c in enumerate(word):
-                    if c.lower() not in 'abcdefghijklmnopqrstuvwxyzñ':
-                        prefix_punct += c
-                    else:
-                        break
-                
-                # Get trailing punctuation
-                for i in range(len(word) - 1, -1, -1):
-                    c = word[i]
-                    if c.lower() not in 'abcdefghijklmnopqrstuvwxyzñ':
-                        suffix_punct = c + suffix_punct
-                    else:
-                        break
-                
+            # Special handling for Tagalog particles (ang, ng, sa, mga)
+            # These are grammatical words that need direct conversion (not dictionary lookup)
+            if suffix_type in ['particle_ang', 'particle_ng', 'particle_sa', 'plural_marker']:
+                result_word = self._apply_bulos_grammar(base_word, tagalog_suffix, suffix_type)
+                prefix_punct, suffix_punct = self._extract_punctuation(word)
                 result_word = prefix_punct + result_word + suffix_punct
                 translated_tokens.append(result_word)
-                logger.debug(f"Token: {word} -> {result_word} (Bulos)")
+                logger.debug(f"Particle: {word} -> {result_word}")
+                continue
+            
+            # Look up base word in dictionary (Tagalog → Bulos)
+            bulos_word = self._lookup_dictionary(base_word, 'tl', 'bul')
+            
+            # Fallback: if base word not found, try the full word (might be compound)
+            if not bulos_word and base_word != clean_word:
+                bulos_word = self._lookup_dictionary(clean_word, 'tl', 'bul')
+                tagalog_suffix = ""  # Clear suffix if we found the full word
+                suffix_type = None
+            
+            if bulos_word:
+                # Found in dictionary - construct Bulos word with appropriate grammar
+                result_word = self._apply_bulos_grammar(bulos_word, tagalog_suffix, suffix_type)
+                
+                # Preserve original punctuation (leading and trailing)
+                prefix_punct, suffix_punct = self._extract_punctuation(word)
+                result_word = prefix_punct + result_word + suffix_punct
+                
+                translated_tokens.append(result_word)
+                logger.debug(f"Token: {word} -> {result_word} (Bulos: {bulos_word}, suffix: {tagalog_suffix})")
             else:
-                # Not in dictionary - keep original
+                # Not in dictionary - keep original Tagalog word (fallback)
                 translated_tokens.append(word)
                 logger.debug(f"Token: {word} -> {word} (Tagalog fallback)")
         
         return ''.join(translated_tokens)
+    
+    def _extract_tagalog_grammar(self, word: str) -> Tuple[str, str, Optional[str]]:
+        """
+        Extract Tagalog grammatical suffixes and affixes from a word
+        
+        Handles common Tagalog grammar patterns:
+        - Linkers: -ng, -na (connects adjectives to nouns)
+        - Possessive: ko, mo, niya, amin, atin, namin, natin, ninyo, nila, -ng (ko→kong)
+        - Plural marker: mga (separate word)
+        - Particles: ang, ng, sa (separate words but need conversion)
+        
+        Args:
+            word: Tagalog word (lowercase, no punctuation)
+            
+        Returns:
+            Tuple of (base_word, suffix, suffix_type)
+            suffix_type: 'linker', 'possessive', 'plural_marker', 'particle', or None
+        """
+        word_lower = word.lower()
+        
+        # Check for linker suffixes: -ng, -na
+        # Example: "magandang" → ("maganda", "ng", "linker")
+        if word_lower.endswith('ng') and len(word_lower) > 2:
+            base = word_lower[:-2]
+            # Check if it's a possessive pronoun + ng (ko→kong, mo→mong)
+            if base in ['ko', 'mo', 'niyo', 'nila']:
+                return (base, 'ng', 'possessive_linker')
+            # Check if removing 'ng' gives us a valid word
+            if len(base) >= 2:
+                return (base, 'ng', 'linker')
+        
+        if word_lower.endswith('na') and len(word_lower) > 2:
+            base = word_lower[:-2]
+            if len(base) >= 2:
+                return (base, 'na', 'linker')
+        
+        # Check for possessive pronouns with -ng suffix
+        # "aking" → "aki" + "ng" (possessive)
+        if word_lower.endswith('ng') and word_lower[:-2] in ['aki', 'kani', 'ami', 'ati', 'nami', 'nati', 'kani']:
+            base = word_lower[:-2]
+            return (base, 'ng', 'possessive_adj')
+        
+        # Check for standalone possessive pronouns
+        possessive_pronouns = ['ko', 'mo', 'niya', 'natin', 'namin', 'ninyo', 'nila', 'amin', 'atin']
+        if word_lower in possessive_pronouns:
+            return (word_lower, '', 'possessive')
+        
+        # Check for particles that need conversion (these are separate words)
+        particles = {
+            'ang': 'particle_ang',    # "the" (subject marker) → "i" in Bulos
+            'ng': 'particle_ng',      # "of/by" (possessive/genitive) → "ni" in Bulos
+            'sa': 'particle_sa',      # "to/at/in" (locative) → "de" in Bulos
+            'mga': 'plural_marker',   # plural marker → might not need in Bulos
+        }
+        if word_lower in particles:
+            return (word_lower, '', particles[word_lower])
+        
+        # No suffix detected
+        return (word_lower, '', None)
+    
+    def _apply_bulos_grammar(self, bulos_word: str, tagalog_suffix: str, suffix_type: Optional[str]) -> str:
+        """
+        Apply appropriate Bulos grammatical structure based on Tagalog suffix
+        
+        Converts Tagalog grammatical markers to their Bulos equivalents:
+        - Tagalog linker (-ng, -na) → Bulos linker (space + "a")
+        - Tagalog possessive → Bulos possessive
+        
+        Args:
+            bulos_word: The Bulos word from dictionary lookup
+            tagalog_suffix: The Tagalog suffix that was removed (e.g., "ng", "na")
+            suffix_type: Type of suffix ('linker', 'possessive', etc.)
+            
+        Returns:
+            Bulos word with appropriate grammatical structure
+        """
+        # Handle linkers (most common case)
+        if suffix_type == 'linker':
+            # Tagalog: maganda + ng → "magandang"
+            # Bulos:   masampat + (space) a → "masampat a"
+            if tagalog_suffix in ['ng', 'na']:
+                return bulos_word + ' a'  # Add space before linker
+        
+        # Handle possessive (if needed in future)
+        elif suffix_type == 'possessive':
+            if tagalog_suffix == 'ni':
+                return bulos_word + ' ni'
+        
+        # No special grammar needed - return as-is
+        return bulos_word
+    
+    def _extract_punctuation(self, word: str) -> Tuple[str, str]:
+        """
+        Extract leading and trailing punctuation from a word
+        
+        Args:
+            word: Word with possible punctuation
+            
+        Returns:
+            Tuple of (leading_punctuation, trailing_punctuation)
+        """
+        prefix_punct = ""
+        suffix_punct = ""
+        
+        # Valid word characters (letters and diacritics)
+        valid_chars = set('abcdefghijklmnopqrstuvwxyzñáéíóúàèìòùâêîôûäëïöüāēīōūABCDEFGHIJKLMNOPQRSTUVWXYZÑÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÄËÏÖÜĀĒĪŌŪ')
+        
+        # Get leading punctuation
+        for i, c in enumerate(word):
+            if c not in valid_chars:
+                prefix_punct += c
+            else:
+                break
+        
+        # Get trailing punctuation
+        for i in range(len(word) - 1, -1, -1):
+            c = word[i]
+            if c not in valid_chars:
+                suffix_punct = c + suffix_punct
+            else:
+                break
+        
+        return (prefix_punct, suffix_punct)
     
     async def _translate_bulos_sentence(self, text: str, target_language: str) -> str:
         """
