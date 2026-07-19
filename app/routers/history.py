@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from models.schemas import HistoryResponse
 from services.database import DatabaseManager
-from services.auth import get_current_user
+from utils.device_id import get_device_id
 from config import settings
 from utils.logging_config import get_logger
 
@@ -52,11 +52,11 @@ async def get_history_service(
     "/",
     response_model=HistoryResponse,
     status_code=status.HTTP_200_OK,
-    summary="Get user action history",
-    description="Retrieve user action history with optional filtering by action type and date range"
+    summary="Get device action history",
+    description="Retrieve device action history with optional filtering by action type and date range"
 )
 async def get_history(
-    user_id: str = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     action_type: Optional[str] = Query(None, description="Filter by action type (e.g., 'vocabulary_create', 'translation')"),
     start_date: Optional[datetime] = Query(None, description="Filter actions after this date (ISO format)"),
     end_date: Optional[datetime] = Query(None, description="Filter actions before this date (ISO format)"),
@@ -65,9 +65,11 @@ async def get_history(
     history_service: "HistoryService" = Depends(get_history_service)
 ):
     """
-    Retrieve user action history with filtering and pagination
+    Retrieve device action history with filtering and pagination
     
-    This endpoint returns a paginated list of all actions performed by the user,
+    Requires X-Device-ID header
+    
+    This endpoint returns a paginated list of all actions performed by the device,
     with optional filters for action type and date range.
     
     Query Parameters:
@@ -83,7 +85,7 @@ async def get_history(
     Returns:
     - **records**: List of history records with the following fields:
       - **id**: History record ID
-      - **user_id**: User ID who performed the action
+      - **device_id**: Device ID that performed the action
       - **action_type**: Type of action performed
       - **resource_id**: ID of the resource affected (if applicable)
       - **resource_type**: Type of resource (e.g., 'vocabulary', 'evaluation')
@@ -102,12 +104,12 @@ async def get_history(
     """
     try:
         logger.info(
-            f"Get history request from user {user_id} "
+            f"Get history request from device {device_id} "
             f"(action_type: {action_type}, page: {page}, size: {page_size})"
         )
         
         result = await history_service.get_history(
-            user_id=user_id,
+            device_id=device_id,
             action_type=action_type,
             start_date=start_date,
             end_date=end_date,
@@ -119,7 +121,7 @@ async def get_history(
     
     except Exception as e:
         logger.error(
-            f"Failed to retrieve history for user {user_id}: {str(e)}",
+            f"Failed to retrieve history for device {device_id}: {str(e)}",
             exc_info=True
         )
         raise HTTPException(
@@ -132,18 +134,20 @@ async def get_history(
     "/summary",
     status_code=status.HTTP_200_OK,
     summary="Get action summary",
-    description="Get a summary of user actions with statistics"
+    description="Get a summary of device actions with statistics"
 )
 async def get_action_summary(
-    user_id: str = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     start_date: Optional[datetime] = Query(None, description="Filter actions after this date (ISO format)"),
     end_date: Optional[datetime] = Query(None, description="Filter actions before this date (ISO format)"),
     history_service: "HistoryService" = Depends(get_history_service)
 ):
     """
-    Get a summary of user actions with statistics
+    Get a summary of device actions with statistics
     
-    This endpoint provides aggregate statistics on user actions, including
+    Requires X-Device-ID header
+    
+    This endpoint provides aggregate statistics on device actions, including
     counts by action type and outcome.
     
     Query Parameters:
@@ -151,18 +155,18 @@ async def get_action_summary(
     - **end_date**: Filter actions before this date (ISO 8601 format, optional)
     
     Returns:
-    - **user_id**: User ID
+    - **device_id**: Device ID
     - **total_actions**: Total number of actions performed
     - **actions_by_type**: Dictionary with count of each action type
     - **actions_by_outcome**: Dictionary with count of each outcome (success/error)
     """
     try:
         logger.info(
-            f"Get action summary request from user {user_id}"
+            f"Get action summary request from device {device_id}"
         )
         
         result = await history_service.get_action_summary(
-            user_id=user_id,
+            device_id=device_id,
             start_date=start_date,
             end_date=end_date
         )
@@ -171,7 +175,7 @@ async def get_action_summary(
     
     except Exception as e:
         logger.error(
-            f"Failed to retrieve action summary for user {user_id}: {str(e)}",
+            f"Failed to retrieve action summary for device {device_id}: {str(e)}",
             exc_info=True
         )
         raise HTTPException(

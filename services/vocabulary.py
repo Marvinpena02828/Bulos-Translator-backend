@@ -11,7 +11,7 @@ logger = get_logger(__name__)
 
 
 class VocabularyService:
-    """Service for managing vocabulary items with user isolation and history tracking"""
+    """Service for managing vocabulary items with device isolation and history tracking"""
     
     def __init__(self, db_manager: DatabaseManager):
         """
@@ -26,24 +26,24 @@ class VocabularyService:
     
     async def create_vocabulary(
         self, 
-        user_id: str, 
+        device_id: str, 
         vocab_data: VocabularyCreate
     ) -> Dict[str, Any]:
         """
         Create a new vocabulary item with duplicate detection
         
         Args:
-            user_id: User ID from JWT token
+            device_id: Device ID from X-Device-ID header
             vocab_data: Vocabulary creation data
             
         Returns:
             Dictionary with created vocabulary ID and success message
             
         Raises:
-            ValueError: If duplicate vocabulary item exists (same user_id + word)
+            ValueError: If duplicate vocabulary item exists (same device_id + word)
         """
         logger.info(
-            f"Creating vocabulary for user {user_id}: "
+            f"Creating vocabulary for device {device_id}: "
             f"{vocab_data.word} ({vocab_data.source_language} -> {vocab_data.target_language})"
         )
         
@@ -51,7 +51,7 @@ class VocabularyService:
         existing = await self.db.find_one(
             self.collection,
             {
-                "user_id": user_id,
+                "device_id": device_id,
                 "word": vocab_data.word,
                 "source_language": vocab_data.source_language,
                 "target_language": vocab_data.target_language
@@ -60,7 +60,7 @@ class VocabularyService:
         
         if existing:
             logger.warning(
-                f"Duplicate vocabulary item for user {user_id}: {vocab_data.word}"
+                f"Duplicate vocabulary item for device {device_id}: {vocab_data.word}"
             )
             raise ValueError(
                 f"Vocabulary item '{vocab_data.word}' already exists for this language pair"
@@ -68,7 +68,7 @@ class VocabularyService:
         
         # Create document
         document = {
-            "user_id": user_id,
+            "device_id": device_id,
             "word": vocab_data.word,
             "translation": vocab_data.translation,
             "source_language": vocab_data.source_language,
@@ -83,7 +83,7 @@ class VocabularyService:
         
         # Record in history
         await self._record_history(
-            user_id=user_id,
+            device_id=device_id,
             action_type="vocabulary_create",
             resource_id=vocab_id,
             outcome="success",
@@ -103,7 +103,7 @@ class VocabularyService:
     
     async def get_vocabulary(
         self,
-        user_id: str,
+        device_id: str,
         source_language: Optional[str] = None,
         target_language: Optional[str] = None,
         page: int = 0,
@@ -113,7 +113,7 @@ class VocabularyService:
         Retrieve vocabulary items with filtering and pagination
         
         Args:
-            user_id: User ID from JWT token
+            device_id: Device ID from X-Device-ID header
             source_language: Optional filter for source language
             target_language: Optional filter for target language
             page: Page number (0-indexed)
@@ -123,13 +123,13 @@ class VocabularyService:
             Dictionary with vocabulary items, pagination info, and total count
         """
         logger.info(
-            f"Retrieving vocabulary for user {user_id} "
+            f"Retrieving vocabulary for device {device_id} "
             f"(source: {source_language}, target: {target_language}, "
             f"page: {page}, size: {page_size})"
         )
         
         # Build query
-        query = {"user_id": user_id}
+        query = {"device_id": device_id}
         
         if source_language:
             query["source_language"] = source_language
@@ -167,34 +167,34 @@ class VocabularyService:
     async def update_vocabulary(
         self,
         vocab_id: str,
-        user_id: str,
+        device_id: str,
         update_data: VocabularyCreate
     ) -> Dict[str, str]:
         """
-        Update an existing vocabulary item with user ownership verification
+        Update an existing vocabulary item with device ownership verification
         
         Args:
             vocab_id: Vocabulary item ID
-            user_id: User ID from JWT token
+            device_id: Device ID from X-Device-ID header
             update_data: Updated vocabulary data
             
         Returns:
             Dictionary with success message
             
         Raises:
-            ValueError: If vocabulary item not found or user doesn't own it
+            ValueError: If vocabulary item not found or device doesn't own it
         """
-        logger.info(f"Updating vocabulary {vocab_id} for user {user_id}")
+        logger.info(f"Updating vocabulary {vocab_id} for device {device_id}")
         
-        # Verify ownership by checking if item exists for this user
+        # Verify ownership by checking if item exists for this device
         existing = await self.db.find_one(
             self.collection,
-            {"_id": ObjectId(vocab_id), "user_id": user_id}
+            {"_id": ObjectId(vocab_id), "device_id": device_id}
         )
         
         if not existing:
             logger.warning(
-                f"Vocabulary {vocab_id} not found or unauthorized for user {user_id}"
+                f"Vocabulary {vocab_id} not found or unauthorized for device {device_id}"
             )
             raise ValueError(
                 "Vocabulary item not found or you don't have permission to update it"
@@ -213,14 +213,14 @@ class VocabularyService:
         # Update in database
         success = await self.db.update_one(
             self.collection,
-            {"_id": ObjectId(vocab_id), "user_id": user_id},
+            {"_id": ObjectId(vocab_id), "device_id": device_id},
             update
         )
         
         if success:
             # Record in history
             await self._record_history(
-                user_id=user_id,
+                device_id=device_id,
                 action_type="vocabulary_update",
                 resource_id=vocab_id,
                 outcome="success",
@@ -239,32 +239,32 @@ class VocabularyService:
     async def delete_vocabulary(
         self,
         vocab_id: str,
-        user_id: str
+        device_id: str
     ) -> Dict[str, str]:
         """
-        Delete a vocabulary item with user ownership verification
+        Delete a vocabulary item with device ownership verification
         
         Args:
             vocab_id: Vocabulary item ID
-            user_id: User ID from JWT token
+            device_id: Device ID from X-Device-ID header
             
         Returns:
             Dictionary with success message
             
         Raises:
-            ValueError: If vocabulary item not found or user doesn't own it
+            ValueError: If vocabulary item not found or device doesn't own it
         """
-        logger.info(f"Deleting vocabulary {vocab_id} for user {user_id}")
+        logger.info(f"Deleting vocabulary {vocab_id} for device {device_id}")
         
         # Get item details before deletion for history
         existing = await self.db.find_one(
             self.collection,
-            {"_id": ObjectId(vocab_id), "user_id": user_id}
+            {"_id": ObjectId(vocab_id), "device_id": device_id}
         )
         
         if not existing:
             logger.warning(
-                f"Vocabulary {vocab_id} not found or unauthorized for user {user_id}"
+                f"Vocabulary {vocab_id} not found or unauthorized for device {device_id}"
             )
             raise ValueError(
                 "Vocabulary item not found or you don't have permission to delete it"
@@ -273,13 +273,13 @@ class VocabularyService:
         # Delete from database
         success = await self.db.delete_one(
             self.collection,
-            {"_id": ObjectId(vocab_id), "user_id": user_id}
+            {"_id": ObjectId(vocab_id), "device_id": device_id}
         )
         
         if success:
             # Record in history
             await self._record_history(
-                user_id=user_id,
+                device_id=device_id,
                 action_type="vocabulary_delete",
                 resource_id=vocab_id,
                 outcome="success",
@@ -297,7 +297,7 @@ class VocabularyService:
     
     async def _record_history(
         self,
-        user_id: str,
+        device_id: str,
         action_type: str,
         resource_id: str,
         outcome: str,
@@ -307,7 +307,7 @@ class VocabularyService:
         Record action in history collection
         
         Args:
-            user_id: User ID performing the action
+            device_id: Device ID performing the action
             action_type: Type of action (vocabulary_create, vocabulary_update, etc.)
             resource_id: ID of the affected resource
             outcome: Outcome of the action (success, failure)
@@ -315,7 +315,7 @@ class VocabularyService:
         """
         try:
             history_record = {
-                "user_id": user_id,
+                "device_id": device_id,
                 "action_type": action_type,
                 "resource_id": resource_id,
                 "resource_type": "vocabulary",
@@ -325,7 +325,7 @@ class VocabularyService:
             }
             
             await self.db.insert_one(self.history_collection, history_record)
-            logger.debug(f"History recorded: {action_type} for user {user_id}")
+            logger.debug(f"History recorded: {action_type} for device {device_id}")
             
         except Exception as e:
             # Don't fail the main operation if history recording fails

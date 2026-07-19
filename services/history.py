@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 
 
 class HistoryService:
-    """Service for tracking and retrieving user action history"""
+    """Service for tracking and retrieving device action history"""
     
     def __init__(self, db_manager: DatabaseManager):
         """
@@ -23,7 +23,7 @@ class HistoryService:
     
     async def record_action(
         self,
-        user_id: str,
+        device_id: str,
         action_type: str,
         resource_id: Optional[str] = None,
         resource_type: Optional[str] = None,
@@ -31,14 +31,14 @@ class HistoryService:
         details: Optional[Dict[str, Any]] = None
     ) -> str:
         """
-        Record a user action in the history collection
+        Record a device action in the history collection
         
         This method stores a history record with all relevant information about
-        an action performed by a user. All records include a timestamp set to
+        an action performed by a device. All records include a timestamp set to
         the current UTC time.
         
         Args:
-            user_id: User ID performing the action
+            device_id: Device ID performing the action
             action_type: Type of action (e.g., 'vocabulary_create', 'translation', 'pronunciation_evaluation')
             resource_id: Optional ID of the resource affected by the action
             resource_type: Optional type of resource (e.g., 'vocabulary', 'evaluation', 'session')
@@ -55,13 +55,13 @@ class HistoryService:
             - session_start, session_end
         """
         logger.debug(
-            f"Recording history: user={user_id}, action={action_type}, "
+            f"Recording history: device={device_id}, action={action_type}, "
             f"resource={resource_type}:{resource_id}, outcome={outcome}"
         )
         
         # Create history record
         history_record = {
-            "user_id": user_id,
+            "device_id": device_id,
             "action_type": action_type,
             "resource_id": resource_id,
             "resource_type": resource_type,
@@ -81,14 +81,14 @@ class HistoryService:
         except Exception as e:
             # Log error but don't fail - history recording should be non-blocking
             logger.error(
-                f"Failed to record history for user {user_id}: {str(e)}",
+                f"Failed to record history for device {device_id}: {str(e)}",
                 exc_info=True
             )
             raise
     
     async def get_history(
         self,
-        user_id: str,
+        device_id: str,
         action_type: Optional[str] = None,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
@@ -96,14 +96,14 @@ class HistoryService:
         page_size: int = 20
     ) -> Dict[str, Any]:
         """
-        Retrieve user action history with filtering and pagination
+        Retrieve device action history with filtering and pagination
         
-        This method retrieves history records for a specific user with optional
+        This method retrieves history records for a specific device with optional
         filters for action type and date range. Results are paginated and sorted
         by most recent first.
         
         Args:
-            user_id: User ID to retrieve history for
+            device_id: Device ID to retrieve history for
             action_type: Optional filter for specific action type
             start_date: Optional filter for actions after this date
             end_date: Optional filter for actions before this date
@@ -118,13 +118,13 @@ class HistoryService:
             - page_size: Number of records per page
         """
         logger.info(
-            f"Retrieving history for user {user_id} "
+            f"Retrieving history for device {device_id} "
             f"(action_type: {action_type}, start_date: {start_date}, "
             f"end_date: {end_date}, page: {page}, size: {page_size})"
         )
         
         # Build query
-        query = {"user_id": user_id}
+        query = {"device_id": device_id}
         
         # Add action_type filter
         if action_type:
@@ -156,7 +156,7 @@ class HistoryService:
                 record["_id"] = str(record["_id"])
         
         logger.info(
-            f"Retrieved {len(records)} history records for user {user_id} (total: {total})"
+            f"Retrieved {len(records)} history records for device {device_id} (total: {total})"
         )
         
         return {
@@ -168,18 +168,18 @@ class HistoryService:
     
     async def get_action_summary(
         self,
-        user_id: str,
+        device_id: str,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None
     ) -> Dict[str, Any]:
         """
-        Get a summary of user actions using aggregation
+        Get a summary of device actions using aggregation
         
-        Provides statistics on action types and outcomes for a user within
+        Provides statistics on action types and outcomes for a device within
         an optional date range.
         
         Args:
-            user_id: User ID to get summary for
+            device_id: Device ID to get summary for
             start_date: Optional filter for actions after this date
             end_date: Optional filter for actions before this date
             
@@ -190,12 +190,12 @@ class HistoryService:
             - actions_by_outcome: Count of each outcome (success/error)
         """
         logger.info(
-            f"Getting action summary for user {user_id} "
+            f"Getting action summary for device {device_id} "
             f"(start_date: {start_date}, end_date: {end_date})"
         )
         
         # Build match stage
-        match_stage = {"user_id": user_id}
+        match_stage = {"device_id": device_id}
         
         # Add date range filters
         if start_date or end_date:
@@ -241,14 +241,14 @@ class HistoryService:
                 actions_by_outcome[outcome] = actions_by_outcome.get(outcome, 0) + 1
             
             return {
-                "user_id": user_id,
+                "device_id": device_id,
                 "total_actions": result.get("total_actions", 0),
                 "actions_by_type": actions_by_type,
                 "actions_by_outcome": actions_by_outcome
             }
         else:
             return {
-                "user_id": user_id,
+                "device_id": device_id,
                 "total_actions": 0,
                 "actions_by_type": {},
                 "actions_by_outcome": {}

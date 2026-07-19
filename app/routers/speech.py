@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, s
 
 from models.schemas import SpeechProcessResponse, SpeechTranslateResponse, SUPPORTED_LANGUAGES
 from services.database import DatabaseManager
-from services.auth import get_current_user
+from utils.device_id import get_device_id
 from config import settings
 from utils.logging_config import get_logger
 
@@ -67,7 +67,7 @@ async def get_speech_processor() -> "SpeechProcessor":
 async def transcribe_audio(
     audio: UploadFile = File(..., description="Audio file to transcribe (WAV/MP3/M4A/FLAC/OGG, max 10MB, max 60s duration)"),
     language: str = Form(..., description="Language of the audio (bul, en, tl)"),
-    user_id: str = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     speech_processor: "SpeechProcessor" = Depends(get_speech_processor)
 ):
     """
@@ -99,7 +99,7 @@ async def transcribe_audio(
     # Validate language
     if language not in SUPPORTED_LANGUAGES:
         logger.warning(
-            f"Invalid language from user {user_id}: {language}"
+            f"Invalid language from device {device_id}: {language}"
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -113,7 +113,7 @@ async def transcribe_audio(
     
     if not any(audio.filename.lower().endswith(ext) for ext in allowed_extensions):
         logger.warning(
-            f"Invalid file format from user {user_id}: {audio.filename}"
+            f"Invalid file format from device {device_id}: {audio.filename}"
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -122,7 +122,7 @@ async def transcribe_audio(
     
     try:
         logger.info(
-            f"Transcription request from user {user_id}: "
+            f"Transcription request from device {device_id}: "
             f"file={audio.filename}, language={language}"
         )
         
@@ -139,7 +139,7 @@ async def transcribe_audio(
         processing_time = time.time() - start_time
         
         logger.info(
-            f"Transcription completed for user {user_id}: "
+            f"Transcription completed for device {device_id}: "
             f"text='{transcribed_text[:50]}...' "
             f"(confidence: {confidence:.4f}, time: {processing_time:.2f}s, detected: {detected_language})"
         )
@@ -153,7 +153,7 @@ async def transcribe_audio(
     except ValueError as e:
         # Validation errors from speech processor
         logger.warning(
-            f"Invalid audio from user {user_id}: {str(e)}"
+            f"Invalid audio from device {device_id}: {str(e)}"
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -164,7 +164,7 @@ async def transcribe_audio(
         # Processing timeout
         processing_time = time.time() - start_time
         logger.error(
-            f"Transcription timeout for user {user_id} after {processing_time:.2f}s"
+            f"Transcription timeout for device {device_id} after {processing_time:.2f}s"
         )
         raise HTTPException(
             status_code=status.HTTP_408_REQUEST_TIMEOUT,
@@ -174,7 +174,7 @@ async def transcribe_audio(
     except RuntimeError as e:
         # Speech processor not initialized or processing error
         logger.error(
-            f"Speech processing error for user {user_id}: {str(e)}",
+            f"Speech processing error for device {device_id}: {str(e)}",
             exc_info=True
         )
         raise HTTPException(
@@ -186,7 +186,7 @@ async def transcribe_audio(
         # General error
         processing_time = time.time() - start_time
         logger.error(
-            f"Transcription error for user {user_id} after {processing_time:.2f}s: {str(e)}",
+            f"Transcription error for device {device_id} after {processing_time:.2f}s: {str(e)}",
             exc_info=True
         )
         raise HTTPException(
@@ -205,7 +205,7 @@ async def transcribe_audio(
 async def transcribe_and_translate_audio(
     audio: UploadFile = File(..., description="Audio file to transcribe (WAV/MP3/M4A/FLAC/OGG, max 10MB, max 60s duration)"),
     target_language: str = Form(..., description="Target language for translation (bul, en, tl)"),
-    user_id: str = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     speech_processor: "SpeechProcessor" = Depends(get_speech_processor),
     db_manager: DatabaseManager = Depends(get_db_manager)
 ):
@@ -246,7 +246,7 @@ async def transcribe_and_translate_audio(
     # Validate target language
     if target_language not in SUPPORTED_LANGUAGES:
         logger.warning(
-            f"Invalid target language from user {user_id}: {target_language}"
+            f"Invalid target language from device {device_id}: {target_language}"
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -258,7 +258,7 @@ async def transcribe_and_translate_audio(
     
     if not any(audio.filename.lower().endswith(ext) for ext in allowed_extensions):
         logger.warning(
-            f"Invalid file format from user {user_id}: {audio.filename}"
+            f"Invalid file format from device {device_id}: {audio.filename}"
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -267,7 +267,7 @@ async def transcribe_and_translate_audio(
     
     try:
         logger.info(
-            f"Transcribe-and-translate request from user {user_id}: "
+            f"Transcribe-and-translate request from device {device_id}: "
             f"file={audio.filename}, target_language={target_language}"
         )
         
@@ -325,13 +325,13 @@ async def transcribe_and_translate_audio(
             text=transcribed_text,
             source_language=source_language,
             target_language=target_language,
-            user_id=user_id
+            user_id=device_id  # Pass device_id as user_id for backward compatibility
         )
         
         processing_time = time.time() - start_time
         
         logger.info(
-            f"Transcribe-and-translate completed for user {user_id}: "
+            f"Transcribe-and-translate completed for device {device_id}: "
             f"'{transcribed_text[:30]}...' ({detected_language}) → '{translation_result['translated_text'][:30]}...' ({target_language}) "
             f"(time: {processing_time:.2f}s)"
         )
@@ -349,7 +349,7 @@ async def transcribe_and_translate_audio(
     except ValueError as e:
         # Validation errors from speech processor
         logger.warning(
-            f"Invalid audio from user {user_id}: {str(e)}"
+            f"Invalid audio from device {device_id}: {str(e)}"
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -360,7 +360,7 @@ async def transcribe_and_translate_audio(
         # Processing timeout
         processing_time = time.time() - start_time
         logger.error(
-            f"Transcribe-and-translate timeout for user {user_id} after {processing_time:.2f}s"
+            f"Transcribe-and-translate timeout for device {device_id} after {processing_time:.2f}s"
         )
         raise HTTPException(
             status_code=status.HTTP_408_REQUEST_TIMEOUT,
@@ -375,7 +375,7 @@ async def transcribe_and_translate_audio(
         # General error
         processing_time = time.time() - start_time
         logger.error(
-            f"Transcribe-and-translate error for user {user_id} after {processing_time:.2f}s: {str(e)}",
+            f"Transcribe-and-translate error for device {device_id} after {processing_time:.2f}s: {str(e)}",
             exc_info=True
         )
         raise HTTPException(

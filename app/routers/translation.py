@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from models.schemas import TranslationRequest, TranslationResponse
 from services.database import DatabaseManager
-from services.auth import get_current_user
+from utils.device_id import get_device_id
 from config import settings
 from utils.logging_config import get_logger
 
@@ -60,7 +60,7 @@ async def get_translation_service(
 )
 async def translate_text(
     request: TranslationRequest,
-    user_id: str = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     translation_service: "TranslationService" = Depends(get_translation_service)
 ):
     """
@@ -84,16 +84,16 @@ async def translate_text(
     """
     try:
         logger.info(
-            f"Translation request from user {user_id}: "
+            f"Translation request from device {device_id}: "
             f"{request.source_language}->{request.target_language}"
         )
         
-        # Call translation service with user_id for history tracking
+        # Call translation service with device_id for history tracking
         result = await translation_service.translate(
             text=request.text,
             source_language=request.source_language,
             target_language=request.target_language,
-            user_id=user_id
+            user_id=device_id  # Pass device_id as user_id for backward compatibility
         )
         
         return TranslationResponse(**result)
@@ -101,7 +101,7 @@ async def translate_text(
     except ValueError as e:
         # Unsupported language pair
         logger.warning(
-            f"Invalid translation request from user {user_id}: {str(e)}"
+            f"Invalid translation request from device {device_id}: {str(e)}"
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -111,7 +111,7 @@ async def translate_text(
     except asyncio.TimeoutError:
         # Translation timeout
         logger.error(
-            f"Translation timeout for user {user_id}: "
+            f"Translation timeout for device {device_id}: "
             f"{request.source_language}->{request.target_language}"
         )
         raise HTTPException(
@@ -122,7 +122,7 @@ async def translate_text(
     except Exception as e:
         # General error
         logger.error(
-            f"Translation error for user {user_id}: {str(e)}",
+            f"Translation error for device {device_id}: {str(e)}",
             exc_info=True
         )
         raise HTTPException(

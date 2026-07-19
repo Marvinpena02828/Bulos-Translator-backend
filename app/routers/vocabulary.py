@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from models.schemas import VocabularyCreate
 from services.vocabulary import VocabularyService
 from services.database import DatabaseManager
-from services.auth import get_current_user
+from utils.device_id import get_device_id
 from config import settings
 from utils.logging_config import get_logger
 
@@ -40,15 +40,17 @@ def get_vocabulary_service(
     "/",
     status_code=status.HTTP_201_CREATED,
     summary="Create vocabulary item",
-    description="Create a new vocabulary item for the authenticated user"
+    description="Create a new vocabulary item for the device"
 )
 async def create_vocabulary(
     vocab: VocabularyCreate,
-    user_id: str = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     vocab_service: VocabularyService = Depends(get_vocabulary_service)
 ):
     """
     Create a new vocabulary item
+    
+    Requires X-Device-ID header
     
     - **word**: The word to store
     - **translation**: Translation of the word
@@ -59,12 +61,12 @@ async def create_vocabulary(
     Returns the created vocabulary ID
     """
     try:
-        result = await vocab_service.create_vocabulary(user_id, vocab)
+        result = await vocab_service.create_vocabulary(device_id, vocab)
         return result
     
     except ValueError as e:
         # Duplicate vocabulary item
-        logger.warning(f"Duplicate vocabulary for user {user_id}: {str(e)}")
+        logger.warning(f"Duplicate vocabulary for device {device_id}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
@@ -103,11 +105,13 @@ async def get_vocabulary(
         le=100,
         description="Number of items per page (max 100)"
     ),
-    user_id: str = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     vocab_service: VocabularyService = Depends(get_vocabulary_service)
 ):
     """
-    Get vocabulary items for the authenticated user
+    Get vocabulary items for the device
+    
+    Requires X-Device-ID header
     
     Supports filtering by language pair and pagination
     
@@ -120,7 +124,7 @@ async def get_vocabulary(
     """
     try:
         result = await vocab_service.get_vocabulary(
-            user_id=user_id,
+            device_id=device_id,
             source_language=source_language,
             target_language=target_language,
             page=page,
@@ -144,13 +148,15 @@ async def get_vocabulary(
 async def update_vocabulary(
     vocab_id: str,
     vocab: VocabularyCreate,
-    user_id: str = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     vocab_service: VocabularyService = Depends(get_vocabulary_service)
 ):
     """
     Update an existing vocabulary item
     
-    Only the owner can update their vocabulary items
+    Requires X-Device-ID header
+    
+    Only the device owner can update their vocabulary items
     
     - **vocab_id**: ID of the vocabulary item to update
     - **word**: Updated word
@@ -162,7 +168,7 @@ async def update_vocabulary(
     try:
         result = await vocab_service.update_vocabulary(
             vocab_id=vocab_id,
-            user_id=user_id,
+            device_id=device_id,
             update_data=vocab
         )
         return result
@@ -170,7 +176,7 @@ async def update_vocabulary(
     except ValueError as e:
         # Not found or unauthorized
         logger.warning(
-            f"Update failed for vocab {vocab_id}, user {user_id}: {str(e)}"
+            f"Update failed for vocab {vocab_id}, device {device_id}: {str(e)}"
         )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -192,27 +198,29 @@ async def update_vocabulary(
 )
 async def delete_vocabulary(
     vocab_id: str,
-    user_id: str = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     vocab_service: VocabularyService = Depends(get_vocabulary_service)
 ):
     """
     Delete a vocabulary item
     
-    Only the owner can delete their vocabulary items
+    Requires X-Device-ID header
+    
+    Only the device owner can delete their vocabulary items
     
     - **vocab_id**: ID of the vocabulary item to delete
     """
     try:
         result = await vocab_service.delete_vocabulary(
             vocab_id=vocab_id,
-            user_id=user_id
+            device_id=device_id
         )
         return result
     
     except ValueError as e:
         # Not found or unauthorized
         logger.warning(
-            f"Delete failed for vocab {vocab_id}, user {user_id}: {str(e)}"
+            f"Delete failed for vocab {vocab_id}, device {device_id}: {str(e)}"
         )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
