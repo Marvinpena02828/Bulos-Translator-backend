@@ -22,10 +22,11 @@ class Settings(BaseSettings):
     mongodb_max_pool_size: int = Field(default=50, description="MongoDB connection pool max size")
     mongodb_min_pool_size: int = Field(default=10, description="MongoDB connection pool min size")
     
-    # Authentication Settings
-    secret_key: str = Field(..., description="JWT secret key")
-    algorithm: str = Field(default="HS256", description="JWT algorithm")
-    access_token_expire_minutes: int = Field(default=30, description="Access token expiration time in minutes")
+    # Admin API Key (for dictionary management)
+    admin_api_key: str = Field(
+        default="change-this-to-secure-random-uuid",
+        description="Admin API key for dictionary import operations"
+    )
     
     # Whisper Settings
     whisper_model: str = Field(default="base", description="Whisper model size (tiny, base, small, medium, large)")
@@ -80,7 +81,7 @@ except Exception:
     # If .env file doesn't exist, create with minimal defaults
     import os
     os.environ.setdefault('MONGODB_URL', 'mongodb://localhost:27017')
-    os.environ.setdefault('SECRET_KEY', 'change-this-secret-key-in-production')
+    os.environ.setdefault('ADMIN_API_KEY', 'change-this-to-secure-random-uuid')
     os.environ.setdefault('WHISPER_MODEL', 'base')
     os.environ.setdefault('WHISPER_DEVICE', 'cpu')
     settings = Settings()
