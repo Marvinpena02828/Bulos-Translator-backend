@@ -1,6 +1,6 @@
 """Dictionary API endpoints for vocabulary lookup and search"""
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Header, status
 
 from models.schemas import (
     DictionaryEntry,
@@ -11,7 +11,7 @@ from models.schemas import (
 )
 from services.dictionary import DictionaryService
 from services.database import DatabaseManager
-from services.auth import get_current_user
+from config import settings
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -41,6 +41,32 @@ def get_dictionary_service(
     return DictionaryService(db_manager)
 
 
+def verify_admin_key(x_admin_key: Optional[str] = Header(None, alias="X-Admin-Key")):
+    """
+    Verify admin API key from request header
+    
+    Args:
+        x_admin_key: Admin API key from X-Admin-Key header
+        
+    Raises:
+        HTTPException: If admin key is missing or invalid
+    """
+    if not x_admin_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Admin API key required"
+        )
+    
+    if x_admin_key != settings.admin_api_key:
+        logger.warning("Invalid admin API key attempt")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid admin API key"
+        )
+    
+    return x_admin_key
+
+
 @router.post(
     "/import",
     response_model=ImportResult,
@@ -50,13 +76,14 @@ def get_dictionary_service(
 )
 async def import_dictionary(
     force_reimport: bool = False,
-    user_id: str = Depends(get_current_user),
+    admin_key: str = Depends(verify_admin_key),
     dict_service: DictionaryService = Depends(get_dictionary_service)
 ):
     """
     Import dictionary from JSON file (Admin only)
     
     This endpoint triggers the import of dictionary.json into MongoDB.
+    Requires admin API key in X-Admin-Key header.
     
     - **force_reimport**: If True, drops existing collection and reimports all data
     
@@ -68,9 +95,7 @@ async def import_dictionary(
     - **duration**: Import duration in seconds
     """
     try:
-        # Note: In production, add admin role check here
-        # For now, any authenticated user can import
-        logger.info(f"Dictionary import requested by user {user_id}")
+        logger.info("Dictionary import requested by admin")
         
         dictionary_path = "dictionary.json"
         result = await dict_service.import_from_json(
@@ -79,9 +104,13 @@ async def import_dictionary(
             dry_run=False
         )
         
+        # Update version metadata after successful import
+        await dict_service.update_version_metadata(
+            changelog=f"Dictionary import: {result['inserted']} entries added"
+        )
+        
         logger.info(
-            f"Dictionary import completed: {result['inserted']} entries "
-            f"by user {user_id}"
+            f"Dictionary import completed: {result['inserted']} entries"
         )
         
         return result
@@ -283,4 +312,33 @@ async def get_category_entries(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get category entries: {str(e)}"
+        )
+
+
+@router.get(
+    "/version",
+    summary="Get dictionary version",
+    description="Get dictionary version and metadata"
+)
+async def get_dictionary_version(
+    dict_service: DictionaryService = Depends(get_dictionary_service)
+):
+    """
+    Get dictionary version metadata
+    
+    Returns dictionary version information for client-side update detection:
+    - **version**: Current dictionary version (e.g., "1.2")
+    - **last_updated**: Timestamp of last update
+    - **total_entries**: Total number of dictionary entries
+    - **changelog**: Description of latest changes
+    """
+    try:
+        metadata = await dict_service.get_version_metadata()
+        return metadata
+        
+    except Exception as e:
+        logger.error(f"Failed to get version metadata: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get version metadata: {str(e)}"
         )

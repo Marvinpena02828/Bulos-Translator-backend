@@ -11,7 +11,7 @@ from models.schemas import (
     EvaluationResultsResponse
 )
 from services.database import get_db_manager, DatabaseManager
-from services.auth import get_current_user
+from utils.device_id import get_device_id
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -69,7 +69,7 @@ def calculate_mean_scores(evaluations: list) -> Dict[str, float]:
     counts = defaultdict(int)
     
     # Fields to exclude from mean calculation
-    exclude_fields = {'_id', 'user_id', 'evaluation_type', 'timestamp', 'comments'}
+    exclude_fields = {'_id', 'device_id', 'evaluation_type', 'timestamp', 'comments'}
     
     for evaluation in evaluations:
         for key, value in evaluation.items():
@@ -105,7 +105,7 @@ def calculate_mean_scores(evaluations: list) -> Dict[str, float]:
 )
 async def submit_iso25010_evaluation(
     evaluation: ISO25010Evaluation,
-    current_user: dict = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     db_manager: DatabaseManager = Depends(get_db_manager)
 ):
     """
@@ -122,11 +122,9 @@ async def submit_iso25010_evaluation(
     Each rated on 5-point Likert scale (1=Strongly Disagree, 5=Strongly Agree).
     """
     try:
-        user_id = current_user["_id"]
-        
         # Prepare evaluation document
         evaluation_doc = {
-            "user_id": user_id,
+            "device_id": device_id,
             "evaluation_type": "iso25010",
             "timestamp": datetime.utcnow(),
             "functional_suitability": evaluation.functional_suitability,
@@ -139,8 +137,8 @@ async def submit_iso25010_evaluation(
         }
         
         # Use update_one with upsert=True to allow re-submission
-        # This replaces the user's previous ISO25010 evaluation if it exists
-        filter_query = {"user_id": user_id, "evaluation_type": "iso25010"}
+        # This replaces the device's previous ISO25010 evaluation if it exists
+        filter_query = {"device_id": device_id, "evaluation_type": "iso25010"}
         
         result = await db_manager.db.evaluations.update_one(
             filter_query,
@@ -151,16 +149,16 @@ async def submit_iso25010_evaluation(
         # Get the evaluation ID
         if result.upserted_id:
             evaluation_id = str(result.upserted_id)
-            logger.info(f"New ISO25010 evaluation created for user {user_id}")
+            logger.info(f"New ISO25010 evaluation created for device {device_id}")
         else:
             # Find the existing document to get its ID
             existing = await db_manager.find_one("evaluations", filter_query)
             evaluation_id = str(existing["_id"]) if existing else "unknown"
-            logger.info(f"ISO25010 evaluation updated for user {user_id}")
+            logger.info(f"ISO25010 evaluation updated for device {device_id}")
         
         # Log to history
         await db_manager.insert_one("history", {
-            "user_id": user_id,
+            "device_id": device_id,
             "action_type": "evaluation_submission",
             "resource_type": "evaluation",
             "resource_id": evaluation_id,
@@ -206,7 +204,7 @@ async def submit_iso25010_evaluation(
 )
 async def submit_tam_evaluation(
     evaluation: TAMEvaluation,
-    current_user: dict = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     db_manager: DatabaseManager = Depends(get_db_manager)
 ):
     """
@@ -220,11 +218,9 @@ async def submit_tam_evaluation(
     Each rated on 5-point Likert scale (1=Strongly Disagree, 5=Strongly Agree).
     """
     try:
-        user_id = current_user["_id"]
-        
         # Prepare evaluation document
         evaluation_doc = {
-            "user_id": user_id,
+            "device_id": device_id,
             "evaluation_type": "tam",
             "timestamp": datetime.utcnow(),
             "perceived_usefulness": evaluation.perceived_usefulness,
@@ -234,8 +230,8 @@ async def submit_tam_evaluation(
         }
         
         # Use update_one with upsert=True to allow re-submission
-        # This replaces the user's previous TAM evaluation if it exists
-        filter_query = {"user_id": user_id, "evaluation_type": "tam"}
+        # This replaces the device's previous TAM evaluation if it exists
+        filter_query = {"device_id": device_id, "evaluation_type": "tam"}
         
         result = await db_manager.db.evaluations.update_one(
             filter_query,
@@ -246,16 +242,16 @@ async def submit_tam_evaluation(
         # Get the evaluation ID
         if result.upserted_id:
             evaluation_id = str(result.upserted_id)
-            logger.info(f"New TAM evaluation created for user {user_id}")
+            logger.info(f"New TAM evaluation created for device {device_id}")
         else:
             # Find the existing document to get its ID
             existing = await db_manager.find_one("evaluations", filter_query)
             evaluation_id = str(existing["_id"]) if existing else "unknown"
-            logger.info(f"TAM evaluation updated for user {user_id}")
+            logger.info(f"TAM evaluation updated for device {device_id}")
         
         # Log to history
         await db_manager.insert_one("history", {
-            "user_id": user_id,
+            "device_id": device_id,
             "action_type": "evaluation_submission",
             "resource_type": "evaluation",
             "resource_id": evaluation_id,
@@ -296,7 +292,7 @@ async def submit_tam_evaluation(
     )
 )
 async def get_evaluation_results(
-    current_user: dict = Depends(get_current_user),
+    device_id: str = Depends(get_device_id),
     db_manager: DatabaseManager = Depends(get_db_manager)
 ):
     """

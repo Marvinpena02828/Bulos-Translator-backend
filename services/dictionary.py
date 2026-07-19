@@ -23,6 +23,7 @@ class DictionaryService:
         """
         self.db = db_manager
         self.collection_name = "dictionary"
+        self.metadata_collection = "dictionary_metadata"
         
         logger.info("DictionaryService initialized")
     
@@ -572,4 +573,92 @@ class DictionaryService:
             
         except Exception as e:
             logger.error(f"Failed to count entries: {str(e)}", exc_info=True)
+            raise
+    
+    async def get_version_metadata(self) -> Dict[str, Any]:
+        """
+        Get dictionary version metadata
+        
+        Returns:
+            Dictionary with version, last_updated, total_entries, changelog
+        """
+        try:
+            metadata = await self.db.find_one(
+                self.metadata_collection,
+                {"_id": "version"}
+            )
+            
+            if not metadata:
+                # Initialize default metadata if not exists
+                total_entries = await self.count_entries()
+                metadata = {
+                    "_id": "version",
+                    "version": "1.0",
+                    "last_updated": datetime.utcnow(),
+                    "total_entries": total_entries,
+                    "changelog": "Initial version"
+                }
+                await self.db.insert_one(self.metadata_collection, metadata)
+                logger.info("Initialized dictionary version metadata")
+            
+            # Always get current count
+            metadata["total_entries"] = await self.count_entries()
+            
+            return {
+                "version": metadata.get("version", "1.0"),
+                "last_updated": metadata.get("last_updated"),
+                "total_entries": metadata.get("total_entries", 0),
+                "changelog": metadata.get("changelog", "")
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get version metadata: {str(e)}", exc_info=True)
+            raise
+    
+    async def update_version_metadata(
+        self,
+        changelog: str = None
+    ) -> None:
+        """
+        Update dictionary version metadata after import/update
+        
+        Increments version number and updates timestamp
+        
+        Args:
+            changelog: Optional description of changes
+        """
+        try:
+            current_metadata = await self.get_version_metadata()
+            current_version = current_metadata.get("version", "1.0")
+            
+            # Increment version (e.g., 1.0 -> 1.1 -> 1.2)
+            version_parts = current_version.split(".")
+            if len(version_parts) == 2:
+                major, minor = version_parts
+                new_version = f"{major}.{int(minor) + 1}"
+            else:
+                # Fallback if version format is unexpected
+                new_version = "1.1"
+            
+            total_entries = await self.count_entries()
+            
+            updated_metadata = {
+                "_id": "version",
+                "version": new_version,
+                "last_updated": datetime.utcnow(),
+                "total_entries": total_entries,
+                "changelog": changelog or f"Updated to version {new_version}"
+            }
+            
+            # Upsert metadata (update if exists, insert if not)
+            await self.db.db[self.metadata_collection].replace_one(
+                {"_id": "version"},
+                updated_metadata,
+                upsert=True
+            )
+            
+            logger.info(f"Dictionary version updated: {current_version} -> {new_version}")
+            
+        except Exception as e:
+            logger.error(f"Failed to update version metadata: {str(e)}", exc_info=True)
             raise
