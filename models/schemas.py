@@ -27,89 +27,6 @@ class PyObjectId(ObjectId):
 SUPPORTED_LANGUAGES = ['bul', 'en', 'tl']  # Bulos, English, Tagalog
 
 
-
-# Authentication Models
-
-class UserRegister(BaseModel):
-    """Schema for user registration."""
-    
-    username: str = Field(..., min_length=3, max_length=50, description="Username for the account")
-    email: str = Field(..., min_length=5, max_length=100, description="Email address")
-    password: str = Field(..., min_length=6, max_length=100, description="Password (min 6 characters)")
-    full_name: Optional[str] = Field(None, max_length=100, description="User's full name")
-    
-    class Config:
-        schema_extra = {
-            "example": {
-                "username": "johndoe",
-                "email": "john@example.com",
-                "password": "securepass123",
-                "full_name": "John Doe"
-            }
-        }
-
-
-class UserLogin(BaseModel):
-    """Schema for user login."""
-    
-    username: str = Field(..., min_length=3, max_length=50, description="Username or email")
-    password: str = Field(..., min_length=6, max_length=100, description="Password")
-    
-    class Config:
-        schema_extra = {
-            "example": {
-                "username": "johndoe",
-                "password": "securepass123"
-            }
-        }
-
-
-class TokenResponse(BaseModel):
-    """Schema for authentication token response."""
-    
-    access_token: str = Field(..., description="JWT access token")
-    token_type: str = Field(default="bearer", description="Token type (always 'bearer')")
-    user_id: str = Field(..., description="ID of the authenticated user")
-    username: str = Field(..., description="Username of the authenticated user")
-    expires_in: int = Field(..., description="Token expiration time in seconds")
-    
-    class Config:
-        schema_extra = {
-            "example": {
-                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                "token_type": "bearer",
-                "user_id": "507f1f77bcf86cd799439011",
-                "username": "johndoe",
-                "expires_in": 1800
-            }
-        }
-
-
-class UserResponse(BaseModel):
-    """Schema for user information response."""
-    
-    id: str = Field(..., alias="_id", description="User ID")
-    username: str = Field(..., description="Username")
-    email: str = Field(..., description="Email address")
-    full_name: Optional[str] = Field(None, description="User's full name")
-    created_at: datetime = Field(..., description="Account creation timestamp")
-    is_active: bool = Field(default=True, description="Whether the account is active")
-    
-    class Config:
-        populate_by_name = True
-        schema_extra = {
-            "example": {
-                "_id": "507f1f77bcf86cd799439011",
-                "username": "johndoe",
-                "email": "john@example.com",
-                "full_name": "John Doe",
-                "created_at": "2024-01-15T10:30:00Z",
-                "is_active": True
-            }
-        }
-
-
-
 # Vocabulary Models
 
 class VocabularyCreate(BaseModel):
@@ -144,7 +61,7 @@ class VocabularyResponse(BaseModel):
     """Schema for vocabulary item response."""
     
     id: str = Field(..., alias="_id", description="Vocabulary item ID")
-    user_id: str = Field(..., description="ID of user who owns this vocabulary")
+    device_id: str = Field(..., description="Device ID that owns this vocabulary")
     word: str = Field(..., description="Word or phrase in source language")
     translation: str = Field(..., description="Translation in target language")
     source_language: str = Field(..., description="Source language code")
@@ -158,7 +75,7 @@ class VocabularyResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "_id": "507f1f77bcf86cd799439011",
-                "user_id": "user123",
+                "device_id": "550e8400-e29b-41d4-a716-446655440000",
                 "word": "kumusta",
                 "translation": "hello",
                 "source_language": "tl",
@@ -289,7 +206,7 @@ class HistoryRecord(BaseModel):
     """Schema for a single history record."""
     
     id: str = Field(..., alias="_id", description="History record ID")
-    user_id: str = Field(..., description="ID of user who performed the action")
+    device_id: str = Field(..., description="Device ID that performed the action")
     action_type: str = Field(..., description="Type of action (e.g., 'vocabulary_create', 'translation')")
     resource_id: Optional[str] = Field(None, description="ID of the resource affected by the action")
     resource_type: Optional[str] = Field(None, description="Type of resource (e.g., 'vocabulary', 'translation')")
@@ -302,7 +219,7 @@ class HistoryRecord(BaseModel):
         json_schema_extra = {
             "example": {
                 "_id": "507f1f77bcf86cd799439014",
-                "user_id": "user123",
+                "device_id": "550e8400-e29b-41d4-a716-446655440000",
                 "action_type": "vocabulary_create",
                 "resource_id": "507f1f77bcf86cd799439011",
                 "resource_type": "vocabulary",
@@ -330,7 +247,7 @@ class HistoryResponse(BaseModel):
                 "records": [
                     {
                         "_id": "507f1f77bcf86cd799439014",
-                        "user_id": "user123",
+                        "device_id": "550e8400-e29b-41d4-a716-446655440000",
                         "action_type": "vocabulary_create",
                         "resource_id": "507f1f77bcf86cd799439011",
                         "resource_type": "vocabulary",
