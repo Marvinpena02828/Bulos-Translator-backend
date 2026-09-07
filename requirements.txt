@@ -28,6 +28,7 @@ keras==2.15.0
 
 # Translation Services
 googletrans==4.0.0rc1
+langdetect==1.0.9
 
 # Audio Processing
 pydub==0.25.1
