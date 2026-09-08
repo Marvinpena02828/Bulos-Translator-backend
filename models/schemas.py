@@ -46,7 +46,7 @@ class VocabularyCreate(BaseModel):
         return v
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "word": "kumusta",
                 "translation": "hello",
@@ -104,7 +104,7 @@ class TranslationRequest(BaseModel):
         return v
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "text": "Hello, how are you?",
                 "source_language": "en",
@@ -122,16 +122,18 @@ class TranslationResponse(BaseModel):
     target_language: str = Field(..., description="Target language code")
     confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Translation confidence score (0-1)")
     intermediate_language: Optional[str] = Field(None, description="Intermediate language used (e.g., 'tl' when en→tl→bul only reached tl)")
+    translation_method: Optional[str] = Field(None, description="Method used for translation (e.g., 'dictionary', 'google', 'two-step')")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "original_text": "Hello, how are you?",
                 "translated_text": "Kamusta ka?",
                 "source_language": "en",
                 "target_language": "tl",
                 "confidence": 0.95,
-                "intermediate_language": None
+                "intermediate_language": None,
+                "translation_method": "google"
             }
         }
 
@@ -151,7 +153,7 @@ class SpeechProcessRequest(BaseModel):
         return v
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "language": "en"
             }
@@ -166,7 +168,7 @@ class SpeechProcessResponse(BaseModel):
     processing_time: float = Field(..., ge=0, description="Processing time in seconds")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "transcribed_text": "Hello, how are you?",
                 "confidence": 0.92,
@@ -187,7 +189,7 @@ class SpeechTranslateResponse(BaseModel):
     processing_time: float = Field(..., ge=0, description="Total processing time in seconds")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "transcribed_text": "Hello, how are you?",
                 "translated_text": "Kamusta ka?",
@@ -242,7 +244,7 @@ class HistoryResponse(BaseModel):
     page_size: int = Field(..., ge=1, description="Number of records per page")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "records": [
                     {
@@ -271,7 +273,7 @@ class MessageResponse(BaseModel):
     message: str = Field(..., description="Response message")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "message": "Operation completed successfully"
             }
@@ -286,7 +288,7 @@ class ErrorResponse(BaseModel):
     status_code: int = Field(..., description="HTTP status code")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "error": "Validation Error",
                 "message": "Invalid language code provided",
@@ -372,6 +374,60 @@ class ImportResult(BaseModel):
         }
 
 
+class AlphabetExample(BaseModel):
+    """Schema for a position-based alphabet example."""
+
+    bulos: str = Field(..., description="Bulos example word")
+    english: str = Field(..., description="English translation")
+    filipino: str = Field(..., description="Filipino translation")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "bulos": "atis",
+                "english": "sugar apple",
+                "filipino": "atis"
+            }
+        }
+
+
+class AlphabetEntry(BaseModel):
+    """Schema for a single alphabet entry with position-based examples."""
+
+    id: Optional[str] = Field(None, alias="_id", description="Alphabet entry ID")
+    letter: str = Field(..., description="The alphabet letter (e.g., 'Aa', 'Bb', 'Ng ng')")
+    position: int = Field(..., ge=1, description="Position of the letter in the alphabet")
+    initial_examples: List[AlphabetExample] = Field(
+        default_factory=list, description="Examples where the letter appears initially"
+    )
+    middle_examples: List[AlphabetExample] = Field(
+        default_factory=list, description="Examples where the letter appears in the middle"
+    )
+    final_examples: List[AlphabetExample] = Field(
+        default_factory=list, description="Examples where the letter appears finally"
+    )
+    created_at: Optional[datetime] = Field(None, description="Entry creation timestamp")
+    updated_at: Optional[datetime] = Field(None, description="Entry last update timestamp")
+
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+        json_schema_extra = {
+            "example": {
+                "_id": "507f1f77bcf86cd799439011",
+                "letter": "Aa",
+                "position": 1,
+                "initial_examples": [
+                    {"bulos": "atis", "english": "sugar apple", "filipino": "atis"}
+                ],
+                "middle_examples": [],
+                "final_examples": [],
+                "created_at": "2024-01-15T10:30:00Z",
+                "updated_at": "2024-01-15T10:30:00Z"
+            }
+        }
+
+
 class DictionaryLookupRequest(BaseModel):
     """Schema for dictionary lookup request."""
     
@@ -391,7 +447,7 @@ class DictionaryLookupRequest(BaseModel):
         return v
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "word": "ulù",
                 "source_language": "bul"
@@ -418,7 +474,7 @@ class DictionarySearchRequest(BaseModel):
         return v
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "query": "head",
                 "language": "all",
@@ -463,7 +519,7 @@ class ISO25010Evaluation(BaseModel):
     )
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "functional_suitability": 5,
                 "usability": 4,
@@ -497,7 +553,7 @@ class TAMEvaluation(BaseModel):
     )
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "perceived_usefulness": 5,
                 "perceived_ease_of_use": 4,
@@ -515,7 +571,7 @@ class EvaluationResponse(BaseModel):
     timestamp: datetime = Field(..., description="Submission timestamp")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "evaluation_id": "507f1f77bcf86cd799439011",
                 "message": "ISO/IEC 25010 evaluation submitted successfully",
@@ -534,7 +590,7 @@ class EvaluationResultsResponse(BaseModel):
     tam_interpretation: str = Field(..., description="Interpretation of TAM overall mean")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "total_evaluations": 25,
                 "iso25010_results": {

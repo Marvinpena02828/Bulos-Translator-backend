@@ -94,7 +94,7 @@ async def import_alphabet(
     try:
         logger.info("Alphabet import requested by admin")
         
-        alphabet_path = "dictionary/alphabet.json"
+        alphabet_path = "alphabet.json"
         result = await alphabet_service.import_from_json(
             alphabet_path,
             force_reimport=force_reimport,

@@ -133,8 +133,9 @@ async def transcribe_audio(
         
         # Transcribe audio using speech processor
         # The processor handles all validation (format, size, duration)
-        # Pass language hint to Whisper for better accuracy
-        transcribed_text, confidence, detected_language = await speech_processor.transcribe(audio_data, language)
+        # dictionary_data and sentence_data are optional; omitting them means
+        # the Bulos classifier falls back to its default empty-dict behaviour.
+        transcribed_text, confidence, detected_language = await speech_processor.transcribe(audio_data)
         
         processing_time = time.time() - start_time
         
@@ -277,7 +278,7 @@ async def transcribe_and_translate_audio(
         logger.debug(f"Read audio file: {len(audio_data)} bytes")
         
         # Step 1: Transcribe audio (auto-detect source language)
-        transcribed_text, transcription_confidence, detected_language = await speech_processor.transcribe(audio_data, language=None)
+        transcribed_text, transcription_confidence, detected_language = await speech_processor.transcribe(audio_data)
         
         logger.info(
             f"Transcription complete: text='{transcribed_text[:50]}...' "

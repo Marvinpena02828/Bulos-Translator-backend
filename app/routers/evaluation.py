@@ -10,7 +10,7 @@ from models.schemas import (
     EvaluationResponse,
     EvaluationResultsResponse
 )
-from services.database import get_db_manager, DatabaseManager
+from services.database import DatabaseManager
 from utils.device_id import get_device_id
 from utils.logging_config import get_logger
 
@@ -24,6 +24,17 @@ router = APIRouter(
         500: {"description": "Internal server error"}
     }
 )
+
+
+def get_db_manager() -> DatabaseManager:
+    """Get the global database manager instance from main app"""
+    from app import main
+    if main._db_manager is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database connection not available"
+        )
+    return main._db_manager
 
 
 def interpret_score(mean_score: float) -> str:

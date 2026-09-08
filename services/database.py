@@ -121,30 +121,30 @@ class DatabaseManager:
         Create indexes for all collections to optimize query performance.
         
         Indexes created:
-        - vocabulary: user_id+word (unique), user_id+languages
-        - history: user_id+timestamp, action_type
+        - vocabulary: device_id+word (unique), device_id+languages
+        - history: device_id+timestamp, action_type
         - users: username (unique), email (unique)
         """
         try:
             # Vocabulary collection indexes
-            # Compound unique index to prevent duplicate words per user
+            # Compound unique index to prevent duplicate words per device
             await self.db.vocabulary.create_index(
-                [("user_id", 1), ("word", 1)],
+                [("device_id", 1), ("word", 1)],
                 unique=True,
-                name="user_word_unique"
+                name="device_word_unique"
             )
             
             # Compound index for language pair filtering
             await self.db.vocabulary.create_index(
-                [("user_id", 1), ("source_language", 1), ("target_language", 1)],
-                name="user_languages"
+                [("device_id", 1), ("source_language", 1), ("target_language", 1)],
+                name="device_languages"
             )
             
             # History collection indexes
-            # Compound index for user history retrieval sorted by timestamp
+            # Compound index for device history retrieval sorted by timestamp
             await self.db.history.create_index(
-                [("user_id", 1), ("timestamp", -1)],
-                name="user_history"
+                [("device_id", 1), ("timestamp", -1)],
+                name="device_history"
             )
             
             # Index for filtering by action type
@@ -169,10 +169,10 @@ class DatabaseManager:
             )
             
             # Evaluation collection indexes
-            # Compound index for user evaluation retrieval by type
+            # Compound index for device evaluation retrieval by type
             await self.db.evaluations.create_index(
-                [("user_id", 1), ("evaluation_type", 1)],
-                name="user_evaluation_type"
+                [("device_id", 1), ("evaluation_type", 1)],
+                name="device_evaluation_type"
             )
             
             # Index for timestamp-based queries (recent evaluations)

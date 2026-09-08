@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from services.database import DatabaseManager
 from models.schemas import TranslationRequest, TranslationResponse
 from config import settings
@@ -43,7 +43,8 @@ class TranslationService:
         self.phrase_index: Dict[str, List[Tuple[str, str, int]]] = {}  # phrase -> [(translation, lang_pair, word_count)]
         
         # Google Translator instance (for EN ↔ TL and fallback translations)
-        self.google_translator = Translator()
+        # deep-translator.GoogleTranslator is synchronous; we call it in an executor
+        self.google_translator = None  # Created per-call (stateless, no init cost)
         
         # Translation timeout from config
         self.timeout = settings.translation_timeout_seconds
@@ -221,31 +222,36 @@ class TranslationService:
     
     def _normalize_text(self, text: str) -> str:
         """
-        Normalize text for lookup with Unicode normalization
+        Normalize text for lookup.
         
         Handles:
-        - Unicode normalization (Ã, Ã±, accents)
+        - Diacritic/accent stripping (NFD decomposition + combining-mark removal)
+          so that "ulù", "ulu", and "ULÙ" all produce the same key.
+          This is essential for Bulos words which carry grave/acute accents in
+          the source data but are often typed without them by users.
         - Lowercase conversion
         - Whitespace normalization
-        - Punctuation removal
+        - Trailing punctuation removal
         
         Args:
             text: Text to normalize
             
         Returns:
-            Normalized text (lowercase, trimmed, no duplicate spaces, normalized unicode)
+            Normalized text (lowercase, accent-free, trimmed, no duplicate spaces)
         """
-        # Normalize Unicode characters (NFC = composed form)
-        # This handles Ã → o, Ã± → ñ, etc.
-        normalized = unicodedata.normalize('NFC', text)
+        # Decompose to NFD so each accented character becomes base + combining mark,
+        # then discard all combining marks (Unicode category "Mn").
+        # e.g. "ulù" (U+00F9) → "u" "l" U+0075 U+0300 → "ulu"
+        normalized = unicodedata.normalize('NFD', text)
+        normalized = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
         
         # Convert to lowercase
         normalized = normalized.lower()
         
-        # Trim spaces
+        # Trim surrounding whitespace
         normalized = normalized.strip()
         
-        # Remove duplicate spaces
+        # Collapse internal whitespace
         normalized = re.sub(r'\s+', ' ', normalized)
         
         # Remove trailing punctuation for lookup (but preserve original for response)
@@ -391,12 +397,16 @@ class TranslationService:
             src = lang_map.get(source_lang, source_lang)
             dest = lang_map.get(target_lang, target_lang)
             
-            # googletrans 4.x translate() is async, call it directly
-            result = await self.google_translator.translate(text, src=src, dest=dest)
+            # deep-translator.GoogleTranslator is synchronous; run in executor
+            loop = asyncio.get_event_loop()
+            translated = await loop.run_in_executor(
+                None,
+                lambda: GoogleTranslator(source=src, target=dest).translate(text)
+            )
             
-            if result and hasattr(result, 'text') and result.text:
-                logger.debug(f"Google Translate: '{text}' ({source_lang}→{target_lang}) = '{result.text}'")
-                return result.text
+            if translated:
+                logger.debug(f"Google Translate: '{text}' ({source_lang}→{target_lang}) = '{translated}'")
+                return translated
             else:
                 logger.warning(f"Google Translate returned empty result for: '{text}'")
                 return None
@@ -422,8 +432,11 @@ class TranslationService:
         Returns:
             Translated word (Bulos if in dictionary, else Tagalog fallback)
         """
-        # For non-Bulos targets, return original (shouldn't reach here)
+        # This fallback only applies when the target is Bulos, since Bulos words
+        # may be missing from the dictionary — for other targets the greedy
+        # matcher already handles everything and this path should not be reached.
         if target_lang != 'bul':
+            logger.debug(f"_translate_word_with_fallback called for non-Bulos target '{target_lang}', returning original")
             return word
         
         # For EN→BUL: translate to Tagalog as fallback
@@ -533,8 +546,10 @@ class TranslationService:
             if not tagalog_text:
                 logger.warning(f"Google Translate EN→TL failed, using original text")
                 tagalog_text = text
+                intermediate_language = None
             else:
                 logger.info(f"Step 1 (EN→TL): '{text}' → '{tagalog_text}'")
+                intermediate_language = 'tl'
             
             # Step 2: Translate TL → BUL using dictionary (with Tagalog preservation)
             # Recursively call with TL→BUL
@@ -542,6 +557,7 @@ class TranslationService:
             
             # Update method to indicate 2-step process
             result['translation_method'] = 'google_then_dictionary'
+            result['intermediate_language'] = intermediate_language
             logger.info(f"Step 2 (TL→BUL): '{tagalog_text}' → '{result['translated_text']}'")
             
             return result
@@ -564,13 +580,16 @@ class TranslationService:
             if not english_text:
                 logger.warning(f"Google Translate TL→EN failed, using intermediate Tagalog")
                 english_text = tagalog_text
+                intermediate_language = 'tl'  # Stuck at Tagalog — signal partial result
             else:
                 logger.info(f"Step 2 (TL→EN): '{tagalog_text}' → '{english_text}'")
+                intermediate_language = None
             
             return {
                 "translated_text": english_text,
                 "confidence": result['confidence'],  # Use dictionary confidence
-                "translation_method": "dictionary_then_google"
+                "translation_method": "dictionary_then_google",
+                "intermediate_language": intermediate_language
             }
         
         # ═══════════════════════════════════════════════════════════════
@@ -590,8 +609,9 @@ class TranslationService:
                     }
         
         # No exact match - use greedy multi-word matching
-        words = text.split()  # Original words (preserve case/punctuation)
-        words_norm = text_norm.split()  # Normalized for lookup
+        words = text.split()  # Original words (preserve case/punctuation for output)
+        # Strip punctuation from each token individually so that e.g. "mata," matches "mata"
+        words_norm = [w.strip('.!?,;:') for w in text_norm.split()]
         
         if len(words_norm) == 0:
             return {
@@ -751,7 +771,8 @@ class TranslationService:
                 "source_language": source_language,
                 "target_language": target_language,
                 "confidence": result["confidence"],
-                "translation_method": result.get("translation_method", "unknown")
+                "translation_method": result.get("translation_method", "unknown"),
+                "intermediate_language": result.get("intermediate_language")
             }
             
         except asyncio.TimeoutError:
