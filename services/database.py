@@ -67,9 +67,7 @@ class DatabaseManager:
                 minPoolSize=self.min_pool_size,
                 serverSelectionTimeoutMS=10000,
                 connectTimeoutMS=10000,
-                tls=True,
-                tlsAllowInvalidCertificates=True,
-                tlsAllowInvalidHostnames=True,
+                tlsCAFile=certifi.where(),  # Use certifi CA bundle for Atlas TLS
             )
             self.db = self.client[self.database_name]
             

@@ -28,19 +28,8 @@ class Settings(BaseSettings):
         description="Admin API key for dictionary import operations"
     )
     
-    # Whisper Settings
-    whisper_model: str = Field(default="base", description="Whisper model size (tiny, base, small, medium, large)")
-    whisper_device: str = Field(default="cpu", description="Device for Whisper inference (cpu or cuda)")
-    
-    # FFmpeg Settings
-    ffmpeg_path: Optional[str] = Field(default=None, description="Path to ffmpeg executable (auto-detect if not specified)")
-    
     # Translation Model Settings
     translation_models_dir: str = Field(default="./models/translation", description="Directory containing translation models")
-    
-    # File Upload Settings
-    max_audio_file_size: int = Field(default=10*1024*1024, description="Maximum audio file size in bytes (default 10MB)")
-    max_audio_duration_seconds: int = Field(default=60, description="Maximum audio duration in seconds")
     
     # Logging Settings
     log_level: str = Field(default="INFO", description="Logging level")
@@ -51,7 +40,6 @@ class Settings(BaseSettings):
     # Performance Settings
     max_concurrent_requests: int = Field(default=100, description="Maximum concurrent API requests")
     translation_timeout_seconds: int = Field(default=3, description="Translation operation timeout")
-    speech_processing_timeout_seconds: int = Field(default=10, description="Speech processing timeout")
     
     # CORS Settings
     cors_origins: list = Field(default=["*"], description="Allowed CORS origins")
@@ -82,6 +70,4 @@ except Exception:
     import os
     os.environ.setdefault('MONGODB_URL', 'mongodb://localhost:27017')
     os.environ.setdefault('ADMIN_API_KEY', 'change-this-to-secure-random-uuid')
-    os.environ.setdefault('WHISPER_MODEL', 'base')
-    os.environ.setdefault('WHISPER_DEVICE', 'cpu')
     settings = Settings()

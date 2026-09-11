@@ -99,7 +99,6 @@ async def get_history(
     Common Action Types:
     - Vocabulary: vocabulary_create, vocabulary_update, vocabulary_delete
     - Translation: translation
-    - Speech: pronunciation_evaluation
     - Sessions: session_start, session_end
     """
     try:

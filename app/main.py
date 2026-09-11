@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 
 from config import settings
 from utils.logging_config import configure_logging, get_logger
-from app.routers import vocabulary_router, translation_router, speech_router, history_router, health_router, dictionary_router, evaluation_router, alphabet_router
+from app.routers import vocabulary_router, translation_router, history_router, health_router, dictionary_router, evaluation_router, alphabet_router
 
 # Configure logging before anything else
 configure_logging()
@@ -17,7 +17,6 @@ logger = get_logger(__name__)
 # Global service instances
 _db_manager = None
 _translation_service = None
-_speech_processor = None
 
 
 @asynccontextmanager
@@ -29,12 +28,11 @@ async def lifespan(app: FastAPI):
     - Configure logging (already done globally)
     - Connect to database
     - Initialize translation service
-    - Initialize speech processor
-    
+
     On shutdown:
     - Disconnect from database
     """
-    global _db_manager, _translation_service, _speech_processor
+    global _db_manager, _translation_service
     
     # Startup
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
@@ -65,21 +63,6 @@ async def lifespan(app: FastAPI):
             logger.warning(f"Translation service initialization failed: {str(e)}")
             logger.warning("Translation endpoints may not be available")
         
-        # Initialize speech processor
-        logger.info("Initializing speech processor...")
-        try:
-            from services.speech import SpeechProcessor
-            _speech_processor = SpeechProcessor()
-            await _speech_processor.initialize()
-            logger.info("Speech processor initialized successfully")
-            
-            # Store speech processor reference for health checks
-            from app.routers import health
-            health._speech_processor = _speech_processor
-        except Exception as e:
-            logger.warning(f"Speech processor initialization failed: {str(e)}")
-            logger.warning("Speech processing endpoints may not be available")
-        
         logger.info("Application startup complete")
         
     except Exception as e:
@@ -108,8 +91,7 @@ def create_application() -> FastAPI:
     
     app = FastAPI(
         title=settings.app_name,
-        description="REST API service for language learning with vocabulary management, "
-                    "translation services, speech recognition, and pronunciation evaluation",
+        description="REST API service for Bulos language translation and vocabulary management",
         version=settings.app_version,
         docs_url="/docs",
         redoc_url="/redoc",
@@ -227,7 +209,6 @@ def create_application() -> FastAPI:
     # Register routers
     app.include_router(vocabulary_router)
     app.include_router(translation_router)
-    app.include_router(speech_router)
     app.include_router(history_router)
     app.include_router(health_router)
     app.include_router(dictionary_router)

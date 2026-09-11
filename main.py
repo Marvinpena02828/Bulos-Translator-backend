@@ -19,8 +19,7 @@ from app.main import app
 
 # The app instance is imported from app.main where it's created with all
 # configurations, middleware, and routers. The lifespan context manager
-# handles all service initialization (database, translation, speech processor)
-# and cleanup on shutdown.
+# handles all service initialization (database, translation) and cleanup on shutdown.
 
 if __name__ == "__main__":
     import uvicorn

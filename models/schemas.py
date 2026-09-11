@@ -98,6 +98,7 @@ class TranslationRequest(BaseModel):
     
     @validator('source_language', 'target_language')
     def validate_language_code(cls, v):
+
         """Validate that language code is in supported languages list."""
         if v not in SUPPORTED_LANGUAGES:
             raise ValueError(f"Unsupported language code: {v}. Must be one of {SUPPORTED_LANGUAGES}")
@@ -138,71 +139,7 @@ class TranslationResponse(BaseModel):
         }
 
 
-
-# Speech Processing Models
-class SpeechProcessRequest(BaseModel):
-    """Schema for speech processing request (handled as file upload in endpoint)."""
-    
-    language: str = Field(..., min_length=2, max_length=5, description="Language of the audio")
-    
-    @validator('language')
-    def validate_language_code(cls, v):
-        """Validate that language code is in supported languages list."""
-        if v not in SUPPORTED_LANGUAGES:
-            raise ValueError(f"Unsupported language code: {v}. Must be one of {SUPPORTED_LANGUAGES}")
-        return v
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "language": "en"
-            }
-        }
-
-
-class SpeechProcessResponse(BaseModel):
-    """Schema for speech processing response."""
-    
-    transcribed_text: str = Field(..., description="Transcribed text from audio")
-    confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Transcription confidence score (0-1)")
-    processing_time: float = Field(..., ge=0, description="Processing time in seconds")
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "transcribed_text": "Hello, how are you?",
-                "confidence": 0.92,
-                "processing_time": 1.23
-            }
-        }
-
-
-class SpeechTranslateResponse(BaseModel):
-    """Schema for speech transcription + translation response."""
-    
-    transcribed_text: str = Field(..., description="Transcribed text from audio (in detected language)")
-    translated_text: str = Field(..., description="Translated text (in target language)")
-    detected_language: str = Field(..., description="Detected source language code")
-    target_language: str = Field(..., description="Target language code")
-    transcription_confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Transcription confidence score (0-1)")
-    translation_confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Translation confidence score (0-1)")
-    processing_time: float = Field(..., ge=0, description="Total processing time in seconds")
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "transcribed_text": "Hello, how are you?",
-                "translated_text": "Kamusta ka?",
-                "detected_language": "en",
-                "target_language": "tl",
-                "transcription_confidence": 0.92,
-                "translation_confidence": 0.95,
-                "processing_time": 2.45
-            }
-        }
-
-
-
+# History Models
 # History Models
 class HistoryRecord(BaseModel):
     """Schema for a single history record."""
