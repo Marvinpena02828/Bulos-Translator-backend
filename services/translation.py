@@ -3,13 +3,10 @@ import asyncio
 import json
 import re
 import unicodedata
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 
 from deep_translator import GoogleTranslator
-from services.database import DatabaseManager
-from models.schemas import TranslationRequest, TranslationResponse
 from config import settings
 from utils.logging_config import get_logger
 
@@ -29,26 +26,12 @@ class TranslationService:
         ("tl", "en"),
     ]
     
-    def __init__(self, db_manager: DatabaseManager):
-        """
-        Initialize translation service
-        
-        Args:
-            db_manager: Database manager instance for MongoDB operations
-        """
-        self.db = db_manager
-        self.history_collection = "history"
-        
-        # Dictionary storage - will hold all translation data
-        self.phrase_index: Dict[str, List[Tuple[str, str, int]]] = {}  # phrase -> [(translation, lang_pair, word_count)]
-        
-        # Google Translator instance (for EN ↔ TL and fallback translations)
-        # deep-translator.GoogleTranslator is synchronous; we call it in an executor
-        self.google_translator = None  # Created per-call (stateless, no init cost)
-        
-        # Translation timeout from config
+    def __init__(self):
+        """Initialize translation service."""
+        self.phrase_index: Dict[str, List[Tuple[str, str, int]]] = {}
+        self.google_translator = None
         self.timeout = settings.translation_timeout_seconds
-        
+
         logger.info(f"TranslationService initialized with timeout: {self.timeout}s")
         logger.info("Google Translate enabled for EN↔TL and Tagalog fallback")
     
@@ -693,46 +676,34 @@ class TranslationService:
         user_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Translate text from source to target language
-        
-        Uses comprehensive dictionary-based approach with verified JSON data
-        
+        Translate text from source to target language.
+
         Args:
             text: Text to translate
             source_language: Source language code (en, tl, or bul)
             target_language: Target language code (en, tl, or bul)
-            user_id: Optional user ID for history tracking
-            
+            user_id: Ignored - retained for API compatibility only
+
         Returns:
-            Dictionary with translation result including:
-            - original_text
-            - translated_text
-            - source_language
-            - target_language
-            - confidence (0.0-1.0 based on actual dictionary coverage)
-            
+            Dictionary with original_text, translated_text, source_language,
+            target_language, confidence, translation_method, intermediate_language.
+
         Raises:
             ValueError: If language pair is not supported
             asyncio.TimeoutError: If translation exceeds timeout
         """
         logger.info(f"Translation request: '{text}' ({source_language}->{target_language})")
-        
-        # Validate that source_language is one of our supported languages
+
         if source_language not in ['en', 'tl', 'bul']:
-            logger.error(f"Invalid source_language: {source_language}")
             raise ValueError(f"Invalid source_language: {source_language}. Must be one of: en, tl, bul")
-        
-        # Validate language pair
+
         if (source_language, target_language) not in self.SUPPORTED_PAIRS:
-            logger.warning(f"Unsupported language pair: {source_language}->{target_language}")
             raise ValueError(
                 f"Unsupported language pair: {source_language} -> {target_language}. "
                 f"Supported pairs: {self.SUPPORTED_PAIRS}"
             )
-        
-        # Check if source and target are the same
+
         if source_language == target_language:
-            logger.info(f"No translation needed: source={source_language}, target={target_language}")
             return {
                 "original_text": text,
                 "translated_text": text,
@@ -740,31 +711,15 @@ class TranslationService:
                 "target_language": target_language,
                 "confidence": 1.0
             }
-        
+
         try:
-            # Run translation with timeout
             result = await asyncio.wait_for(
                 self._translate_text(text, source_language, target_language),
                 timeout=self.timeout
             )
-            
-            # Record in history if user_id provided
-            if user_id:
-                await self._record_history(
-                    user_id=user_id,
-                    action_type="translation",
-                    outcome="success",
-                    details={
-                        "source_language": source_language,
-                        "target_language": target_language,
-                        "original_text": text,
-                        "translated_text": result["translated_text"],
-                        "confidence": result["confidence"]
-                    }
-                )
-            
+
             logger.info(f"Translation completed: '{result['translated_text']}'")
-            
+
             return {
                 "original_text": text,
                 "translated_text": result["translated_text"],
@@ -774,74 +729,11 @@ class TranslationService:
                 "translation_method": result.get("translation_method", "unknown"),
                 "intermediate_language": result.get("intermediate_language")
             }
-            
+
         except asyncio.TimeoutError:
             logger.error(f"Translation timeout ({self.timeout}s) exceeded for: {text}")
-            
-            # Record failure in history
-            if user_id:
-                await self._record_history(
-                    user_id=user_id,
-                    action_type="translation",
-                    outcome="timeout",
-                    details={
-                        "source_language": source_language,
-                        "target_language": target_language,
-                        "original_text": text,
-                        "error": "Translation timeout"
-                    }
-                )
-            
             raise asyncio.TimeoutError(f"Translation exceeded timeout of {self.timeout} seconds")
-            
+
         except Exception as e:
             logger.error(f"Translation failed: {str(e)}", exc_info=True)
-            
-            # Record failure in history
-            if user_id:
-                await self._record_history(
-                    user_id=user_id,
-                    action_type="translation",
-                    outcome="error",
-                    details={
-                        "source_language": source_language,
-                        "target_language": target_language,
-                        "original_text": text,
-                        "error": str(e)
-                    }
-                )
-            
             raise
-    
-    async def _record_history(
-        self,
-        user_id: str,
-        action_type: str,
-        outcome: str,
-        details: Optional[Dict[str, Any]] = None
-    ) -> None:
-        """
-        Record translation action in history collection
-        
-        Args:
-            user_id: User ID performing the action
-            action_type: Type of action (translation)
-            outcome: Outcome of the action (success, timeout, error)
-            details: Additional details about the action
-        """
-        try:
-            history_record = {
-                "user_id": user_id,
-                "action_type": action_type,
-                "resource_type": "translation",
-                "outcome": outcome,
-                "timestamp": datetime.utcnow(),
-                "details": details or {}
-            }
-            
-            await self.db.insert_one(self.history_collection, history_record)
-            logger.debug(f"History recorded: {action_type} for user {user_id}")
-            
-        except Exception as e:
-            # Don't fail the main operation if history recording fails
-            logger.error(f"Failed to record history: {str(e)}", exc_info=True)

@@ -3,10 +3,6 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
 
-# Database
-motor==3.6.0
-pymongo==4.9.0
-
 # Data Validation
 pydantic==2.5.0
 pydantic-settings==2.1.0

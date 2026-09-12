@@ -1,4 +1,5 @@
 """Evaluation endpoints for ISO/IEC 25010 and TAM questionnaires"""
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict
 from datetime import datetime
@@ -10,11 +11,13 @@ from models.schemas import (
     EvaluationResponse,
     EvaluationResultsResponse
 )
-from services.database import DatabaseManager
 from utils.device_id import get_device_id
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
+
+# In-memory store: { device_id: { "iso25010": {...}, "tam": {...} } }
+_evaluations: Dict[str, Dict[str, dict]] = {}
 
 router = APIRouter(
     prefix="/api/v1/evaluation",
@@ -26,33 +29,17 @@ router = APIRouter(
 )
 
 
-def get_db_manager() -> DatabaseManager:
-    """Get the global database manager instance from main app"""
-    from app import main
-    if main._db_manager is None:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Database connection not available"
-        )
-    return main._db_manager
-
+# ── helpers ──────────────────────────────────────────────────────────────────
 
 def interpret_score(mean_score: float) -> str:
     """
     Interpret mean score based on capstone paper scale (Chapter III, Page 62).
-    
-    Interpretation Scale:
-    - 4.51 - 5.00: Highly Acceptable
-    - 3.51 - 4.50: Acceptable
-    - 2.51 - 3.50: Moderately Acceptable
-    - 1.51 - 2.50: Slightly Acceptable
-    - 1.00 - 1.50: Not Acceptable
-    
-    Args:
-        mean_score: Average score from evaluations (1.0-5.0)
-        
-    Returns:
-        str: Interpretation label
+
+    - 4.51 – 5.00: Highly Acceptable
+    - 3.51 – 4.50: Acceptable
+    - 2.51 – 3.50: Moderately Acceptable
+    - 1.51 – 2.50: Slightly Acceptable
+    - 1.00 – 1.50: Not Acceptable
     """
     if mean_score >= 4.51:
         return "Highly Acceptable"
@@ -67,41 +54,27 @@ def interpret_score(mean_score: float) -> str:
 
 
 def calculate_mean_scores(evaluations: list) -> Dict[str, float]:
-    """
-    Calculate mean scores for each characteristic from a list of evaluations.
-    
-    Args:
-        evaluations: List of evaluation documents from database
-        
-    Returns:
-        Dict[str, float]: Dictionary mapping characteristic names to mean scores
-    """
+    """Calculate mean scores for each numeric characteristic."""
     sums = defaultdict(float)
     counts = defaultdict(int)
-    
-    # Fields to exclude from mean calculation
-    exclude_fields = {'_id', 'device_id', 'evaluation_type', 'timestamp', 'comments'}
-    
-    for evaluation in evaluations:
-        for key, value in evaluation.items():
-            if key not in exclude_fields and isinstance(value, (int, float)):
+    exclude = {"id", "device_id", "evaluation_type", "timestamp", "comments"}
+
+    for ev in evaluations:
+        for key, value in ev.items():
+            if key not in exclude and isinstance(value, (int, float)):
                 sums[key] += value
                 counts[key] += 1
-    
-    # Calculate means and round to 2 decimal places
+
     means = {
-        key: round(sums[key] / counts[key], 2)
-        for key in sums
-        if counts[key] > 0
+        k: round(sums[k] / counts[k], 2)
+        for k in sums if counts[k] > 0
     }
-    
-    # Calculate overall mean if there are any scores
     if means:
-        overall_mean = round(sum(means.values()) / len(means), 2)
-        means['overall_mean'] = overall_mean
-    
+        means["overall_mean"] = round(sum(means.values()) / len(means), 2)
     return means
 
+
+# ── endpoints ─────────────────────────────────────────────────────────────────
 
 @router.post(
     "/iso25010",
@@ -110,31 +83,24 @@ def calculate_mean_scores(evaluations: list) -> Dict[str, float]:
     summary="Submit ISO/IEC 25010 evaluation",
     description=(
         "Submit an ISO/IEC 25010 Software Quality Model evaluation. "
-        "Users can submit multiple evaluations to capture evolving opinions. "
-        "Each submission updates their previous ISO/IEC 25010 evaluation."
+        "Each submission replaces the device's previous ISO/IEC 25010 evaluation."
     )
 )
 async def submit_iso25010_evaluation(
     evaluation: ISO25010Evaluation,
     device_id: str = Depends(get_device_id),
-    db_manager: DatabaseManager = Depends(get_db_manager)
 ):
     """
     Submit ISO/IEC 25010 Software Quality Model evaluation.
-    
-    Evaluates 6 characteristics:
-    - Functional Suitability
-    - Usability
-    - Performance Efficiency
-    - Reliability
-    - Maintainability
-    - Portability
-    
-    Each rated on 5-point Likert scale (1=Strongly Disagree, 5=Strongly Agree).
+
+    Evaluates 6 characteristics (Functional Suitability, Usability,
+    Performance Efficiency, Reliability, Maintainability, Portability)
+    each on a 5-point Likert scale.
     """
     try:
-        # Prepare evaluation document
-        evaluation_doc = {
+        evaluation_id = str(uuid.uuid4())
+        doc = {
+            "id": evaluation_id,
             "device_id": device_id,
             "evaluation_type": "iso25010",
             "timestamp": datetime.utcnow(),
@@ -144,61 +110,23 @@ async def submit_iso25010_evaluation(
             "reliability": evaluation.reliability,
             "maintainability": evaluation.maintainability,
             "portability": evaluation.portability,
-            "comments": evaluation.comments
+            "comments": evaluation.comments,
         }
-        
-        # Use update_one with upsert=True to allow re-submission
-        # This replaces the device's previous ISO25010 evaluation if it exists
-        filter_query = {"device_id": device_id, "evaluation_type": "iso25010"}
-        
-        result = await db_manager.db.evaluations.update_one(
-            filter_query,
-            {"$set": evaluation_doc},
-            upsert=True
-        )
-        
-        # Get the evaluation ID
-        if result.upserted_id:
-            evaluation_id = str(result.upserted_id)
-            logger.info(f"New ISO25010 evaluation created for device {device_id}")
-        else:
-            # Find the existing document to get its ID
-            existing = await db_manager.find_one("evaluations", filter_query)
-            evaluation_id = str(existing["_id"]) if existing else "unknown"
-            logger.info(f"ISO25010 evaluation updated for device {device_id}")
-        
-        # Log to history
-        await db_manager.insert_one("history", {
-            "device_id": device_id,
-            "action_type": "evaluation_submission",
-            "resource_type": "evaluation",
-            "resource_id": evaluation_id,
-            "outcome": "success",
-            "timestamp": datetime.utcnow(),
-            "details": {
-                "evaluation_type": "iso25010",
-                "ratings": {
-                    "functional_suitability": evaluation.functional_suitability,
-                    "usability": evaluation.usability,
-                    "performance_efficiency": evaluation.performance_efficiency,
-                    "reliability": evaluation.reliability,
-                    "maintainability": evaluation.maintainability,
-                    "portability": evaluation.portability
-                }
-            }
-        })
-        
+
+        _evaluations.setdefault(device_id, {})["iso25010"] = doc
+        logger.info(f"ISO25010 evaluation stored for device {device_id}")
+
         return EvaluationResponse(
             evaluation_id=evaluation_id,
             message="ISO/IEC 25010 evaluation submitted successfully",
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
-        
+
     except Exception as e:
-        logger.error(f"Failed to submit ISO25010 evaluation: {str(e)}", exc_info=True)
+        logger.error(f"Failed to submit ISO25010 evaluation: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to submit evaluation: {str(e)}"
+            detail=f"Failed to submit evaluation: {str(e)}",
         )
 
 
@@ -209,86 +137,44 @@ async def submit_iso25010_evaluation(
     summary="Submit TAM evaluation",
     description=(
         "Submit a Technology Acceptance Model (TAM) evaluation. "
-        "Users can submit multiple evaluations to capture evolving opinions. "
-        "Each submission updates their previous TAM evaluation."
+        "Each submission replaces the device's previous TAM evaluation."
     )
 )
 async def submit_tam_evaluation(
     evaluation: TAMEvaluation,
     device_id: str = Depends(get_device_id),
-    db_manager: DatabaseManager = Depends(get_db_manager)
 ):
     """
-    Submit Technology Acceptance Model (TAM) evaluation.
-    
-    Evaluates 3 constructs:
-    - Perceived Usefulness (PU)
-    - Perceived Ease of Use (PEOU)
-    - Behavioral Intention to Use (BI)
-    
-    Each rated on 5-point Likert scale (1=Strongly Disagree, 5=Strongly Agree).
+    Submit TAM evaluation (Perceived Usefulness, Perceived Ease of Use,
+    Behavioral Intention to Use) on a 5-point Likert scale.
     """
     try:
-        # Prepare evaluation document
-        evaluation_doc = {
+        evaluation_id = str(uuid.uuid4())
+        doc = {
+            "id": evaluation_id,
             "device_id": device_id,
             "evaluation_type": "tam",
             "timestamp": datetime.utcnow(),
             "perceived_usefulness": evaluation.perceived_usefulness,
             "perceived_ease_of_use": evaluation.perceived_ease_of_use,
             "behavioral_intention": evaluation.behavioral_intention,
-            "comments": evaluation.comments
+            "comments": evaluation.comments,
         }
-        
-        # Use update_one with upsert=True to allow re-submission
-        # This replaces the device's previous TAM evaluation if it exists
-        filter_query = {"device_id": device_id, "evaluation_type": "tam"}
-        
-        result = await db_manager.db.evaluations.update_one(
-            filter_query,
-            {"$set": evaluation_doc},
-            upsert=True
-        )
-        
-        # Get the evaluation ID
-        if result.upserted_id:
-            evaluation_id = str(result.upserted_id)
-            logger.info(f"New TAM evaluation created for device {device_id}")
-        else:
-            # Find the existing document to get its ID
-            existing = await db_manager.find_one("evaluations", filter_query)
-            evaluation_id = str(existing["_id"]) if existing else "unknown"
-            logger.info(f"TAM evaluation updated for device {device_id}")
-        
-        # Log to history
-        await db_manager.insert_one("history", {
-            "device_id": device_id,
-            "action_type": "evaluation_submission",
-            "resource_type": "evaluation",
-            "resource_id": evaluation_id,
-            "outcome": "success",
-            "timestamp": datetime.utcnow(),
-            "details": {
-                "evaluation_type": "tam",
-                "ratings": {
-                    "perceived_usefulness": evaluation.perceived_usefulness,
-                    "perceived_ease_of_use": evaluation.perceived_ease_of_use,
-                    "behavioral_intention": evaluation.behavioral_intention
-                }
-            }
-        })
-        
+
+        _evaluations.setdefault(device_id, {})["tam"] = doc
+        logger.info(f"TAM evaluation stored for device {device_id}")
+
         return EvaluationResponse(
             evaluation_id=evaluation_id,
             message="TAM evaluation submitted successfully",
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
-        
+
     except Exception as e:
-        logger.error(f"Failed to submit TAM evaluation: {str(e)}", exc_info=True)
+        logger.error(f"Failed to submit TAM evaluation: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to submit evaluation: {str(e)}"
+            detail=f"Failed to submit evaluation: {str(e)}",
         )
 
 
@@ -304,63 +190,40 @@ async def submit_tam_evaluation(
 )
 async def get_evaluation_results(
     device_id: str = Depends(get_device_id),
-    db_manager: DatabaseManager = Depends(get_db_manager)
 ):
     """
-    Get aggregated evaluation results with mean scores and interpretations.
-    
-    Returns:
-    - Total number of evaluations
-    - Mean scores for ISO/IEC 25010 characteristics
-    - Mean scores for TAM constructs
-    - Interpretation for both evaluation types
+    Get aggregated mean scores and interpretation across all submitted evaluations.
     """
     try:
-        # Fetch all ISO/IEC 25010 evaluations
-        iso25010_evaluations = await db_manager.find_many(
-            "evaluations",
-            {"evaluation_type": "iso25010"},
-            limit=10000  # High limit to get all evaluations
-        )
-        
-        # Fetch all TAM evaluations
-        tam_evaluations = await db_manager.find_many(
-            "evaluations",
-            {"evaluation_type": "tam"},
-            limit=10000  # High limit to get all evaluations
-        )
-        
-        # Calculate mean scores
-        iso25010_results = calculate_mean_scores(iso25010_evaluations)
-        tam_results = calculate_mean_scores(tam_evaluations)
-        
-        # Get overall means for interpretation
-        iso25010_mean = iso25010_results.get('overall_mean', 0.0)
-        tam_mean = tam_results.get('overall_mean', 0.0)
-        
-        # Interpret scores
-        iso25010_interpretation = interpret_score(iso25010_mean)
-        tam_interpretation = interpret_score(tam_mean)
-        
-        # Calculate total evaluations (unique users)
-        total_evaluations = len(iso25010_evaluations) + len(tam_evaluations)
-        
+        iso_evals = [
+            v["iso25010"]
+            for v in _evaluations.values()
+            if "iso25010" in v
+        ]
+        tam_evals = [
+            v["tam"]
+            for v in _evaluations.values()
+            if "tam" in v
+        ]
+
+        iso_results = calculate_mean_scores(iso_evals)
+        tam_results = calculate_mean_scores(tam_evals)
+
         logger.info(
-            f"Evaluation results retrieved: {len(iso25010_evaluations)} ISO25010, "
-            f"{len(tam_evaluations)} TAM evaluations"
+            f"Evaluation results: {len(iso_evals)} ISO25010, {len(tam_evals)} TAM"
         )
-        
+
         return EvaluationResultsResponse(
-            total_evaluations=total_evaluations,
-            iso25010_results=iso25010_results,
+            total_evaluations=len(iso_evals) + len(tam_evals),
+            iso25010_results=iso_results,
             tam_results=tam_results,
-            iso25010_interpretation=iso25010_interpretation,
-            tam_interpretation=tam_interpretation
+            iso25010_interpretation=interpret_score(iso_results.get("overall_mean", 0.0)),
+            tam_interpretation=interpret_score(tam_results.get("overall_mean", 0.0)),
         )
-        
+
     except Exception as e:
-        logger.error(f"Failed to retrieve evaluation results: {str(e)}", exc_info=True)
+        logger.error(f"Failed to retrieve evaluation results: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve results: {str(e)}"
+            detail=f"Failed to retrieve results: {str(e)}",
         )

@@ -1,39 +1,28 @@
-# Dockerfile for Bulos Translator Backend API
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
-
-# Install system dependencies for audio processing
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libsndfile1 \
-    libsndfile1-dev \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file
+# Copy requirements first (better Docker layer caching)
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy project files
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p logs models/translation data
+# Create logs directory
+RUN mkdir -p logs
 
-# Expose port 8000
+# Expose port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/api/v1/health/', timeout=5)"
-
-# Run uvicorn with 4 workers
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Run the application
+# Render injects $PORT at runtime; fall back to 8000 for local Docker use
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]

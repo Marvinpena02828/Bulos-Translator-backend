@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: bulos-translator-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_NAME
+        value: Bulos Translator API
+      - key: APP_VERSION
+        value: 1.0.0
+      - key: DEBUG
+        value: false
+      - key: TRANSLATION_TIMEOUT_SECONDS
+        value: 30
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_FILE_PATH
+        value: ./logs/app.log
+      - key: CORS_ORIGINS
+        value: '["*"]'
+      - key: CORS_ALLOW_CREDENTIALS
+        value: true
+      - key: CORS_ALLOW_METHODS
+        value: '["GET", "POST", "PUT", "DELETE"]'
+      - key: CORS_ALLOW_HEADERS
+        value: '["*"]'
+      # Set this manually in the Render dashboard (sensitive):
+      # ADMIN_API_KEY — a strong random secret key

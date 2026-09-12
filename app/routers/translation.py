@@ -4,51 +4,31 @@ from typing import TYPE_CHECKING
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from models.schemas import TranslationRequest, TranslationResponse
-from services.database import DatabaseManager
 from utils.device_id import get_device_id
 from config import settings
 from utils.logging_config import get_logger
 
-# Lazy import for TranslationService to avoid importing TensorFlow at module load time
 if TYPE_CHECKING:
     from services.translation import TranslationService
 
 logger = get_logger(__name__)
 
-# Create router
 router = APIRouter(
     prefix="/api/v1/translate",
     tags=["Translation"]
 )
 
-# Translation service singleton
 _translation_service: "TranslationService" = None
 
 
-def get_db_manager() -> DatabaseManager:
-    """Get the global database manager instance from main app"""
+def get_translation_service() -> "TranslationService":
     from app import main
-    if main._db_manager is None:
+    if main._translation_service is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Database connection not available"
+            detail="Translation service not available"
         )
-    return main._db_manager
-
-
-async def get_translation_service(
-    db_manager: DatabaseManager = Depends(get_db_manager)
-) -> "TranslationService":
-    """Get translation service instance (singleton pattern)"""
-    # Import here to avoid TensorFlow import at module load time
-    from services.translation import TranslationService
-    
-    global _translation_service
-    if _translation_service is None:
-        _translation_service = TranslationService(db_manager)
-        # Initialize models on first access
-        await _translation_service.initialize()
-    return _translation_service
+    return main._translation_service
 
 
 @router.post(
@@ -61,71 +41,44 @@ async def get_translation_service(
 async def translate_text(
     request: TranslationRequest,
     device_id: str = Depends(get_device_id),
-    translation_service: "TranslationService" = Depends(get_translation_service)
+    translation_service: "TranslationService" = Depends(get_translation_service),
 ):
     """
-    Translate text from source language to target language
-    
+    Translate text from source language to target language.
+
     - **text**: Text to translate (1-500 characters)
     - **source_language**: Source language code (bul, en, tl)
     - **target_language**: Target language code (bul, en, tl)
-    
-    Supported language pairs:
-    - bul ↔ en (Bulos ↔ English)
-    - bul ↔ tl (Bulos ↔ Tagalog/Filipino)
-    - en ↔ tl (English ↔ Tagalog/Filipino)
-    
-    Returns:
-    - **original_text**: The original input text
-    - **translated_text**: The translated text
-    - **source_language**: Source language code
-    - **target_language**: Target language code
-    - **confidence**: Translation confidence score (if available)
     """
     try:
         logger.info(
             f"Translation request from device {device_id}: "
             f"{request.source_language}->{request.target_language}"
         )
-        
-        # Call translation service with device_id for history tracking
+
         result = await translation_service.translate(
             text=request.text,
             source_language=request.source_language,
             target_language=request.target_language,
-            user_id=device_id  # Pass device_id as user_id for backward compatibility
+            user_id=device_id,
         )
-        
+
         return TranslationResponse(**result)
-    
+
     except ValueError as e:
-        # Unsupported language pair
-        logger.warning(
-            f"Invalid translation request from device {device_id}: {str(e)}"
-        )
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    
+        logger.warning(f"Invalid translation request from device {device_id}: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
     except asyncio.TimeoutError:
-        # Translation timeout
-        logger.error(
-            f"Translation timeout for device {device_id}: "
-            f"{request.source_language}->{request.target_language}"
-        )
+        logger.error(f"Translation timeout for device {device_id}")
         raise HTTPException(
             status_code=status.HTTP_408_REQUEST_TIMEOUT,
-            detail=f"Translation request timed out after {settings.translation_timeout_seconds} seconds"
+            detail=f"Translation request timed out after {settings.translation_timeout_seconds} seconds",
         )
-    
+
     except Exception as e:
-        # General error
-        logger.error(
-            f"Translation error for device {device_id}: {str(e)}",
-            exc_info=True
-        )
+        logger.error(f"Translation error for device {device_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to complete translation request"
+            detail="Failed to complete translation request",
         )

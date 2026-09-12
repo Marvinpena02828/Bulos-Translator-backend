@@ -1,10 +1,14 @@
 """Services package for Bulos Translator backend"""
-from .database import DatabaseManager, get_db_manager, initialize_db_manager
 from .vocabulary import VocabularyService
+from .translation import TranslationService
+from .dictionary import DictionaryService
+from .alphabet import AlphabetService
+from .health import HealthCheckService
 
 __all__ = [
-    "DatabaseManager",
-    "get_db_manager",
-    "initialize_db_manager",
     "VocabularyService",
+    "TranslationService",
+    "DictionaryService",
+    "AlphabetService",
+    "HealthCheckService",
 ]
