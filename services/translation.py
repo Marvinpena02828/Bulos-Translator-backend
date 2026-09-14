@@ -10,6 +10,7 @@ from deep_translator import GoogleTranslator
 from config import settings
 from utils.logging_config import get_logger
 from utils.fuzzy_match import levenshtein_similarity
+from utils.sentence_validator import validate_sentence_data
 
 logger = get_logger(__name__)
 
@@ -170,6 +171,9 @@ class TranslationService:
         """
         Load and parse sentence.json to extract sentence-level translations
         
+        Applies validation to ensure data integrity.
+        Invalid entries are skipped with warnings.
+        
         Returns:
             List of dictionaries with 'bul', 'tl', and 'en' translations
         """
@@ -182,8 +186,8 @@ class TranslationService:
         with open(sentence_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
-        # Extract entries
-        entries = []
+        # Extract entries (raw data before validation)
+        raw_entries = []
         for entry in data.get("entries", []):
             bulos = entry.get("BULOS") if entry.get("BULOS") is not None else ""
             filipino = entry.get("FILIPINO") if entry.get("FILIPINO") is not None else ""
@@ -193,13 +197,48 @@ class TranslationService:
             filipino = filipino.strip() if filipino else ""
             english = english.strip() if english else ""
             
-            # Include all entries (sentences can be long)
-            if bulos and filipino and english:
-                entries.append({
-                    "bul": bulos,
-                    "tl": filipino,
-                    "en": english
-                })
+            # Create entry for validation
+            raw_entries.append({
+                "BULOS": bulos,
+                "FILIPINO": filipino,
+                "ENGLISH": english
+            })
+        
+        # Validate entries
+        validation_report = validate_sentence_data(raw_entries)
+        
+        # Log validation results
+        if validation_report.invalid_entries:
+            logger.warning(
+                f"Sentence validation: {len(validation_report.invalid_entries)} invalid entry(ies) skipped"
+            )
+            for issue in validation_report.invalid_entries[:5]:
+                logger.warning(
+                    f"  Invalid entry at index {issue.entry_index}: {issue.issue_type} - {issue.description}"
+                )
+            if len(validation_report.invalid_entries) > 5:
+                logger.warning(f"  ... and {len(validation_report.invalid_entries) - 5} more invalid entries")
+        
+        if validation_report.exact_duplicates:
+            logger.warning(
+                f"Sentence validation: Found {len(validation_report.exact_duplicates)} exact duplicate group(s)"
+            )
+            logger.warning("  Duplicates were preserved - manual review recommended")
+        
+        if validation_report.multiple_mappings:
+            logger.info(
+                f"Sentence validation: Found {len(validation_report.multiple_mappings)} multiple mapping group(s)"
+            )
+            logger.info("  Multiple mappings preserved - may be legitimate linguistic variations")
+        
+        # Convert valid entries to internal format
+        entries = []
+        for validated_entry in validation_report.valid_entries:
+            entries.append({
+                "bul": validated_entry["BULOS"],
+                "tl": validated_entry["FILIPINO"],
+                "en": validated_entry["ENGLISH"]
+            })
         
         logger.info(f"Extracted {len(entries)} sentence entries")
         return entries
