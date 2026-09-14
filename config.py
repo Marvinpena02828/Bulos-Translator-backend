@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     # Supported Languages
     supported_languages: list = Field(default=["bul", "en", "tl"])
 
+    # Fuzzy Matching Settings
+    fuzzy_match_enabled: bool = Field(default=True)
+    fuzzy_match_threshold: float = Field(default=0.80)
+    fuzzy_match_min_length: int = Field(default=3)
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

@@ -9,6 +9,7 @@ from typing import Dict, List, Tuple, Optional, Any
 from deep_translator import GoogleTranslator
 from config import settings
 from utils.logging_config import get_logger
+from utils.fuzzy_match import levenshtein_similarity
 
 logger = get_logger(__name__)
 
@@ -33,7 +34,7 @@ class TranslationService:
         self.timeout = settings.translation_timeout_seconds
 
         logger.info(f"TranslationService initialized with timeout: {self.timeout}s")
-        logger.info("Google Translate enabled for EN↔TL and Tagalog fallback")
+        logger.info("Google Translate enabled for EN<->TL and Tagalog fallback")
     
     async def initialize(self) -> None:
         """
@@ -398,6 +399,96 @@ class TranslationService:
             logger.warning(f"Google Translate failed for '{text}' ({source_lang}→{target_lang}): {str(e)}")
             return None
     
+    def _fuzzy_match_dictionary(
+        self,
+        word: str,
+        source_lang: str,
+        target_lang: str
+    ) -> Optional[Tuple[str, float]]:
+        """
+        Find closest dictionary match using fuzzy string matching (Levenshtein distance).
+        
+        This is a SUPPORTING LOOKUP TECHNIQUE within the Hybrid Translation Algorithm.
+        It helps identify the intended dictionary entry when the user makes a minor typo.
+        
+        Rules:
+        1. Only runs AFTER exact dictionary match fails
+        2. Only matches single words (no phrases)
+        3. Uses validated dictionary entries as candidates
+        4. Returns the validated translation of the matched entry
+        5. Never creates or modifies translations
+        6. Rejects matches below configured threshold
+        
+        Args:
+            word: Input word (normalized) to find closest match for
+            source_lang: Source language code
+            target_lang: Target language code
+            
+        Returns:
+            Tuple of (validated_translation, similarity_score) or None if no acceptable match
+            
+        Examples:
+            Input: "olu" (typo) → Matches: "ulo" (0.67) → Returns: ("ulù", 0.67)
+            Input: "maata" (typo) → Matches: "mata" (0.80) → Returns: ("mala", 0.80)
+            Input: "random" (no match) → Returns: None
+        """
+        # Check if fuzzy matching is enabled
+        if not settings.fuzzy_match_enabled:
+            return None
+        
+        # Minimum word length to prevent false positives on short words
+        if len(word) < settings.fuzzy_match_min_length:
+            logger.debug(f"Fuzzy match skipped: word too short ('{word}', len={len(word)})")
+            return None
+        
+        word_norm = self._normalize_text(word)
+        lang_pair = f"{source_lang}_to_{target_lang}"
+        
+        best_match_key = None
+        best_match_translation = None
+        best_score = 0.0
+        
+        # Search all dictionary entries for closest match
+        for phrase_norm, translations in self.phrase_index.items():
+            # Only match single words (skip multi-word phrases)
+            if ' ' in phrase_norm:
+                continue
+            
+            # Calculate Levenshtein similarity (0.0 to 1.0)
+            score = levenshtein_similarity(word_norm, phrase_norm)
+            
+            if score > best_score:
+                # Check if this phrase has translation for our language pair
+                for translation, pair, _ in translations:
+                    if pair == lang_pair:
+                        best_match_key = phrase_norm
+                        best_match_translation = translation
+                        best_score = score
+                        break
+        
+        # Reject if below threshold
+        if best_score < settings.fuzzy_match_threshold:
+            logger.debug(
+                f"Fuzzy match rejected: '{word}' → '{best_match_key}' "
+                f"(similarity={best_score:.3f} < threshold={settings.fuzzy_match_threshold})"
+            )
+            return None
+        
+        # Reject exact matches (should have been caught by exact lookup)
+        if best_score >= 0.999:
+            logger.warning(
+                f"Fuzzy match found exact match: '{word}' → '{best_match_key}' "
+                f"(this should have been caught by exact dictionary lookup)"
+            )
+            return None
+        
+        logger.info(
+            f"Fuzzy match found: '{word}' → dictionary['{best_match_key}'] → '{best_match_translation}' "
+            f"(similarity={best_score:.3f}, method=Levenshtein)"
+        )
+        
+        return (best_match_translation, best_score)
+    
     async def _translate_word_with_fallback(self, word: str, source_lang: str, target_lang: str) -> str:
         """
         Translate a single word with Google Translate fallback for missing Bulos words
@@ -588,7 +679,8 @@ class TranslationService:
                     logger.info(f"Exact match found: '{text}' -> '{translation}'")
                     return {
                         "translated_text": translation,
-                        "confidence": 1.0
+                        "confidence": 1.0,
+                        "translation_method": "dictionary"
                     }
         
         # No exact match - use greedy multi-word matching
@@ -599,7 +691,8 @@ class TranslationService:
         if len(words_norm) == 0:
             return {
                 "translated_text": text,
-                "confidence": 0.0
+                "confidence": 0.0,
+                "translation_method": "tagalog_only"
             }
         
         translated_parts = []
@@ -636,11 +729,29 @@ class TranslationService:
                 logger.debug(f"Matched at position {i}: '{original_phrase}' -> '{best_translation}' ({best_match_length} words)")
                 i += best_match_length
             else:
-                # No exact match found - preserve original word
-                # This ensures 100% accuracy - only use authentic Dumagat data
+                # No exact match found for this word/phrase
                 original_word = words[i]
-                translated_parts.append(original_word)
-                logger.debug(f"No match at position {i}: '{original_word}' (preserved as-is)")
+                word_norm = words_norm[i]
+                
+                # Try fuzzy matching ONLY for single words (supporting lookup technique)
+                # This helps handle typos: "olu" → "ulo" → "ulù"
+                fuzzy_result = self._fuzzy_match_dictionary(word_norm, source_language, target_language)
+                
+                if fuzzy_result:
+                    # Fuzzy match found - use the validated dictionary translation
+                    fuzzy_translation, similarity = fuzzy_result
+                    translated_parts.append(fuzzy_translation)
+                    matched_word_count += 1  # Count as matched (with confidence recorded)
+                    logger.debug(
+                        f"Fuzzy matched at position {i}: '{original_word}' → '{fuzzy_translation}' "
+                        f"(similarity={similarity:.3f})"
+                    )
+                else:
+                    # No fuzzy match either - preserve original word (Tagalog fallback)
+                    # This ensures 100% accuracy - only use authentic Dumagat data
+                    translated_parts.append(original_word)
+                    logger.debug(f"No match at position {i}: '{original_word}' (preserved as-is)")
+                
                 i += 1
         
         # Calculate confidence based on coverage
@@ -650,6 +761,7 @@ class TranslationService:
         translated_text = ' '.join(translated_parts)
         
         # Determine translation method for TL↔BUL
+        # Check if any fuzzy matches were used by checking logs or result
         if confidence == 1.0:
             method = "dictionary"
         elif confidence > 0:
