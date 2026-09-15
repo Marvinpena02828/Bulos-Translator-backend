@@ -28,51 +28,132 @@ class TranslationService:
         ("tl", "en"),
     ]
     
-    def __init__(self):
-        """Initialize translation service."""
+    def __init__(self, db_manager: Optional[Any] = None):
+        """
+        Initialize translation service.
+        
+        Args:
+            db_manager: Optional DatabaseManager instance for MongoDB operations.
+                       If None, TranslationService will use JSON files.
+        """
         self.phrase_index: Dict[str, List[Tuple[str, str, int]]] = {}
         self.google_translator = None
         self.timeout = settings.translation_timeout_seconds
+        self.db_manager = db_manager  # MongoDB connection (optional)
 
         logger.info(f"TranslationService initialized with timeout: {self.timeout}s")
         logger.info("Google Translate enabled for EN<->TL and Tagalog fallback")
+        if db_manager:
+            logger.info("DatabaseManager provided - MongoDB loading available")
     
     async def initialize(self) -> None:
         """
-        Load all translation data from JSON files
+        Load all translation data from MongoDB (primary) or JSON files (fallback)
+        
+        Data Source Priority (M3.2):
+        1. MongoDB Atlas (if DatabaseManager available and connection successful)
+        2. JSON files (fallback if MongoDB unavailable or fails)
+        
+        IMPORTANT: Never mixes partial MongoDB data with JSON data.
+        Runtime uses EITHER MongoDB OR JSON, never both.
         
         Loads:
-        - dictionary.json: Word-level translations (organized by categories)
-        - sentence.json: Sentence-level translations
-        - alphabet.json: Additional vocabulary from alphabet examples
+        - dictionary: Word-level translations (organized by categories)
+        - sentences: Sentence-level translations  
+        - alphabet: Additional vocabulary from alphabet examples
         """
         logger.info("Initializing translation service...")
+        
+        # ═══════════════════════════════════════════════════════════════
+        # ATTEMPT 1: Load from MongoDB (Primary Source)
+        # ═══════════════════════════════════════════════════════════════
+        if self.db_manager:
+            logger.info("DatabaseManager available - attempting MongoDB loading...")
+            
+            try:
+                # Load all linguistic data from MongoDB
+                logger.info("Loading linguistic data from MongoDB Atlas...")
+                
+                # Load dictionary data from MongoDB
+                dictionary_data = await self._load_dictionary_from_mongodb()
+                logger.info(f"✓ Loaded {len(dictionary_data)} word entries from MongoDB dictionary")
+                
+                # Load alphabet data from MongoDB
+                alphabet_data = await self._load_alphabet_from_mongodb()
+                logger.info(f"✓ Loaded {len(alphabet_data)} word entries from MongoDB alphabet")
+                
+                # Load sentence data from MongoDB
+                sentence_data = await self._load_sentences_from_mongodb()
+                logger.info(f"✓ Loaded {len(sentence_data)} sentence entries from MongoDB sentences")
+                
+                # Validate that required datasets loaded successfully
+                if len(dictionary_data) == 0:
+                    raise ValueError("MongoDB dictionary collection is empty - cannot initialize")
+                
+                # Combine all vocabulary sources
+                all_vocabulary = dictionary_data + alphabet_data
+                logger.info(f"✓ Total vocabulary entries from MongoDB: {len(all_vocabulary)}")
+                
+                # Build comprehensive lookup indexes using EXISTING architecture
+                # This preserves all translation behavior (phrase-based, dictionary-based, fuzzy)
+                self._build_translation_indexes(all_vocabulary, sentence_data)
+                
+                logger.info("=" * 80)
+                logger.info("✓ TranslationService initialized successfully from MongoDB Atlas")
+                logger.info(f"  Data source: MongoDB (PRIMARY)")
+                logger.info(f"  Dictionary entries: {len(dictionary_data)}")
+                logger.info(f"  Sentence entries: {len(sentence_data)}")
+                logger.info(f"  Alphabet entries: {len(alphabet_data)}")
+                logger.info(f"  Total vocabulary: {len(all_vocabulary)}")
+                logger.info(f"  Total indexed phrases: {sum(len(v) for v in self.phrase_index.values())}")
+                logger.info("=" * 80)
+                
+                return  # Success - using MongoDB data
+                
+            except Exception as mongo_error:
+                # MongoDB loading failed - log warning and fall back to JSON
+                logger.warning("=" * 80)
+                logger.warning(f"MongoDB loading failed: {str(mongo_error)}")
+                logger.warning("Falling back to JSON files for linguistic data...")
+                logger.warning("=" * 80)
+        
+        # ═══════════════════════════════════════════════════════════════
+        # ATTEMPT 2: Load from JSON Files (Fallback)
+        # ═══════════════════════════════════════════════════════════════
+        logger.info("Loading linguistic data from JSON files (fallback mode)...")
         
         try:
             # Load dictionary data (words organized by categories)
             dictionary_data = await self._load_dictionary_data()
-            logger.info(f"Loaded {len(dictionary_data)} word entries from dictionary")
+            logger.info(f"✓ Loaded {len(dictionary_data)} word entries from dictionary.json")
             
             # Load alphabet data (additional vocabulary from examples)
             alphabet_data = await self._load_alphabet_data()
-            logger.info(f"Loaded {len(alphabet_data)} word entries from alphabet")
+            logger.info(f"✓ Loaded {len(alphabet_data)} word entries from alphabet.json")
             
             # Load sentence data
             sentence_data = await self._load_sentence_data()
-            logger.info(f"Loaded {len(sentence_data)} sentence entries")
+            logger.info(f"✓ Loaded {len(sentence_data)} sentence entries from sentence.json")
             
             # Combine all vocabulary sources
             all_vocabulary = dictionary_data + alphabet_data
-            logger.info(f"Total vocabulary entries: {len(all_vocabulary)}")
+            logger.info(f"✓ Total vocabulary entries from JSON: {len(all_vocabulary)}")
             
             # Build comprehensive lookup indexes
             self._build_translation_indexes(all_vocabulary, sentence_data)
             
-            logger.info("Translation service initialized successfully")
-            logger.info(f"Total indexed phrases: {sum(len(v) for v in self.phrase_index.values())}")
+            logger.info("=" * 80)
+            logger.info("✓ TranslationService initialized successfully from JSON files")
+            logger.info(f"  Data source: JSON (FALLBACK)")
+            logger.info(f"  Dictionary entries: {len(dictionary_data)}")
+            logger.info(f"  Sentence entries: {len(sentence_data)}")
+            logger.info(f"  Alphabet entries: {len(alphabet_data)}")
+            logger.info(f"  Total vocabulary: {len(all_vocabulary)}")
+            logger.info(f"  Total indexed phrases: {sum(len(v) for v in self.phrase_index.values())}")
+            logger.info("=" * 80)
             
         except Exception as e:
-            logger.error(f"Failed to initialize translation service: {str(e)}", exc_info=True)
+            logger.error(f"Failed to initialize translation service from JSON files: {str(e)}", exc_info=True)
             raise
     
     async def _load_dictionary_data(self) -> List[Dict[str, str]]:
@@ -165,6 +246,193 @@ class TranslationService:
                     seen.add(unique_key)
         
         logger.info(f"Extracted {len(entries)} unique vocabulary entries from alphabet")
+        return entries
+    
+    async def _load_dictionary_from_mongodb(self) -> List[Dict[str, str]]:
+        """
+        Load dictionary data from MongoDB dictionary collection (M3.1)
+        
+        READ-ONLY operation. Queries all documents from the dictionary collection
+        and converts them to the internal format expected by _build_translation_indexes().
+        
+        Returns:
+            List of dictionaries with 'bul', 'tl', and 'en' translations
+            
+        Raises:
+            RuntimeError: If DatabaseManager not initialized
+            Exception: If MongoDB query fails
+        """
+        if not self.db_manager:
+            raise RuntimeError("DatabaseManager not initialized - cannot load from MongoDB")
+        
+        entries = []
+        
+        try:
+            # Query all documents from dictionary collection
+            # No limit needed - fetch all entries
+            docs = await self.db_manager.find_many(
+                collection="dictionary",
+                query={},
+                limit=10000  # High limit to ensure we get all entries
+            )
+            
+            logger.info(f"Retrieved {len(docs)} documents from MongoDB dictionary collection")
+            
+            for doc in docs:
+                bulos = doc.get("bulos", "").strip()
+                filipino = doc.get("filipino", "").strip()
+                english = doc.get("english", "").strip()
+                
+                # Skip entries with missing translations or placeholder values
+                # Same validation as JSON loading
+                if bulos and filipino and english and bulos != "—":
+                    entries.append({
+                        "bul": bulos,
+                        "tl": filipino,
+                        "en": english
+                    })
+            
+            logger.info(f"Loaded {len(entries)} valid dictionary entries from MongoDB")
+            logger.debug(f"Sample entry: {entries[0] if entries else 'None'}")
+            
+        except Exception as e:
+            logger.error(f"Failed to load dictionary from MongoDB: {str(e)}", exc_info=True)
+            raise
+        
+        return entries
+    
+    async def _load_sentences_from_mongodb(self) -> List[Dict[str, str]]:
+        """
+        Load sentence data from MongoDB sentences collection (M3.1)
+        
+        READ-ONLY operation. Queries all documents from the sentences collection
+        and converts them to the internal format expected by _build_translation_indexes().
+        
+        Note: Unlike JSON loading, we assume MongoDB data is pre-validated.
+        No sentence validation is performed here.
+        
+        Returns:
+            List of dictionaries with 'bul', 'tl', and 'en' translations
+            
+        Raises:
+            RuntimeError: If DatabaseManager not initialized
+            Exception: If MongoDB query fails
+        """
+        if not self.db_manager:
+            raise RuntimeError("DatabaseManager not initialized - cannot load from MongoDB")
+        
+        entries = []
+        
+        try:
+            # Query all documents from sentences collection
+            docs = await self.db_manager.find_many(
+                collection="sentences",
+                query={},
+                limit=1000  # Sentences typically fewer than dictionary
+            )
+            
+            logger.info(f"Retrieved {len(docs)} documents from MongoDB sentences collection")
+            
+            for doc in docs:
+                bulos = doc.get("bulos", "").strip()
+                filipino = doc.get("filipino", "").strip()
+                english = doc.get("english", "").strip()
+                
+                # No validation - assume MongoDB data is pre-validated
+                if bulos and filipino and english:
+                    entries.append({
+                        "bul": bulos,
+                        "tl": filipino,
+                        "en": english
+                    })
+            
+            logger.info(f"Loaded {len(entries)} sentence entries from MongoDB")
+            
+        except Exception as e:
+            logger.error(f"Failed to load sentences from MongoDB: {str(e)}", exc_info=True)
+            raise
+        
+        return entries
+    
+    async def _load_alphabet_from_mongodb(self) -> List[Dict[str, str]]:
+        """
+        Load and flatten alphabet data from MongoDB alphabet collection (M3.1)
+        
+        READ-ONLY operation. Queries alphabet documents with nested structure
+        and flattens all vocabulary examples from:
+        letter -> examples -> {initial, middle, final} -> entries
+        
+        The flattening process:
+        1. Fetch all letter documents from MongoDB
+        2. For each letter, iterate through positions (initial, middle, final)
+        3. Extract all entries from each position
+        4. Convert to internal format and deduplicate
+        
+        Returns:
+            List of dictionaries with 'bul', 'tl', and 'en' translations
+            
+        Raises:
+            RuntimeError: If DatabaseManager not initialized
+            Exception: If MongoDB query fails
+        """
+        if not self.db_manager:
+            raise RuntimeError("DatabaseManager not initialized - cannot load from MongoDB")
+        
+        entries = []
+        seen = set()  # Track unique entries to avoid duplicates
+        
+        try:
+            # Query all letter documents from alphabet collection
+            letter_docs = await self.db_manager.find_many(
+                collection="alphabet",
+                query={},
+                limit=100  # All letters (typically ~20-30)
+            )
+            
+            logger.info(f"Retrieved {len(letter_docs)} letter documents from MongoDB alphabet collection")
+            
+            for letter_doc in letter_docs:
+                examples = letter_doc.get("examples", {})
+                
+                # Process all position types: initial, middle, final
+                for position in ["initial", "middle", "final"]:
+                    position_examples = examples.get(position, [])
+                    
+                    for entry in position_examples:
+                        # Handle both lowercase and uppercase field names
+                        bulos = entry.get("bulos", entry.get("BULOS", ""))
+                        filipino = entry.get("filipino", entry.get("FILIPINO", ""))
+                        english = entry.get("english", entry.get("ENGLISH", ""))
+                        
+                        # Strip whitespace
+                        bulos = bulos.strip() if bulos else ""
+                        filipino = filipino.strip() if filipino else ""
+                        english = english.strip() if english else ""
+                        
+                        # Create unique key to avoid duplicates
+                        unique_key = f"{bulos.lower()}|{filipino.lower()}|{english.lower()}"
+                        
+                        # Skip if already seen, missing data, or placeholder
+                        if unique_key in seen:
+                            continue
+                        if not (bulos and filipino and english):
+                            continue
+                        if bulos == "—" or filipino == "—":
+                            continue
+                        
+                        entries.append({
+                            "bul": bulos,
+                            "tl": filipino,
+                            "en": english
+                        })
+                        seen.add(unique_key)
+            
+            logger.info(f"Loaded {len(entries)} unique alphabet entries from MongoDB (flattened from nested structure)")
+            
+        except Exception as e:
+            logger.error(f"Failed to load alphabet from MongoDB: {str(e)}", exc_info=True)
+            raise
+        
         return entries
     
     async def _load_sentence_data(self) -> List[Dict[str, str]]:
@@ -684,23 +952,37 @@ class TranslationService:
             # Step 1: Translate BUL → TL using dictionary
             result = await self._translate_text(text, 'bul', 'tl')
             tagalog_text = result['translated_text']
+            bul_to_tl_confidence = result['confidence']
             
-            logger.info(f"Step 1 (BUL→TL): '{text}' → '{tagalog_text}'")
+            logger.info(f"Step 1 (BUL→TL): '{text}' → '{tagalog_text}' (confidence: {bul_to_tl_confidence:.2f})")
             
             # Step 2: Translate TL → EN using Google
-            english_text = await self._translate_with_google(tagalog_text, 'tl', 'en')
-            
-            if not english_text:
-                logger.warning(f"Google Translate TL→EN failed, using intermediate Tagalog")
+            # SAFETY CHECK: Only send to Google if ALL Bulos words were successfully translated
+            # If confidence < 1.0, the output contains unmatched Bulos words that should NOT
+            # be treated as Tagalog by Google Translate.
+            if bul_to_tl_confidence < 1.0:
+                logger.warning(
+                    f"BUL→TL partial match (confidence={bul_to_tl_confidence:.2f}). "
+                    f"Not sending to Google to avoid misinterpreting unmatched Bulos words as Tagalog."
+                )
+                # Preserve the intermediate result (mixed Bulos+Tagalog)
                 english_text = tagalog_text
-                intermediate_language = 'tl'  # Stuck at Tagalog — signal partial result
+                intermediate_language = 'tl'  # Signal partial result
             else:
-                logger.info(f"Step 2 (TL→EN): '{tagalog_text}' → '{english_text}'")
-                intermediate_language = None
+                # confidence == 1.0: All words matched, safe to send to Google
+                english_text = await self._translate_with_google(tagalog_text, 'tl', 'en')
+                
+                if not english_text:
+                    logger.warning(f"Google Translate TL→EN failed, using intermediate Tagalog")
+                    english_text = tagalog_text
+                    intermediate_language = 'tl'  # Stuck at Tagalog
+                else:
+                    logger.info(f"Step 2 (TL→EN): '{tagalog_text}' → '{english_text}'")
+                    intermediate_language = None
             
             return {
                 "translated_text": english_text,
-                "confidence": result['confidence'],  # Use dictionary confidence
+                "confidence": bul_to_tl_confidence,  # Use dictionary confidence
                 "translation_method": "dictionary_then_google",
                 "intermediate_language": intermediate_language
             }

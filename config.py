@@ -42,6 +42,12 @@ class Settings(BaseSettings):
     fuzzy_match_threshold: float = Field(default=0.80)
     fuzzy_match_min_length: int = Field(default=3)
 
+    # MongoDB Settings
+    mongodb_url: str = Field(default="")
+    mongodb_database: str = Field(default="bulos_translator")
+    mongodb_max_pool_size: int = Field(default=50)
+    mongodb_min_pool_size: int = Field(default=10)
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
