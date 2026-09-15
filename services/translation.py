@@ -991,29 +991,120 @@ class TranslationService:
                 }
         
         # ═══════════════════════════════════════════════════════════════
-        # ROUTE 2: EN → BUL - 2-step translation (EN→TL→BUL)
+        # ROUTE 2: EN → BUL - Direct dictionary first, then 2-step fallback
         # ═══════════════════════════════════════════════════════════════
         if source_language == 'en' and target_language == 'bul':
-            logger.info(f"2-step translation EN→TL→BUL: '{text}'")
+            logger.info(f"EN→BUL translation: '{text}'")
+            
+            # FIRST: Try direct EN → BUL dictionary lookup
+            # This uses the same Hybrid infrastructure (phrase_index) as TL↔BUL
+            # Priority: Exact phrase → Multi-word → Fuzzy matching
+            
+            text_norm = self._normalize_text(text)
+            lang_pair = "en_to_bul"
+            
+            # Try exact full-text match first
+            if text_norm in self.phrase_index:
+                for translation, pair, _ in self.phrase_index[text_norm]:
+                    if pair == lang_pair:
+                        logger.info(f"Direct EN→BUL exact match: '{text}' → '{translation}'")
+                        return {
+                            "translated_text": translation,
+                            "confidence": 1.0,
+                            "translation_method": "dictionary"
+                        }
+            
+            # No exact match - try greedy multi-word matching (same as TL↔BUL)
+            words = text.split()
+            words_norm = [w.strip('.!?,;:') for w in text_norm.split()]
+            
+            if len(words_norm) > 0:
+                translated_parts = []
+                matched_word_count = 0
+                i = 0
+                
+                while i < len(words_norm):
+                    match_found = False
+                    best_match_length = 0
+                    best_translation = None
+                    
+                    # Try from longest to shortest phrase
+                    for length in range(len(words_norm) - i, 0, -1):
+                        phrase = ' '.join(words_norm[i:i+length])
+                        
+                        if phrase in self.phrase_index:
+                            for translation, pair, _ in self.phrase_index[phrase]:
+                                if pair == lang_pair:
+                                    best_translation = translation
+                                    best_match_length = length
+                                    match_found = True
+                                    break
+                            
+                            if match_found:
+                                break
+                    
+                    if match_found and best_translation is not None:
+                        translated_parts.append(best_translation)
+                        matched_word_count += best_match_length
+                        original_phrase = ' '.join(words[i:i+best_match_length])
+                        logger.debug(f"EN→BUL matched at position {i}: '{original_phrase}' → '{best_translation}'")
+                        i += best_match_length
+                    else:
+                        # No exact match - try fuzzy matching for single words
+                        original_word = words[i]
+                        word_norm = words_norm[i]
+                        
+                        fuzzy_result = self._fuzzy_match_dictionary(word_norm, source_language, target_language)
+                        
+                        if fuzzy_result:
+                            fuzzy_translation, similarity = fuzzy_result
+                            translated_parts.append(fuzzy_translation)
+                            matched_word_count += 1
+                            logger.debug(f"EN→BUL fuzzy matched: '{original_word}' → '{fuzzy_translation}' (similarity={similarity:.3f})")
+                        else:
+                            # No fuzzy match - preserve original word
+                            translated_parts.append(original_word)
+                            logger.debug(f"EN→BUL no match: '{original_word}' (preserved)")
+                        
+                        i += 1
+                
+                # Calculate confidence
+                total_words = len(words_norm)
+                confidence = matched_word_count / total_words if total_words > 0 else 0.0
+                translated_text = ' '.join(translated_parts)
+                
+                # If we found a usable direct translation (at least partial match)
+                if confidence > 0:
+                    method = "dictionary" if confidence == 1.0 else "dictionary_with_preservation"
+                    logger.info(f"Direct EN→BUL result: '{text}' → '{translated_text}' (confidence={confidence:.2f}, matched={matched_word_count}/{total_words})")
+                    return {
+                        "translated_text": translated_text,
+                        "confidence": confidence,
+                        "translation_method": method
+                    }
+            
+            # FALLBACK: No direct EN→BUL match found, use 2-step via Google
+            logger.info(f"No direct EN→BUL match, using 2-step EN→TL→BUL fallback")
             
             # Step 1: Translate EN → TL using Google
             tagalog_text = await self._translate_with_google(text, 'en', 'tl')
             
             if not tagalog_text:
-                logger.warning(f"Google Translate EN→TL failed, using original text")
-                tagalog_text = text
-                intermediate_language = None
-            else:
-                logger.info(f"Step 1 (EN→TL): '{text}' → '{tagalog_text}'")
-                intermediate_language = 'tl'
+                logger.warning(f"Google Translate EN→TL failed, returning original text")
+                return {
+                    "translated_text": text,
+                    "confidence": 0.0,
+                    "translation_method": "fallback_original"
+                }
             
-            # Step 2: Translate TL → BUL using dictionary (with Tagalog preservation)
-            # Recursively call with TL→BUL
+            logger.info(f"Step 1 (EN→TL): '{text}' → '{tagalog_text}'")
+            
+            # Step 2: Translate TL → BUL using dictionary
             result = await self._translate_text(tagalog_text, 'tl', 'bul')
             
             # Update method to indicate 2-step process
             result['translation_method'] = 'google_then_dictionary'
-            result['intermediate_language'] = intermediate_language
+            result['intermediate_language'] = 'tl'
             logger.info(f"Step 2 (TL→BUL): '{tagalog_text}' → '{result['translated_text']}'")
             
             return result
