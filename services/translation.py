@@ -15,6 +15,15 @@ from utils.sentence_validator import validate_sentence_data
 logger = get_logger(__name__)
 
 
+# Import LSTM translator (Phase 1: Infrastructure only, disabled by default)
+try:
+    from services.lstm_translator import LSTMTranslator
+    LSTM_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"LSTM translator module not available: {e}")
+    LSTM_AVAILABLE = False
+
+
 class TranslationService:
     """Service for translating text using comprehensive dictionary lookup"""
     
@@ -40,6 +49,35 @@ class TranslationService:
         self.google_translator = None
         self.timeout = settings.translation_timeout_seconds
         self.db_manager = db_manager  # MongoDB connection (optional)
+
+        # Phase 1: LSTM translator initialization (disabled by default)
+        self.lstm_translator: Optional[Any] = None
+        if LSTM_AVAILABLE and settings.lstm_enabled:
+            logger.info("=" * 80)
+            logger.info("LSTM Translation: ENABLED")
+            logger.info("=" * 80)
+            try:
+                self.lstm_translator = LSTMTranslator(
+                    enabled=True,
+                    model_path=settings.lstm_model_path,
+                    config={
+                        'source_vocab_path': settings.lstm_source_vocab_path,
+                        'target_vocab_path': settings.lstm_target_vocab_path,
+                        'max_sequence_length': settings.lstm_max_sequence_length,
+                        'confidence_threshold': settings.lstm_confidence_threshold,
+                        'source_language': settings.lstm_source_language,
+                        'target_language': settings.lstm_target_language,
+                    }
+                )
+            except Exception as e:
+                logger.error(f"Failed to create LSTM translator: {e}")
+                logger.error("TranslationService will operate with Hybrid algorithm only")
+                self.lstm_translator = None
+        else:
+            if not LSTM_AVAILABLE:
+                logger.info("LSTM Translation: Module not available")
+            elif not settings.lstm_enabled:
+                logger.info("LSTM Translation: DISABLED (lstm_enabled=False)")
 
         logger.info(f"TranslationService initialized with timeout: {self.timeout}s")
         logger.info("Google Translate enabled for EN<->TL and Tagalog fallback")
@@ -108,6 +146,9 @@ class TranslationService:
                 logger.info(f"  Total indexed phrases: {sum(len(v) for v in self.phrase_index.values())}")
                 logger.info("=" * 80)
                 
+                # Phase 1: Initialize LSTM translator (if enabled)
+                await self._initialize_lstm_translator()
+                
                 return  # Success - using MongoDB data
                 
             except Exception as mongo_error:
@@ -151,6 +192,9 @@ class TranslationService:
             logger.info(f"  Total vocabulary: {len(all_vocabulary)}")
             logger.info(f"  Total indexed phrases: {sum(len(v) for v in self.phrase_index.values())}")
             logger.info("=" * 80)
+            
+            # Phase 1: Initialize LSTM translator (if enabled)
+            await self._initialize_lstm_translator()
             
         except Exception as e:
             logger.error(f"Failed to initialize translation service from JSON files: {str(e)}", exc_info=True)
@@ -510,6 +554,37 @@ class TranslationService:
         
         logger.info(f"Extracted {len(entries)} sentence entries")
         return entries
+    
+    async def _initialize_lstm_translator(self) -> None:
+        """
+        Initialize LSTM translator if enabled (Phase 1).
+        
+        This method is called during TranslationService initialization.
+        Failures are logged but do NOT crash the service - Hybrid translation
+        continues operating normally.
+        
+        SAFETY: Backend starts successfully even if LSTM initialization fails.
+        """
+        if not self.lstm_translator:
+            logger.debug("LSTM translator not configured, skipping initialization")
+            return
+        
+        try:
+            logger.info("Initializing LSTM translator...")
+            lstm_initialized = await self.lstm_translator.initialize()
+            
+            if lstm_initialized:
+                logger.info("✓ LSTM translator initialized successfully")
+                logger.info(f"  LSTM status: {self.lstm_translator.get_status()}")
+            else:
+                logger.warning("LSTM translator initialization incomplete")
+                logger.warning("  TranslationService will operate with Hybrid algorithm only")
+                logger.warning(f"  Reason: {self.lstm_translator.initialization_error}")
+                
+        except Exception as e:
+            logger.error(f"LSTM translator initialization failed: {e}", exc_info=True)
+            logger.error("TranslationService will operate with Hybrid algorithm only")
+            self.lstm_translator = None
     
     def _normalize_text(self, text: str) -> str:
         """
@@ -1151,7 +1226,34 @@ class TranslationService:
                 timeout=self.timeout
             )
 
-            logger.info(f"Translation completed: '{result['translated_text']}'")
+            logger.info(f"Hybrid translation completed: '{result['translated_text']}'")
+            
+            # Phase 1: Check if LSTM fallback should be attempted
+            # IMPORTANT: LSTM is used ONLY when Hybrid cannot provide a usable translation
+            # 
+            # Hybrid Success Criteria (M3.3 semantics):
+            # 1. For EN↔TL: Google success (confidence=1.0, method="google_translate")
+            # 2. For routes involving dictionary: Reasonable confidence (> 0.0)
+            # 
+            # LSTM Fallback Conditions:
+            # - Hybrid returned very low confidence (< 0.1) indicating almost no matches
+            # - OR Google Translate completely failed (method="fallback_original")
+            #
+            # This preserves M3.3 behavior: even partial dictionary matches with
+            # Tagalog preservation are considered "usable" by Hybrid.
+            should_try_lstm = self._should_attempt_lstm_fallback(result, source_language, target_language)
+            
+            if should_try_lstm:
+                logger.info("Hybrid translation has very low usability - attempting LSTM fallback...")
+                lstm_result = await self._try_lstm_translation(text, source_language, target_language)
+                
+                if lstm_result:
+                    logger.info(f"LSTM fallback succeeded: '{lstm_result['translated_text']}'")
+                    # Use LSTM result
+                    result = lstm_result
+                else:
+                    logger.info("LSTM fallback not available or failed - using Hybrid result")
+                    # Keep Hybrid result (even if low confidence)
 
             return {
                 "original_text": text,
@@ -1170,3 +1272,105 @@ class TranslationService:
         except Exception as e:
             logger.error(f"Translation failed: {str(e)}", exc_info=True)
             raise
+    
+    def _should_attempt_lstm_fallback(
+        self,
+        hybrid_result: Dict[str, Any],
+        source_language: str,
+        target_language: str
+    ) -> bool:
+        """
+        Determine if LSTM fallback should be attempted based on Hybrid result quality.
+        
+        Phase 1 Infrastructure: LSTM is DISABLED by default (lstm_enabled=False).
+        This method returns False in Phase 1 since no LSTM is configured.
+        
+        Future Routing Rule (PENDING VALIDATION):
+        When LSTM is enabled, this method will determine when Hybrid "cannot provide
+        a usable translation." The exact definition of "usable" requires validation
+        and user approval - it is NOT implemented in Phase 1.
+        
+        Current M3.3 Hybrid Behavior (PRESERVED):
+        - Known phrase/word match → confidence=1.0, method="dictionary"
+        - Fuzzy match at threshold 0.80 → confidence varies, method="dictionary" 
+        - Unknown word preservation → confidence=0.0, method="tagalog_only"
+        - Google success → confidence=1.0, method="google_translate"
+        - Google failure → confidence=0.0, method="fallback_original"
+        
+        Phase 1 Behavior:
+        - LSTM disabled → Always returns False (Hybrid result always used)
+        - No routing decision needed until LSTM artifacts available
+        
+        Args:
+            hybrid_result: Result from Hybrid translation (_translate_text)
+            source_language: Source language code
+            target_language: Target language code
+            
+        Returns:
+            False (Phase 1: LSTM disabled, no fallback routing)
+        """
+        # Phase 1: LSTM disabled by default, no routing decision needed
+        # When LSTM is enabled in future, routing logic will be implemented here
+        # based on validated criteria for "Hybrid cannot provide usable translation"
+        
+        confidence = hybrid_result.get("confidence", 0.0)
+        method = hybrid_result.get("translation_method", "unknown")
+        
+        logger.debug(
+            f"LSTM fallback check: confidence={confidence:.2f}, method={method} "
+            f"(Phase 1: LSTM disabled, returning False)"
+        )
+        
+        # TODO (Phase 2+): When LSTM is enabled, implement routing decision here
+        # IMPORTANT: Do NOT use arbitrary thresholds without validation
+        # The definition of "usable Hybrid result" must be validated with user
+        
+        return False
+    
+    async def _try_lstm_translation(
+        self,
+        text: str,
+        source_language: str,
+        target_language: str
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Attempt LSTM translation as final fallback.
+        
+        SAFETY: Never crashes. Returns None if LSTM unavailable or fails.
+        
+        Args:
+            text: Text to translate
+            source_language: Source language code
+            target_language: Target language code
+            
+        Returns:
+            LSTM translation result or None if unavailable/failed
+        """
+        if not self.lstm_translator:
+            logger.debug("LSTM translator not available")
+            return None
+        
+        if not self.lstm_translator.is_available():
+            logger.debug("LSTM translator not initialized")
+            return None
+        
+        try:
+            lstm_result = await self.lstm_translator.translate(
+                text=text,
+                source_language=source_language,
+                target_language=target_language
+            )
+            
+            if lstm_result:
+                logger.info(
+                    f"LSTM translation succeeded: '{text}' → '{lstm_result['translated_text']}' "
+                    f"(confidence={lstm_result['confidence']:.2f})"
+                )
+                return lstm_result
+            else:
+                logger.debug("LSTM translation returned None (not supported or low confidence)")
+                return None
+                
+        except Exception as e:
+            logger.warning(f"LSTM translation failed: {e}")
+            return None

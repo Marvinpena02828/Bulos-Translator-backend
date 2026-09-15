@@ -48,6 +48,18 @@ class Settings(BaseSettings):
     mongodb_max_pool_size: int = Field(default=50)
     mongodb_min_pool_size: int = Field(default=10)
 
+    # LSTM Translation Settings (Phase 1: Infrastructure - DISABLED by default)
+    # IMPORTANT: LSTM is used ONLY as final fallback when Hybrid algorithm fails
+    # Architecture: Hybrid (Phrase→Dictionary→Fuzzy) → LSTM (if Hybrid fails)
+    lstm_enabled: bool = Field(default=False)
+    lstm_model_path: str = Field(default="")
+    lstm_source_vocab_path: str = Field(default="")
+    lstm_target_vocab_path: str = Field(default="")
+    lstm_source_language: str = Field(default="")
+    lstm_target_language: str = Field(default="")
+    lstm_max_sequence_length: int = Field(default=50)
+    lstm_confidence_threshold: float = Field(default=0.70)
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
