@@ -26,7 +26,7 @@ _translation_service = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: initialise translation service. Shutdown: nothing to close."""
+    """Startup: initialise translation service and LSTM models. Shutdown: nothing to close."""
     global _translation_service
 
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
@@ -42,6 +42,24 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Translation service initialization failed: {e}")
         logger.warning("Translation endpoints may not be available")
+
+    # Warm-load LSTM models at startup so the first translation request
+    # doesn't pay the model-loading cost (~5-10s per model × 6 models).
+    try:
+        logger.info("Loading LSTM translation models...")
+        from services.translation import _get_lstm
+        lstm = _get_lstm()
+        if lstm is not None:
+            logger.info(
+                f"LSTM models loaded — available directions: {lstm.available_directions}"
+            )
+        else:
+            logger.warning(
+                "LSTM models not available — translation will use dictionary/Google only"
+            )
+    except Exception as e:
+        logger.warning(f"LSTM model loading failed at startup: {e}")
+        logger.warning("Translation will continue without LSTM fallback")
 
     logger.info("Application startup complete")
 
