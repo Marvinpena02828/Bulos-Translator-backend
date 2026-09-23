@@ -1,345 +1,199 @@
 """
-LSTM Translation Service - Phase 1 Infrastructure
+LSTM Seq2Seq Translation Service
+=================================
+Loads pre-trained character-level encoder-decoder LSTM models from
+models/lstm/<src>_to_<tgt>/ and provides inference for all 6 direction pairs.
 
-PURPOSE:
-This module provides the infrastructure for LSTM-based translation as a final fallback
-when the Hybrid algorithm (Phrase-Based → Dictionary-Based → Fuzzy Matching) cannot
-provide a usable translation.
-
-ARCHITECTURE PRIORITY:
-    Hybrid Algorithm (Phrase + Dictionary + Fuzzy)
-        ↓
-    LSTM Algorithm (if Hybrid fails)
-
-SAFETY GUARANTEES:
-- DISABLED by default (lstm_enabled=False in config)
-- NO hardcoded vocabulary, tokenizers, or model assumptions
-- NO fake/stub translations
-- Requires external LSTM artifacts (model, tokenizer, vocabulary, config)
-- If unavailable/fails → existing M3.3 behavior unchanged
-- Fully isolated from Hybrid translation logic
-
-IMPORTANT:
-This is INFRASTRUCTURE ONLY. Actual LSTM inference requires:
-1. Trained .keras model artifact
-2. Source/target vocabulary files
-3. Tokenizer configuration
-4. Preprocessing specifications
-5. Sequence length configuration
-6. Special tokens (PAD, UNK, START, END) definitions
-
-These artifacts must be provided by the LSTM training team.
+Models must be trained first via:
+    python scripts/train_lstm.py
 """
 
-import asyncio
+import json
+import os
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Optional
+
+import numpy as np
+
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
+MODELS_DIR = Path(__file__).parent.parent / "models" / "lstm"
+
+START_TOKEN = "\t"
+END_TOKEN   = "\n"
+
+# All supported direction keys
+DIRECTION_KEYS = ["bul_en", "en_bul", "bul_tl", "tl_bul", "en_tl", "tl_en"]
+
 
 class LSTMTranslator:
     """
-    LSTM-based translator service (Phase 1: Infrastructure only)
-    
-    This class provides the interface for LSTM translation but requires
-    external artifacts to function. It is designed to fail safely if
-    artifacts are missing or LSTM is disabled.
-    
-    Status: DISABLED by default
-    Required artifacts: NOT YET PROVIDED (groupmate's responsibility)
+    Loads and serves all 6 LSTM direction models.
+    Falls back gracefully if a model file is missing.
     """
-    
-    def __init__(
-        self,
-        enabled: bool = False,
-        model_path: Optional[str] = None,
-        config: Optional[Dict[str, Any]] = None
-    ):
-        """
-        Initialize LSTM translator (infrastructure only).
-        
-        Args:
-            enabled: Whether LSTM translation is enabled (default: False)
-            model_path: Path to .keras model artifact (required if enabled)
-            config: LSTM configuration dictionary containing:
-                - source_vocab_path: Path to source language vocabulary
-                - target_vocab_path: Path to target language vocabulary
-                - max_sequence_length: Maximum input sequence length
-                - confidence_threshold: Minimum confidence for valid translation
-                - source_language: Source language code (e.g., 'bul', 'en', 'tl')
-                - target_language: Target language code
-                - special_tokens: Dict with PAD, UNK, START, END token IDs
-        """
-        self.enabled = enabled
-        self.model_path = model_path
-        self.config = config or {}
-        
-        # Runtime state (initialized during initialize())
-        self.model = None
-        self.source_vocab = None
-        self.target_vocab = None
-        self.reverse_target_vocab = None
-        self.initialized = False
-        self.initialization_error = None
-        
-        if not enabled:
-            logger.info("LSTM Translator: DISABLED (lstm_enabled=False)")
-        else:
-            logger.info(f"LSTM Translator: ENABLED (model_path={model_path})")
-    
-    async def initialize(self) -> bool:
-        """
-        Initialize LSTM model and artifacts.
-        
-        This method attempts to load:
-        1. Keras model (.keras file)
-        2. Source vocabulary (for tokenization)
-        3. Target vocabulary (for detokenization)
-        4. Configuration (sequence length, special tokens, etc.)
-        
-        Returns:
-            True if initialization successful, False otherwise
-            
-        SAFETY: Failures are logged but DO NOT crash the backend.
-        The translation service will continue operating with Hybrid only.
-        """
-        if not self.enabled:
-            logger.info("LSTM initialization skipped: DISABLED")
-            self.initialization_error = "LSTM translation is disabled in configuration"
-            return False
-        
-        if self.initialized:
-            logger.debug("LSTM already initialized")
-            return True
-        
+
+    def __init__(self):
+        self._models: dict = {}   # key → {"enc": model, "dec": model, "tok": dict}
+        self._available: set = set()
+
+    def load_models(self) -> None:
+        """Load all available direction models from disk."""
         try:
-            # Validate required configuration
-            if not self.model_path:
-                raise ValueError("lstm_model_path not configured")
-            
-            required_config_keys = [
-                'source_vocab_path',
-                'target_vocab_path',
-                'max_sequence_length',
-                'confidence_threshold',
-                'source_language',
-                'target_language'
-            ]
-            
-            missing_keys = [key for key in required_config_keys if key not in self.config]
-            if missing_keys:
-                raise ValueError(f"Missing required LSTM configuration keys: {missing_keys}")
-            
-            # Check model file exists
-            model_file = Path(self.model_path)
-            if not model_file.exists():
-                raise FileNotFoundError(f"LSTM model not found: {self.model_path}")
-            
-            # Check vocabulary files exist
-            source_vocab_path = Path(self.config['source_vocab_path'])
-            target_vocab_path = Path(self.config['target_vocab_path'])
-            
-            if not source_vocab_path.exists():
-                raise FileNotFoundError(f"Source vocabulary not found: {source_vocab_path}")
-            
-            if not target_vocab_path.exists():
-                raise FileNotFoundError(f"Target vocabulary not found: {target_vocab_path}")
-            
-            logger.info("=" * 80)
-            logger.info("LSTM Translator Initialization")
-            logger.info(f"  Model: {self.model_path}")
-            logger.info(f"  Source vocab: {self.config['source_vocab_path']}")
-            logger.info(f"  Target vocab: {self.config['target_vocab_path']}")
-            logger.info(f"  Direction: {self.config['source_language']} → {self.config['target_language']}")
-            logger.info(f"  Max sequence length: {self.config['max_sequence_length']}")
-            logger.info(f"  Confidence threshold: {self.config['confidence_threshold']}")
-            logger.info("=" * 80)
-            
-            # TODO: Load model and vocabularies
-            # This will be implemented once artifacts are available from the training team
-            # For now, we just validate that files exist
-            
-            # Placeholder for actual loading:
-            # import tensorflow as tf
-            # self.model = tf.keras.models.load_model(self.model_path)
-            # self.source_vocab = self._load_vocabulary(source_vocab_path)
-            # self.target_vocab = self._load_vocabulary(target_vocab_path)
-            # self.reverse_target_vocab = {idx: word for word, idx in self.target_vocab.items()}
-            
-            logger.warning("LSTM artifacts found but loading NOT IMPLEMENTED yet")
-            logger.warning("Waiting for LSTM training team to provide:")
-            logger.warning("  1. Vocabulary loading specification")
-            logger.warning("  2. Preprocessing/tokenization logic")
-            logger.warning("  3. Sequence padding/truncation rules")
-            logger.warning("  4. Special token handling")
-            logger.warning("  5. Decoding/detokenization logic")
-            
-            self.initialized = False  # Not actually initialized until implementation complete
-            self.initialization_error = "LSTM loading not implemented - waiting for training artifacts"
-            return False
-            
-        except Exception as e:
-            logger.error(f"LSTM initialization failed: {str(e)}")
-            logger.error("Backend will continue operating with Hybrid translation only")
-            self.initialization_error = str(e)
-            self.initialized = False
-            return False
-    
-    def is_available(self) -> bool:
+            import tensorflow as tf  # noqa: F401 — ensure TF is importable
+            from tensorflow import keras
+        except ImportError:
+            logger.warning("TensorFlow not installed — LSTM translator unavailable")
+            return
+
+        loaded = 0
+        for key in DIRECTION_KEYS:
+            model_dir = MODELS_DIR / key
+            model_path = model_dir / "model.keras"
+            tok_path   = model_dir / "tokenizer.json"
+
+            if not model_path.exists() or not tok_path.exists():
+                logger.debug(f"LSTM model not found for {key}, skipping")
+                continue
+
+            try:
+                training_model = keras.models.load_model(str(model_path))
+                with open(tok_path, "r", encoding="utf-8") as f:
+                    tok = json.load(f)
+
+                # Rebuild inference sub-models
+                latent_dim = training_model.get_layer("encoder").units
+                enc_model, dec_model = _build_inference_models(
+                    training_model, latent_dim
+                )
+
+                self._models[key] = {
+                    "enc":         enc_model,
+                    "dec":         dec_model,
+                    "tok":         tok,
+                    "latent_dim":  latent_dim,
+                }
+                self._available.add(key)
+                loaded += 1
+                logger.info(f"LSTM model loaded: {key}")
+
+            except Exception as e:
+                logger.warning(f"Failed to load LSTM model for {key}: {e}")
+
+        logger.info(f"LSTM translator ready — {loaded}/{len(DIRECTION_KEYS)} models loaded")
+
+    def is_available(self, src_lang: str, tgt_lang: str) -> bool:
+        key = f"{src_lang}_{tgt_lang}"
+        return key in self._available
+
+    def translate(self, text: str, src_lang: str, tgt_lang: str) -> Optional[str]:
         """
-        Check if LSTM translator is available for use.
-        
+        Translate text using the LSTM model for the given direction.
+
         Returns:
-            True if LSTM is enabled, initialized, and ready
+            Translated string, or None if the model is unavailable or fails.
         """
-        return self.enabled and self.initialized
-    
-    def get_status(self) -> Dict[str, Any]:
-        """
-        Get current LSTM translator status.
-        
-        Returns:
-            Dictionary with status information
-        """
-        return {
-            "enabled": self.enabled,
-            "initialized": self.initialized,
-            "available": self.is_available(),
-            "model_path": self.model_path,
-            "source_language": self.config.get('source_language'),
-            "target_language": self.config.get('target_language'),
-            "error": self.initialization_error
-        }
-    
-    async def translate(
-        self,
-        text: str,
-        source_language: str,
-        target_language: str
-    ) -> Optional[Dict[str, Any]]:
-        """
-        Translate text using LSTM model.
-        
-        This is the FINAL FALLBACK in the translation pipeline.
-        Only called when Hybrid algorithm cannot provide a usable translation.
-        
-        Args:
-            text: Text to translate
-            source_language: Source language code
-            target_language: Target language code
-            
-        Returns:
-            Dictionary with translation result:
-            {
-                "translated_text": str,
-                "confidence": float,
-                "translation_method": "lstm"
-            }
-            
-            Returns None if:
-            - LSTM not available
-            - Language direction not supported by this LSTM
-            - Translation confidence below threshold
-            - Any error occurs
-            
-        SAFETY: Never crashes. Returns None on any failure.
-        """
-        # Safety check: LSTM available?
-        if not self.is_available():
-            logger.debug(
-                f"LSTM translation unavailable: "
-                f"enabled={self.enabled}, initialized={self.initialized}"
-            )
+        key = f"{src_lang}_{tgt_lang}"
+        if key not in self._available:
             return None
-        
-        # Validate language direction matches LSTM configuration
-        configured_src = self.config.get('source_language')
-        configured_tgt = self.config.get('target_language')
-        
-        if source_language != configured_src or target_language != configured_tgt:
-            logger.debug(
-                f"LSTM language direction mismatch: "
-                f"requested={source_language}→{target_language}, "
-                f"configured={configured_src}→{configured_tgt}"
-            )
-            return None
-        
+
         try:
-            logger.info(f"LSTM translation: '{text}' ({source_language}→{target_language})")
-            
-            # TODO: Implement actual LSTM inference
-            # Steps required (from training team):
-            # 1. Tokenize input text using source vocabulary
-            # 2. Convert tokens to integer sequences
-            # 3. Pad/truncate to max_sequence_length
-            # 4. Run model inference
-            # 5. Decode output sequence using target vocabulary
-            # 6. Convert integer sequences back to text
-            # 7. Calculate confidence score
-            # 8. Apply confidence threshold
-            
-            logger.warning("LSTM inference NOT IMPLEMENTED - returning None")
-            return None
-            
+            entry      = self._models[key]
+            tok        = entry["tok"]
+            enc_model  = entry["enc"]
+            dec_model  = entry["dec"]
+
+            src_c2i    = tok["src_char2idx"]
+            tgt_c2i    = tok["tgt_char2idx"]
+            tgt_i2c    = {int(k): v for k, v in tok["tgt_idx2char"].items()}
+            max_src    = tok["max_src_len"]
+            max_tgt    = tok["max_tgt_len"]
+
+            enc_seq    = _encode_sequences([text], src_c2i, max_src)
+            result     = _decode_sequence(
+                enc_seq, enc_model, dec_model, tgt_c2i, tgt_i2c, max_tgt
+            )
+            return result if result else None
+
         except Exception as e:
-            logger.error(f"LSTM translation failed: {str(e)}", exc_info=True)
+            logger.error(f"LSTM translation failed ({key}): {e}", exc_info=True)
             return None
-    
-    def _load_vocabulary(self, vocab_path: Path) -> Dict[str, int]:
-        """
-        Load vocabulary from file.
-        
-        THIS IS A PLACEHOLDER. The actual implementation depends on
-        the vocabulary format chosen by the LSTM training team.
-        
-        Possible formats:
-        - JSON: {"word": index}
-        - Text: one word per line (index = line number)
-        - Pickle: serialized dictionary
-        
-        Args:
-            vocab_path: Path to vocabulary file
-            
-        Returns:
-            Dictionary mapping words to integer indices
-        """
-        raise NotImplementedError(
-            "Vocabulary loading not implemented. "
-            "Waiting for LSTM training team to specify vocabulary format."
-        )
-    
-    def _tokenize(self, text: str) -> list:
-        """
-        Tokenize text for LSTM input.
-        
-        THIS IS A PLACEHOLDER. Tokenization rules must match training.
-        
-        Args:
-            text: Input text
-            
-        Returns:
-            List of token integers
-        """
-        raise NotImplementedError(
-            "Tokenization not implemented. "
-            "Waiting for LSTM training team to specify tokenization rules."
-        )
-    
-    def _detokenize(self, token_ids: list) -> str:
-        """
-        Convert token IDs back to text.
-        
-        THIS IS A PLACEHOLDER. Detokenization must handle special tokens.
-        
-        Args:
-            token_ids: List of token integers
-            
-        Returns:
-            Decoded text string
-        """
-        raise NotImplementedError(
-            "Detokenization not implemented. "
-            "Waiting for LSTM training team to specify decoding rules."
-        )
+
+    @property
+    def available_directions(self) -> list:
+        return sorted(self._available)
+
+
+# ── module-level singleton ────────────────────────────────────────────────────
+_instance: Optional[LSTMTranslator] = None
+
+
+def get_lstm_translator() -> LSTMTranslator:
+    """Return the module-level LSTMTranslator singleton (lazy-initialised)."""
+    global _instance
+    if _instance is None:
+        _instance = LSTMTranslator()
+        _instance.load_models()
+    return _instance
+
+
+# ── helpers (mirror of training script, kept local to avoid circular imports) ─
+
+def _encode_sequences(texts: list, char2idx: dict, max_len: int) -> np.ndarray:
+    seqs = []
+    for t in texts:
+        seq = [char2idx.get(c, 0) for c in t][:max_len]
+        seq += [0] * (max_len - len(seq))
+        seqs.append(seq)
+    return np.array(seqs, dtype=np.int32)
+
+
+def _decode_sequence(input_seq: np.ndarray, enc_model, dec_model,
+                     tgt_c2i: dict, tgt_i2c: dict,
+                     max_decode_len: int) -> str:
+    states     = enc_model.predict(input_seq, verbose=0)
+    target_seq = np.array([[tgt_c2i.get(START_TOKEN, 1)]])
+    result     = []
+
+    for _ in range(max_decode_len):
+        output, h, c = dec_model.predict([target_seq] + states, verbose=0)
+        token_idx    = int(np.argmax(output[0, -1, :]))
+        if token_idx == 0:
+            break
+        char = tgt_i2c.get(token_idx, "")
+        if char == END_TOKEN:
+            break
+        result.append(char)
+        target_seq = np.array([[token_idx]])
+        states     = [h, c]
+
+    return "".join(result)
+
+
+def _build_inference_models(training_model, latent_dim: int):
+    """Rebuild encoder and decoder inference sub-models from a loaded training model."""
+    from tensorflow import keras
+    from tensorflow.keras import layers
+
+    # Encoder
+    enc_input = training_model.get_layer("enc_input").input
+    enc_emb   = training_model.get_layer("enc_emb")(enc_input)
+    _, h, c   = training_model.get_layer("encoder")(enc_emb)
+    enc_model = keras.Model(enc_input, [h, c])
+
+    # Decoder
+    dec_input = training_model.get_layer("dec_input").input
+    dec_emb   = training_model.get_layer("dec_emb")(dec_input)
+    dec_h_in  = layers.Input(shape=(latent_dim,), name="dec_h_in")
+    dec_c_in  = layers.Input(shape=(latent_dim,), name="dec_c_in")
+    dec_lstm  = training_model.get_layer("decoder")
+    dec_out, dec_h, dec_c = dec_lstm(dec_emb,
+                                     initial_state=[dec_h_in, dec_c_in])
+    dec_dense  = training_model.get_layer("dec_dense")
+    dec_logits = dec_dense(dec_out)
+    dec_model  = keras.Model(
+        [dec_input, dec_h_in, dec_c_in],
+        [dec_logits, dec_h, dec_c]
+    )
+    return enc_model, dec_model
