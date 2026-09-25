@@ -356,6 +356,7 @@ class TranslationService:
 
         # ROUTE 1: EN ↔ TL
         if source_language in ("en", "tl") and target_language in ("en", "tl"):
+            # Try Google Translate first
             translated = await self._translate_with_google(
                 text, source_language, target_language
             )
@@ -365,6 +366,14 @@ class TranslationService:
                     "confidence": 1.0,
                     "translation_method": "google_translate",
                 }
+            # Google failed — fall back to dictionary lookup
+            logger.warning(
+                f"Google Translate failed for {source_language}→{target_language}, "
+                "falling back to dictionary lookup"
+            )
+            direct = self._greedy_translate(text, source_language, target_language)
+            if direct["confidence"] > 0:
+                return direct
             return {
                 "translated_text": text,
                 "confidence": 0.0,

@@ -38,9 +38,12 @@ async def lifespan(app: FastAPI):
         from services.translation import TranslationService
         _translation_service = TranslationService()
         await _translation_service.initialize()
-        logger.info("Translation service initialized successfully")
+        phrase_count = sum(len(v) for v in _translation_service.phrase_index.values())
+        logger.info(f"Translation service initialized — {phrase_count} indexed phrases")
+        if phrase_count == 0:
+            logger.error("CRITICAL: phrase_index is EMPTY after initialization — translation will not work!")
     except Exception as e:
-        logger.warning(f"Translation service initialization failed: {e}")
+        logger.error(f"Translation service initialization FAILED: {e}", exc_info=True)
         logger.warning("Translation endpoints may not be available")
 
     # Warm-load LSTM models at startup so the first translation request
@@ -146,6 +149,19 @@ def create_application() -> FastAPI:
     async def health_check():
         return {"status": "healthy", "service": settings.app_name,
                 "version": settings.app_version}
+
+    @app.get("/debug/translation", tags=["Debug"])
+    async def debug_translation():
+        """Shows translation service state — use to verify phrase index is loaded."""
+        if _translation_service is None:
+            return {"status": "not_initialized", "phrase_count": 0}
+        phrase_count = sum(len(v) for v in _translation_service.phrase_index.values())
+        sample_keys = list(_translation_service.phrase_index.keys())[:5]
+        return {
+            "status": "initialized",
+            "phrase_count": phrase_count,
+            "sample_keys": sample_keys,
+        }
 
     @app.get("/", tags=["Root"])
     async def root():
