@@ -37,7 +37,8 @@ class LSTMTranslator:
     def __init__(self):
         self._models: dict = {}   # key → {"enc": model, "dec": model, "tok": dict}
         self._available: set = set()
-        self.last_load_error: str = ""   # populated if load_models() hits a top-level error
+        self.last_load_error: str = ""        # top-level import error
+        self.per_key_errors: dict = {}        # key → error string for each failed model
 
     def load_models(self) -> None:
         """Load all available direction models from disk."""
@@ -82,7 +83,10 @@ class LSTMTranslator:
                 logger.info(f"LSTM model loaded: {key}")
 
             except Exception as e:
-                logger.warning(f"Failed to load LSTM model for {key}: {e}")
+                import traceback
+                err_str = traceback.format_exc()
+                self.per_key_errors[key] = err_str
+                logger.warning(f"Failed to load LSTM model for {key}: {e}\n{err_str}")
 
         logger.info(f"LSTM translator ready — {loaded}/{len(DIRECTION_KEYS)} models loaded")
         if loaded == 0:

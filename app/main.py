@@ -179,6 +179,7 @@ def create_application() -> FastAPI:
             "available_directions": lstm.available_directions,
             "models_loaded": len(lstm.available_directions),
             "last_load_error": getattr(lstm, "last_load_error", ""),
+            "per_key_errors": getattr(lstm, "per_key_errors", {}),
         }
 
     @app.get("/", tags=["Root"])
