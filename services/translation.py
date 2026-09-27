@@ -529,9 +529,14 @@ class TranslationService:
             logger.info("Pipeline exit after Step 3 (fuzzy match, all tokens resolved)")
             return step3
 
-        # ── Step 4: LSTM — always runs if we get here ──────────────────────
-        logger.info("Pipeline reached Step 4 — running LSTM on original input")
-        return await self._step4_lstm(text, source_language, target_language)
+        # ── Step 4: LSTM — runs on best partial output so far ─────────────
+        # Use step 3's partially-translated text so matched tokens are preserved
+        # and LSTM only has to handle what's left unresolved.
+        best_so_far = step3["translated_text"]
+        logger.info(
+            f"Pipeline reached Step 4 — running LSTM on partial output: '{best_so_far}'"
+        )
+        return await self._step4_lstm(best_so_far, source_language, target_language)
 
     # -----------------------------------------------------------------------
     # Public translate()
