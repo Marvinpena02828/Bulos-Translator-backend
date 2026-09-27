@@ -616,28 +616,33 @@ class TranslationService:
                 "translation_method": "empty_input",
             }
 
-        # ── Route: en ↔ tl  →  Google Translate ──────────────────────────
+        # ── Route: en ↔ tl  →  Google Translate, with pipeline fallback ──
         if source_language in ("en", "tl") and target_language in ("en", "tl"):
+            google_result = None
             try:
-                result = await asyncio.wait_for(
+                google_result = await asyncio.wait_for(
                     self._translate_google(text, source_language, target_language),
-                    timeout=self.timeout,
+                    timeout=30,   # shorter timeout so fallback kicks in quickly
                 )
             except asyncio.TimeoutError:
-                logger.error(f"Google Translate timeout for: '{text}'")
-                result = {
-                    "translated_text":    text,
-                    "confidence":         0.0,
-                    "translation_method": "google_timeout",
+                logger.warning(f"Google Translate timed out for: '{text}' — falling back to pipeline")
+
+            # If Google succeeded, return its result immediately
+            if google_result and google_result.get("confidence", 0) > 0:
+                return {
+                    "original_text":      text,
+                    "translated_text":    google_result["translated_text"],
+                    "source_language":    source_language,
+                    "target_language":    target_language,
+                    "confidence":         google_result["confidence"],
+                    "translation_method": google_result.get("translation_method", "google_translate"),
                 }
-            return {
-                "original_text":      text,
-                "translated_text":    result["translated_text"],
-                "source_language":    source_language,
-                "target_language":    target_language,
-                "confidence":         result["confidence"],
-                "translation_method": result.get("translation_method", "unknown"),
-            }
+
+            # Google failed or was blocked — fall through to the internal pipeline
+            logger.info(
+                f"Google Translate unavailable for '{text}' "
+                f"({source_language}→{target_language}) — using internal pipeline"
+            )
 
         # ── Route: bul ↔ en / bul ↔ tl  →  internal pipeline ────────────
         try:
