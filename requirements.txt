@@ -12,7 +12,10 @@ email-validator==2.1.0
 # Security
 python-dotenv==1.0.0
 
-# HTTP & API
+# Translation Services
+deep-translator==1.11.4
+
+
 httpx==0.25.2
 requests==2.31.0
 
