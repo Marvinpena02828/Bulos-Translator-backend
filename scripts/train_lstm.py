@@ -332,7 +332,7 @@ def train_pair(src_lang: str, tgt_lang: str, pairs: list[tuple],
 
     # Save model weights + tokenisers
     output_dir.mkdir(parents=True, exist_ok=True)
-    model.save(output_dir / "model.keras")
+    model.save(str(output_dir / "model.h5"), save_format="h5")   # .h5 = stable across TF 2.x
 
     tokenizer_data = {
         "src_lang":   src_lang,
