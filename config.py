@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # Performance Settings
     max_concurrent_requests: int = Field(default=100)
-    translation_timeout_seconds: int = Field(default=30)
+    translation_timeout_seconds: int = Field(default=300)
 
     # CORS Settings
     cors_origins: list = Field(default=["*"])
