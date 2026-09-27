@@ -163,6 +163,24 @@ def create_application() -> FastAPI:
             "sample_keys": sample_keys,
         }
 
+    @app.get("/debug/lstm", tags=["Debug"])
+    async def debug_lstm():
+        """Shows LSTM model load status — use to diagnose translation failures on Render."""
+        from services.translation import _get_lstm
+        lstm = _get_lstm()
+        if lstm is None:
+            return {
+                "status": "unavailable",
+                "available_directions": [],
+                "note": "LSTM failed to load — check startup logs for the error.",
+            }
+        return {
+            "status": "loaded",
+            "available_directions": lstm.available_directions,
+            "models_loaded": len(lstm.available_directions),
+            "last_load_error": getattr(lstm, "last_load_error", ""),
+        }
+
     @app.get("/", tags=["Root"])
     async def root():
         return {"message": f"Welcome to {settings.app_name}",

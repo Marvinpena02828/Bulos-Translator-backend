@@ -37,14 +37,17 @@ class LSTMTranslator:
     def __init__(self):
         self._models: dict = {}   # key → {"enc": model, "dec": model, "tok": dict}
         self._available: set = set()
+        self.last_load_error: str = ""   # populated if load_models() hits a top-level error
 
     def load_models(self) -> None:
         """Load all available direction models from disk."""
         try:
             import tensorflow as tf  # noqa: F401 — ensure TF is importable
             from tensorflow import keras
-        except ImportError:
-            logger.warning("TensorFlow not installed — LSTM translator unavailable")
+        except ImportError as e:
+            msg = f"TensorFlow not installed — LSTM translator unavailable: {e}"
+            logger.warning(msg)
+            self.last_load_error = msg
             return
 
         loaded = 0
@@ -82,6 +85,11 @@ class LSTMTranslator:
                 logger.warning(f"Failed to load LSTM model for {key}: {e}")
 
         logger.info(f"LSTM translator ready — {loaded}/{len(DIRECTION_KEYS)} models loaded")
+        if loaded == 0:
+            logger.error(
+                "LSTM: 0 models loaded. Check that models/lstm/<dir>/model.keras "
+                "and tokenizer.json exist and that TensorFlow can read them."
+            )
 
     def is_available(self, src_lang: str, tgt_lang: str) -> bool:
         key = f"{src_lang}_{tgt_lang}"

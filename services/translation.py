@@ -453,10 +453,9 @@ class TranslationService:
         """
         lstm = _get_lstm()
         if lstm is None or not lstm.is_available(source_language, target_language):
-            logger.warning(
-                f"[Step 4] LSTM model not available for "
-                f"{source_language}→{target_language}. Returning original text."
-            )
+            reason = "LSTM singleton failed to load" if lstm is None else \
+                     f"model for {source_language}_{target_language} not in available set {lstm.available_directions}"
+            logger.warning(f"[Step 4] LSTM not available for {source_language}→{target_language}: {reason}. Returning original text.")
             return {
                 "translated_text":   text,
                 "confidence":        0.0,
