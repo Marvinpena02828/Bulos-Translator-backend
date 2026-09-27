@@ -15,16 +15,17 @@ python-dotenv==1.0.0
 # Translation Services
 deep-translator==1.11.4
 
-
+# HTTP & API
 httpx==0.25.2
 requests==2.31.0
 
 # Logging & Monitoring
 python-json-logger==2.0.7
 
-# ML / LSTM Inference (CPU-only, lighter than full tensorflow)
-tensorflow-cpu==2.15.0
-numpy==1.24.3
+# ML — OPUS-MT CTranslate2 (int8, CPU-only, ~75 MB per model)
+ctranslate2==4.4.0
+transformers==4.40.2
+sentencepiece==0.2.0
 
 # Utilities
 python-dateutil==2.8.2

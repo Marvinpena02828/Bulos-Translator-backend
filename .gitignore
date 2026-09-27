@@ -162,11 +162,19 @@ venv.bak/
 # Model files (too large for GitHub)
 models/*.pbmm
 models/*.scorer
-models/*.h5
 models/*.pkl
 models/translation/*.h5
 models/translation/*.pkl
 models/translation/*.keras
+
+# LSTM model files (replaced by OPUS-MT CTranslate2)
+models/lstm/
+services/lstm_translator.py
+
+# Unused model files
+seq2seq_translation_model.keras
+scripts/inspect_model.py
+scripts/model_config_dump.json
 
 # Training data / validation splits
 data/sentences_validation.json

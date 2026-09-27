@@ -26,7 +26,7 @@ _translation_service = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: initialise translation service and LSTM models. Shutdown: nothing to close."""
+    """Startup: initialise translation service and OPUS-MT models. Shutdown: nothing to close."""
     global _translation_service
 
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
@@ -46,23 +46,23 @@ async def lifespan(app: FastAPI):
         logger.error(f"Translation service initialization FAILED: {e}", exc_info=True)
         logger.warning("Translation endpoints may not be available")
 
-    # Warm-load LSTM models at startup so the first translation request
-    # doesn't pay the model-loading cost (~5-10s per model × 6 models).
+    # Warm-load OPUS-MT CTranslate2 models at startup so the first en↔tl
+    # request doesn't pay the cold-load cost.
     try:
-        logger.info("Loading LSTM translation models...")
-        from services.translation import _get_lstm
-        lstm = _get_lstm()
-        if lstm is not None:
+        logger.info("Loading OPUS-MT CTranslate2 models (en↔tl)...")
+        from services.translation import _get_opus
+        opus = _get_opus()
+        if opus is not None:
             logger.info(
-                f"LSTM models loaded — available directions: {lstm.available_directions}"
+                f"OPUS-MT models loaded — available directions: {opus.available_directions}"
             )
         else:
             logger.warning(
-                "LSTM models not available — translation will use dictionary/Google only"
+                "OPUS-MT models not available — en↔tl will rely on Google Translate"
             )
     except Exception as e:
-        logger.warning(f"LSTM model loading failed at startup: {e}")
-        logger.warning("Translation will continue without LSTM fallback")
+        logger.warning(f"OPUS-MT model loading failed at startup: {e}")
+        logger.warning("en↔tl translation will fall back to Google Translate only")
 
     logger.info("Application startup complete")
 
@@ -163,23 +163,22 @@ def create_application() -> FastAPI:
             "sample_keys": sample_keys,
         }
 
-    @app.get("/debug/lstm", tags=["Debug"])
-    async def debug_lstm():
-        """Shows LSTM model load status — use to diagnose translation failures on Render."""
-        from services.translation import _get_lstm
-        lstm = _get_lstm()
-        if lstm is None:
+    @app.get("/debug/opus", tags=["Debug"])
+    async def debug_opus():
+        """Shows OPUS-MT CTranslate2 model load status."""
+        from services.translation import _get_opus
+        opus = _get_opus()
+        if opus is None:
             return {
                 "status": "unavailable",
                 "available_directions": [],
-                "note": "LSTM failed to load — check startup logs for the error.",
+                "note": "OPUS-MT failed to load — check startup logs.",
             }
         return {
             "status": "loaded",
-            "available_directions": lstm.available_directions,
-            "models_loaded": len(lstm.available_directions),
-            "last_load_error": getattr(lstm, "last_load_error", ""),
-            "per_key_errors": getattr(lstm, "per_key_errors", {}),
+            "available_directions": opus.available_directions,
+            "models_loaded": len(opus.available_directions),
+            "per_key_errors": getattr(opus, "per_key_errors", {}),
         }
 
     @app.get("/", tags=["Root"])
