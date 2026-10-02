@@ -300,19 +300,27 @@ class TranslationService:
 
     async def _load_sentence_data(self) -> List[Dict[str, str]]:
         path = Path(__file__).parent.parent / "sentence.json"
+        logger.info(f"Looking for sentence.json at: {path} (exists={path.exists()})")
         if not path.exists():
-            logger.warning("sentence.json not found")
+            logger.warning("sentence.json NOT FOUND — sentence translation will not work!")
             return []
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
+        raw_entries = data.get("entries", [])
+        logger.info(f"sentence.json has {len(raw_entries)} raw entries")
         entries = []
-        for e in data.get("entries", []):
+        skipped = 0
+        for e in raw_entries:
             bul = (e.get("BULOS")    or "").strip()
             tl  = (e.get("FILIPINO") or "").strip()
             en  = (e.get("ENGLISH")  or "").strip()
             if bul and tl and en:
                 entries.append({"bul": bul, "tl": tl, "en": en})
-        logger.info(f"Loaded {len(entries)} sentence entries")
+            else:
+                skipped += 1
+        logger.info(f"Loaded {len(entries)} sentence entries (skipped {skipped} incomplete)")
+        if entries:
+            logger.info(f"First sentence: bul='{entries[0]['bul']}' → tl='{entries[0]['tl']}'")
         return entries
 
     # -----------------------------------------------------------------------
@@ -422,11 +430,14 @@ class TranslationService:
 
     # Step 1 — exact phrase match
     def _step1_phrase(self, text: str, lang_pair: str) -> Optional[Dict[str, Any]]:
-        t = self._lookup_phrase(self._normalize_text(text), lang_pair)
+        normalized = self._normalize_text(text)
+        logger.info(f"[Step 1] Looking up: '{normalized}' (pair={lang_pair})")
+        t = self._lookup_phrase(normalized, lang_pair)
         if t is not None:
-            logger.debug(f"[Step 1] '{text}' → '{t}'")
+            logger.info(f"[Step 1] ✅ MATCH: '{text}' → '{t}'")
             return {"translated_text": t, "confidence": 1.0,
                     "translation_method": "phrase_match"}
+        logger.info(f"[Step 1] ❌ No phrase match for '{normalized}'")
         return None
 
     # Step 2 — greedy word match
@@ -442,17 +453,22 @@ class TranslationService:
                     "proper_noun_positions": []}
 
         # Detect proper nouns BEFORE normalization
+        # SKIP when source is Bulos — Bulos words can be capitalized mid-sentence
+        src_lang = lang_pair.split("_to_")[0]
         proper_noun_positions = set()
-        for idx, raw_word in enumerate(words_raw):
-            # Strip trailing punctuation for detection
-            clean_word = re.sub(r'[,.!?;:]+$', '', raw_word)
-            if _is_proper_noun(clean_word, idx, len(words_raw)):
-                proper_noun_positions.add(idx)
-                logger.debug(f"[Step 2] Proper noun detected: '{raw_word}' at position {idx}")
+        if src_lang != "bul":
+            for idx, raw_word in enumerate(words_raw):
+                # Strip trailing punctuation for detection
+                clean_word = re.sub(r'[,.!?;:]+$', '', raw_word)
+                if _is_proper_noun(clean_word, idx, len(words_raw)):
+                    proper_noun_positions.add(idx)
+                    logger.debug(f"[Step 2] Proper noun detected: '{raw_word}' at position {idx}")
 
-        # Detect names from context patterns (works even with lowercase)
-        name_positions = _detect_name_positions(words_raw)
-        proper_noun_positions.update(name_positions)
+            # Detect names from context patterns (works even with lowercase)
+            name_positions = _detect_name_positions(words_raw)
+            proper_noun_positions.update(name_positions)
+        else:
+            logger.debug("[Step 2] Bulos source — skipping proper noun detection")
 
         parts, matched, unmatched = [], 0, []
         i = 0
